@@ -1,0 +1,1 @@
+UPDATE `settlement_cycle_status` SET `title` = 'Not Verified' WHERE `settlement_cycle_status`.`id` =1;

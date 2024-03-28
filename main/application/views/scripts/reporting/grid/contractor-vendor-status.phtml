@@ -1,0 +1,29 @@
+<table class="report-grid" topntail repeat_header="1">
+    <thead>
+    <tr class="report-title">
+        <th colspan="<?php echo count($this->gridData['fields']) ?>" class="text-center bottom-line"><?php echo $this->gridData['title'] ?></th>
+    </tr>
+    <tr class="info-row"><th colspan="<?php echo count($this->gridData['fields']) ?>"></th></tr>
+    <tr class="subtable">
+        <?php foreach($this->gridData['fields'] as $name => $title): ?>
+            <th class="field-name-<?php echo $name ?>"><?php echo $title ?></th>
+        <?php endforeach ?>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach($this->gridData[$this->gridData['key']] as $entity): ?>
+        <tr>
+            <?php foreach($this->gridData['fields'] as $key => $title): ?>
+                <?php $method = 'get' . Application_Model_Base_Object::uc_words($key, '') ?>
+                <?php if (isset($this->gridData['callbacks'][$key])): ?>
+                    <?php $callback = $this->gridData['callbacks'][$key]?>
+                    <td <?php echo $callback::getInstance()->renderWrapper($entity->getData(), $entity->$method(), $this, array('forReport' => true)) ?>><div><?php echo $callback::getInstance()->render($entity->getData(), $entity->$method(), $this, array('forReport' => true)) ?></div></td>
+                <?php else: ?>
+                    <td><?php echo $entity->$method() ?></td>
+                <?php endif ?>
+            <?php endforeach ?>
+        </tr>
+    <?php endforeach ?>
+    <tr class="info-row"><td colspan="<?php echo count($this->gridData['fields']) ?>"></td></tr>
+    </tbody>
+</table>

@@ -1,0 +1,1 @@
+ALTER TABLE  `reserve_account_contractor` ADD  `vendor_reserve_code` VARCHAR(255) CHARACTER SET 'utf8' COLLATE 'utf8_bin' NULL DEFAULT NULL;

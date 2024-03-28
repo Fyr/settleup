@@ -1,0 +1,3 @@
+ALTER TABLE powerunit
+ADD COLUMN created_at DATETIME DEFAULT now(),
+ADD COLUMN updated_at DATETIME DEFAULT now() ON UPDATE now();

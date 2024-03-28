@@ -1,0 +1,52 @@
+<?php $this->headTitle()->append($this->title); ?>
+
+<h3><?php echo ($this->form->id->getValue())? 'Edit' : 'Create' ?> <?php echo $this->title ?></h3>
+<br/>
+<div class="row">
+
+<form  action="<?php echo $this->escape($this->form->getAction()); ?>"
+       method="<?php echo $this->escape($this->form->getMethod()); ?>"
+       name="<?php echo $this->escape($this->form->getName()) ?>"
+       class="form-horizontal">
+    <div class="span6">
+    <fieldset>
+        <?php echo $this->form->id; ?>
+        <?php echo $this->form->change_cycle_rule_fields; ?>
+        <div class="row span6">
+            <div class="settlement-cycle-period-block">
+                <?php echo $this->form->cycle_period_id; ?>
+            </div>
+            <div id="change-cycle-rule" class="btn-link <?php if (!$this->form->id->getValue()) echo 'nondisplay' ?>">Change</div>
+        </div>
+        <div class="row span6">
+            <div id="change-cycle-rule-fields" class="<?php if ($this->form->id->getValue() && !$this->form->cycle_start_date->getErrors() && !$this->form->first_start_day->getErrors() && !$this->form->second_start_day->getErrors() && !$this->form->second_week_day->getErrors() && !$this->form->week_day->getErrors()) echo 'nondisplay' ?>">
+                <?php echo $this->form->cycle_start_date; ?>
+                <div id="semi-monthly-fields" class="<?php if (!in_array((int)$this->form->cycle_period_id->getValue(), array(Application_Model_Entity_System_CyclePeriod::SEMY_MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::MONTHLY_SEMI_MONTHLY_ID)) && !$this->form->first_start_day->getErrors() && !$this->form->second_start_day->getErrors()) echo 'nondisplay'?>">
+                    <?php echo $this->form->first_start_day ?>
+                    <div id="second_start_day_wrapper">
+                        <?php echo $this->form->second_start_day ?>
+                    </div>
+                </div>
+                <div id="week_day_wrapper" class="<?php if ($this->form->cycle_period_id->getValue() != Application_Model_Entity_System_CyclePeriod::WEEKLY_PERIOD_ID && !$this->form->week_day->getErrors()) echo 'nondisplay' ?>">
+                    <?php echo $this->form->week_day ?>
+                    <div id="second_week_day_wrapper">
+                        <?php echo $this->form->second_week_day ?>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <?php echo $this->form->payment_terms ?>
+            <?php echo $this->form->disbursement_terms ?>
+            <?php echo $this->form->last_closed_cycle ?>
+        </div>
+        <div class="form-actions">
+            <?php if (isset($this->form->submit)): ?>
+                <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+            <?php endif ?>
+            <a class="btn cancel btn-danger">Cancel</a>
+        </div>
+    </fieldset>
+        <div>
+</form>
+
+</div>

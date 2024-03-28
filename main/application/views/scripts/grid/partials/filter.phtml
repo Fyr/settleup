@@ -1,0 +1,34 @@
+<?php
+$header = $this->gridModel->getHeader();
+$filterValues = $this->gridModel->getData('filter');
+$datePickerFilters = $header['datePickerFilters'] ?? [];
+?>
+
+<?php foreach ($header['header'] as $key => $value) : ?>
+    <?php
+    $id = $key;
+    $class = 'filterInput';
+    if (in_array($key, $datePickerFilters)) {
+        if (isset($header['title'])) {
+            $id .= '_' . strtolower(str_replace(' ', '_', $header['title']));
+        }
+        $class .= ' date-picker';
+    }
+    ?>
+    <th>
+        <input id="<?php echo $id ?>" name="<?php echo $key ?>" type="text"
+               value="<?php echo $filterValues[$key] ?? '' ?>"
+               class="<?php echo $class ?>"
+            <?php echo isset($header['disabledFilter'][$key]) ? 'disabled="disabled"' : '' ?> >
+    </th>
+<?php endforeach ?>
+<?php if (isset($header['service'])): ?>
+    <th>
+        <div class=" btn btnFilter">
+            <span>Filter</span>
+        </div>
+        <div class=" btn btnClearFilter">
+            <span>Clear</span>
+        </div>
+    </th>
+<?php endif ?>

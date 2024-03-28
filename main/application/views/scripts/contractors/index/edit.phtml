@@ -1,0 +1,297 @@
+<?php $this->headTitle()->append($this->title); ?>
+<?php $user = Application_Model_Entity_Accounts_User::getCurrentUser(); ?>
+<?php $carrier = Application_Model_Entity_Accounts_User::getCurrentUser()->getSelectedCarrier(); ?>
+<?php $this->form->carrier_name->setValue($carrier->getName()) ?>
+
+<div class="preloader"><span>Processing</span> <img src="<?php echo $this->baseUrl() ?>/images/preloader.gif" alt="">
+</div>
+<form class="form-horizontal <?php echo $this->isEditPage ? 'hide-buttons' : ''; ?>"
+      action="<?php echo $this->escape($this->form->getAction()); ?>"
+      method="<?php echo $this->escape($this->form->getMethod()); ?>"
+      name="<?php echo $this->escape($this->form->getName()); ?>"
+      enctype="multipart/form-data">
+
+    <?php if ($this->isEditPage) { ?>
+        <h3><?php echo ($this->form->readonly) ? 'View' : 'Edit'; ?> Contractor</h3><br/>
+        <?php if (!$this->isVendor && !$this->isContractor) { ?>
+            <div class="left bank-reserve-acc-actions">
+                <?php echo $this->setButtons(['reserve-accounts-contractor'], $this->form->entity_id->getValue()); ?>
+                <?php if (!$this->contractor->hasDeductions() && !$this->contractor->hasTransactions() && !$this->contractor->hasPayments() && Application_Model_Entity_Accounts_User::getCurrentUser()->hasPermission(Application_Model_Entity_Entity_Permissions::CONTRACTOR_MANAGE)) { ?>
+                    <a class="btn btn-danger confirm pull-right" confirm-type="Deletion"
+                       data-confirm-description="Deleting this record is irreversible."
+                       href="<?php echo $this->url(['action' => 'delete', 'controller' => 'contractors_index', 'id' => $this->contractor->getId()], null, true); ?>"><i
+                                class="icon-trash icon-white"></i> Delete Contractor</a>
+                <?php } ?>
+                <?php if ($user->isCarrier() || $user->isAdmin()) { ?>
+                    <a class="btn btn-primary"
+                       href="<?php echo $this->url(['action' => 'list', 'controller' => 'payments_setup', 'entity' => $this->contractor->getEntityId()], null, true); ?>"><i
+                                class="icon-pencil icon-white"></i> Compensation Templates</a>
+                <?php } ?>
+                <?php if ($user->isCarrier() || $user->isAdmin() || $user->isVendor()) { ?>
+                    <a class="btn btn-primary"
+                       href="<?php echo $this->url(['action' => 'list', 'controller' => 'deductions_setup', 'entity' => $this->contractor->getEntityId()], null, true); ?>"><i
+                                class="icon-pencil icon-white"></i> Deduction Templates</a>
+                <?php } ?>
+            </div>
+        <?php } ?>
+    <?php } else { ?>
+        <?php if (!$this->isVendor || !$this->isContractor) { ?>
+            <h3>Create Contractor</h3><br/>
+            <div class="left bank-reserve-acc-actions">
+                <a class="btn btn-primary disabled" href="#"><i class="icon-pencil icon-white"></i> Reserve Accounts</a>
+            </div>
+        <?php } ?>
+    <?php } ?>
+    <div class="row">
+        <div class="span">
+            <?php echo $this->form->id; ?>
+            <?php echo $this->form->carrier_id; ?>
+            <?php echo $this->form->deduction_priority; ?>
+            <?php echo $this->form->status; ?>
+            <?php echo $this->form->code; ?>
+            <?php echo $this->form->entity_id; ?>
+            <?php echo $this->form->company_name; ?>
+            <?php echo $this->form->first_name; ?>
+            <?php echo $this->form->middle_initial; ?>
+            <?php echo $this->form->last_name; ?>
+            <?php echo $this->form->contact_person_type; ?>
+            <?php
+            $this->form->tax_id->setValue(substr($this->form->tax_id->getValue(), -4));
+            echo $this->form->tax_id; ?>
+            <?php
+            $this->form->social_security_id->setValue(substr($this->form->social_security_id->getValue(), -4));
+            echo $this->form->social_security_id; ?>
+            <?php echo $this->form->dob; ?>
+            <?php echo $this->form->driver_license; ?>
+            <?php echo $this->form->state_of_operation; ?>
+            <?php echo $this->form->expires; ?>
+            <?php echo $this->form->classification; ?>
+            <?php echo $this->form->division; ?>
+            <?php echo $this->form->department; ?>
+            <?php echo $this->form->route; ?>
+            <?php echo $this->form->status_title; ?>
+            <?php echo $this->form->gender_id; ?>
+            <?php echo $this->form->start_date; ?>
+            <?php echo $this->form->termination_date; ?>
+            <?php echo $this->form->rehire_date; ?>
+            <?php echo $this->form->bookkeeping_type_id; ?>
+            <?php echo $this->form->notes; ?>
+            <div class="control-group">
+                <label class="control-label optional" for="file">Attachments</label>
+                <div class="controls">
+                    <?php if (!$this->attachments) { ?>
+                        <div class="content">
+                            Files not found
+                        </div>
+                    <?php } else {
+                        foreach ($this->attachments as $attachment) { ?>
+                            <div class="file-content">
+                                <a class="attach" href="<?php echo $attachment->getSourceLink() ?>" target="_blank">
+                                    <i class="icon-file"></i>
+                                    <?php echo $attachment->getTitle() ?>
+                                </a>
+                                <a href="#" id="<?php echo $attachment->getId() ?>" class="remove-attach">
+                                    <i class="icon-remove"></i>
+                                </a>
+                            </div>
+                        <?php } ?>
+                    <?php } ?>
+                    <div class="attachment_list">
+                        <?php echo $this->form->file1 ?>
+                    </div>
+                    <input type="button" value="Add file" class="btn btn-success add-attach">
+                </div>
+            </div>
+        </div>
+        <div class="span">
+            <div class="contact">
+                <?php if ($this->form->getElement('id') && 'readonly' == $this->form->getElement('id')->getAttrib('readonly')) {
+                    $readonly = 'readonly="readonly"';
+                    $disabled = 'disabled';
+                } else {
+                    $readonly = '';
+                    $disabled = '';
+                }
+                ?>
+                <?php foreach ([Application_Model_Entity_Entity_Contact_Type::TYPE_ADDRESS, Application_Model_Entity_Entity_Contact_Type::TYPE_HOME_PHONE, Application_Model_Entity_Entity_Contact_Type::TYPE_FAX, Application_Model_Entity_Entity_Contact_Type::TYPE_EMAIL] as $contactType) { ?>
+                    <?php $subforms = $this->form->getContactSubForms($contactType); ?>
+                    <?php foreach ($subforms as $subform) { ?>
+                        <div class="subform row  <?php if (Application_Model_Entity_System_SystemValues::DELETED_STATUS == $subform->deleted->getValue()) {
+                            echo 'nondisplay';
+                        } ?>"
+                             data-contact-type="<?php echo $subform->contact_type->getValue(); ?>">
+                            <div class="span">
+                                <?php echo $subform->id; ?>
+                                <?php echo $subform->entity_id; ?>
+                                <?php echo $subform->user_id; ?>
+                                <?php echo $subform->contact_type; ?>
+                                <?php echo $subform->title; ?>
+                                <?php echo $subform->deleted; ?>
+                                <?php if (Application_Model_Entity_Entity_Contact_Type::TYPE_ADDRESS == $contactType) { ?>
+                                    <?php $addressData = json_decode($subform->value->getValue(), true); ?>
+                                    <?php $subform->value->setValue($addressData['address']); ?>
+                                    <?php $countryCode = $addressData['country_code'] ?? null; ?>
+                                    <div class="address-block">
+                                        <div class="hidden address-data-holder">
+                                            <?php echo $subform->value; ?>
+                                        </div>
+                                        <div class="address-fields">
+                                            <div class="control-group">
+                                                <label class="control-label optional" for="address">Address 1</label>
+                                                <div class="controls">
+                                                    <input <?php echo $readonly ?> type="text"
+                                                                                   value="<?php echo $addressData['address'] ?>"
+                                                                                   name="address">
+                                                </div>
+                                            </div>
+                                            <div class="control-group">
+                                                <label class="control-label optional" for="address2">Address 2</label>
+                                                <div class="controls">
+                                                    <input <?php echo $readonly ?> type="text"
+                                                                                   value="<?php echo (isset($addressData['address2'])) ? $addressData['address2'] : '' ?>"
+                                                                                   name="address2">
+                                                </div>
+                                            </div>
+                                            <div class="control-group">
+                                                <label class="control-label optional" for="city">City</label>
+                                                <div class="controls">
+                                                    <input <?php echo $readonly ?> type="text"
+                                                                                   value="<?php echo $addressData['city'] ?>"
+                                                                                   name="city">
+                                                </div>
+                                            </div>
+                                            <div class="control-group">
+                                                <label class="control-label optional" for="state">State</label>
+                                                <div class="controls">
+                                                    <input <?php echo $readonly ?> type="text"
+                                                                                   value="<?php echo $addressData['state'] ?>"
+                                                                                   name="state">
+                                                </div>
+                                            </div>
+                                            <?php $this->form->country_code->setValue($countryCode);
+                                            echo $this->form->country_code
+                                            ?>
+                                            <div class="control-group">
+                                                <label class="control-label optional" for="zip">Zip</label>
+                                                <div class="controls">
+                                                    <input <?php echo $readonly ?> type="text"
+                                                                                   value="<?php echo $addressData['zip'] ?>"
+                                                                                   name="zip">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php } else { ?>
+                                    <?php echo $subform->value; ?>
+                                <?php } ?>
+                            </div>
+                            <?php if (!$this->isVendor || !$this->isContractor) { ?>
+                                <div class="span">
+                                    <a href="#" class="btn btn-success add <?php echo $disabled; ?>">
+                                        <i class="icon-plus icon-white"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-danger delete <?php echo $disabled; ?>
+                                    <?php if ($this->form->getContactSubFormsCount($contactType) < 2) {
+                                        echo 'disabled';
+                                    } ?>">
+                                        <i class="icon-trash icon-white"></i>
+                                    </a>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    <?php } ?>
+                <?php } ?>
+            </div>
+
+            <?php echo $this->form->settlement_group_id; ?>
+            <?php echo $this->form->correspondence_method; ?>
+            <div class="control-group">
+                <label class="control-label optional" for="file">Power Units</label>
+                <?php if (!$this->powerunits) { ?>
+                    <div class="controls">
+                        <input type="text" value="" disabled name="powerunit">
+                    </div>
+                <?php } else {
+                    foreach ($this->powerunits as $powerunit) { ?>
+                        <div class="controls">
+                            <input type="text" value="<?php echo $powerunit->getCode() ?>" readonly="readonly" name="powerunit">
+                        </div>
+                    <?php } ?>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="span">
+            <div class="row" id="attached-carrier">
+                <div class=" span">
+                    <?php echo $this->form->deduction_priority_title; ?>
+                    <?php echo $this->form->carrier_name; ?>
+                    <?php echo $this->form->carrier_status_id; ?>
+                </div>
+            </div>
+            <?php $subforms = $this->form->getVendorSubForms(); ?>
+            <?php $singleVendor = ($this->form->getVendorSubFormsCount() < 2); ?>
+            <?php if (!$user->hasPermission(Application_Model_Entity_Entity_Permissions::CONTRACTOR_VENDOR_AUTH_MANAGE)) {
+                $disabled = 'disabled';
+            } ?>
+            <?php foreach ($subforms as $subform) { ?>
+                <div style="min-height: 100px"
+                     class="vendor-subform subform row <?php if (Application_Model_Entity_System_SystemValues::DELETED_STATUS == $subform->deleted->getValue()) {
+                         echo 'nondisplay';
+                     } ?>"
+                     data-contact-type="vendor">
+                    <div class="vendor-fields span">
+                        <?php echo $subform->id; ?>
+                        <?php echo $subform->contractor_id; ?>
+                        <?php echo $subform->user_id; ?>
+                        <?php echo $subform->deleted; ?>
+                        <?php if ($singleVendor && !$subform->vendor_id->getValue()) { ?>
+                            <?php $subform->vendor_id->setAttrib('readonly', 'readonly'); ?>
+                            <?php echo $subform->vendor_id; ?>
+                            <div class="vendor-status-wrapper nondisplay">
+                                <?php echo $subform->status; ?>
+                            </div>
+                        <?php } else { ?>
+                            <?php echo $subform->vendor_id; ?>
+                            <div class="vendor-status-wrapper">
+                                <?php echo $subform->status; ?>
+                            </div>
+                        <?php } ?>
+                        <?php echo $subform->vendor_acct; ?>
+                    </div>
+                    <?php if (!$this->isVendor || !$this->isContractor) { ?>
+                        <div class="span">
+                            <a href="#" class="btn btn-success add <?php echo $disabled; ?>"><i
+                                        class="icon-plus icon-white"></i></a>
+                            <a href="#"
+                               class="btn btn-danger delete <?php echo $disabled; ?> <?php if ($singleVendor && !$subform->vendor_id->getValue()) {
+                                   echo 'disabled';
+                               } ?>"><i
+                                        class="icon-trash icon-white"></i></a>
+                        </div>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+        </div>
+    </div>
+    <div class="form-actions">
+        <?php if (isset($this->form->submit)) { ?>
+            <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+        <?php } ?>
+        <a class="btn cancel btn-danger">Cancel</a>
+    </div>
+</form>
+
+<div id="confirm-modal" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="btn close" data-dismiss="modal">X</a>
+        <h3>Confirm <span class="confirm-type"></span> of Records</h3>
+    </div>
+    <div class="modal-body">
+        <p class="confirm-description"><span class="confirm-type"></span> these records is irreversible.</p>
+        <p>Do you want to proceed?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="" class="btn btn-danger" id="btn-confirm">Yes</a>
+        <a data-dismiss="modal" class="btn btn-success">No</a>
+    </div>
+</div>

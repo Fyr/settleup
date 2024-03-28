@@ -1,0 +1,14 @@
+<div id="<?php echo $this->id ?>" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="btn close" data-dismiss="modal">X</a>
+        <h3><?php echo $this->title ?></h3>
+    </div>
+    <div class="modal-body">
+        <p><?php echo $this->text ?></p>
+        <p>Do you want to proceed?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="" class="btn btn-danger <?php echo isset($this->reverseButtonsColor) ? 'btn-success' : 'btn-danger' ?> btn-ok" id="btn-confirm">Yes</a>
+        <a data-dismiss="modal" class="btn <?php echo isset($this->reverseButtonsColor) ? 'btn-danger' : 'btn-success'?>">No</a>
+    </div>
+</div>

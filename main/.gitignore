@@ -1,0 +1,15 @@
+application/configs/application.ini
+scripts/db/database.ini
+/vendor
+
+!.gitignore
+.idea
+.vscode
+codeception.yml
+.php-cs-fixer.cache
+/public/dist/
+/docker/var/
+/node_modules
+.phpunit.result.cache
+tests-coverage.txt
+public/tests-coverage.html

@@ -1,0 +1,1 @@
+ALTER TABLE  `settlement_cycle` ADD  `parent_cycle_id` INT( 10 ) NULL DEFAULT NULL , ADD INDEX (  `parent_cycle_id` );

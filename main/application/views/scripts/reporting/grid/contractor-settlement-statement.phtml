@@ -1,0 +1,357 @@
+<?php if(isset($this->gridData['contractors']) && count($this->gridData['contractors'])):?>
+<?php $currentCount = 0;?>
+<?php $reportsCount = count($this->gridData['contractors']) ?>
+<?php foreach($this->gridData['contractors'] as $contractor): ?>
+<?php
+        $contractorInfo = $contractor['info']['contractor'];
+        $contractorAddress = $contractorInfo->getAddress();
+        $carrierAddress = $contractor['info']['carrier']->getAddress();
+        $contractorAddressSecondLine = '';
+        $city = (isset($contractorAddress[0]['city']) && $contractorAddress[0]['city'] && $contractorAddress[0]['city'] != '-')? $contractorAddress[0]['city'] : '';
+        $state = (isset($contractorAddress[0]['state']) && $contractorAddress[0]['state'] && $contractorAddress[0]['state'] != '-')? $contractorAddress[0]['state'] : '';
+        $zip = (isset($contractorAddress[0]['zip']) && $contractorAddress[0]['zip'] && $contractorAddress[0]['zip'] != '-')? $contractorAddress[0]['zip'] : '';
+        $stateZip = $state . ' ' . $zip;
+        if ($stateZip == ' ') {
+            $contractorAddressSecondLine = $city;
+        } elseif (!$city) {
+            $contractorAddressSecondLine =  $stateZip;
+        } else {
+            $contractorAddressSecondLine =  $city . ', ' . $stateZip;
+        }
+
+?>
+<table class="report-grid" topntail repeat_header="1">
+    <thead>
+        <tr class="report-title">
+            <th colspan="6" class="text-center bottom-line">Contractor Settlement Statement</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="info-row">
+            <td class="info-title">Contractor:</td>
+            <td class="info-value"><?php echo $contractorInfo->getCompanyName() ?></td>
+            <td class="info-title" width="15%">Period Start Date:</td>
+            <td class="info-value"><?php echo $contractor['info']['cycle']->getCycleStartDate() ?></td>
+            <td class="info-title">Division:</td>
+            <td class="info-value"><?php echo $contractor['info']['carrier']->getName() ?></td>
+        </tr>
+        <tr class="info-row">
+            <td class="info-title">Contractor Number:</td>
+            <td class="info-value"><?php echo $contractorInfo->getId() ?></td>
+            <td class="info-title">Period Close Date:</td>
+            <td class="info-value"><?php echo $contractor['info']['cycle']->getCycleCloseDate() ?></td>
+            <td class="info-title">Settlement Group:</td>
+            <td class="info-value"><?php echo $contractorInfo->getSettlementGroup() ?></td>
+        </tr>
+        <tr class="info-row">
+            <td class="info-title">Contractor Code</td>
+            <td class="info-value"><?php echo $contractorInfo->getCode() ?></td>
+            <td class="info-title">Disbursement Date:</td>
+            <td class="info-value"><?php echo $contractor['info']['cycle']->getDisbursementDate() ?></td>
+            <td colspan="2"></td>
+        </tr>
+        <tr class="info-row"><td colspan="6"></td></tr>
+        <tr class="info-row"><td colspan="6"></td></tr>
+        <tr class="info-row"><td colspan="6"></td></tr>
+        <tr class="info-row"><td colspan="6"></td></tr>
+        <tr class="info-row"><td colspan="6"></td></tr>
+        <tr class="info-row"><td colspan="6"></td></tr>
+        <tr class="info-row"><td colspan="6"></td></tr>
+        <tr class="info-row"><td colspan="6"></td></tr>
+        <tr class="info-row">
+            <td></td>
+            <td colspan="5" class="text-left big-upper-case"><?php echo $contractorInfo->getFirstName() . ' ' . $contractorInfo->getLastName() ?></td>
+        </tr>
+        <tr class="info-row">
+            <td></td>
+            <td colspan="5" class="text-left big-upper-case"><?php echo $contractorInfo->getCompanyName() ?></td>
+        </tr>
+        <?php if (isset($contractorAddress[0]['address']) && $contractorAddress[0]['address'] && $contractorAddress[0]['address'] != '-'): ?>
+        <tr class="info-row">
+            <td></td>
+            <td colspan="5" class="text-left big-upper-case">
+                <?php echo $contractorAddress[0]['address']?>
+            </td>
+        </tr>
+        <?php endif ?>
+        <?php if (($address2 = ((isset($contractorAddress[0]['address2'])) ? $contractorAddress[0]['address2'] : false)) && $address2 != '-'): ?>
+        <tr class="info-row">
+            <td></td>
+            <td colspan="5" class="text-left big-upper-case address2">
+                <?php echo $address2 ?>
+            </td>
+        </tr>
+        <?php endif ?>
+        <?php if ($contractorAddressSecondLine): ?>
+        <tr class="info-row">
+            <td></td>
+            <td colspan="5" class="text-left big-upper-case">
+                <?php echo $contractorAddressSecondLine ?>
+            </td>
+        </tr>
+        <?php endif ?>
+    </tbody>
+    <tfoot><tr class="info-row"><td colspan="6"></td></tr></tfoot>
+</table>
+<!--   END Title     -->
+<table class="report-grid" topntail repeat_header="1">
+    <thead>
+        <tr class="report-title">
+            <th colspan="2" class="text-center bottom-line">Settlement</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="report-title">
+            <td colspan="2" class="text-left">Compensation.</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <!-- Compensations -->
+                <?php $cols = count($contractor['payment-grid']['fields']); ?>
+                <table class="inner">
+                    <tbody>
+                        <tr class="subtable">
+                        <?php foreach($contractor['payment-grid']['fields'] as $name => $options): ?>
+                            <td class="field-name-<?php echo $name ?>"><?php echo $options['title'] ?></td>
+                        <?php endforeach ?>
+                        </tr>
+                        <?php if (!count($contractor['payment-grid']['items'])): ?>
+                        <tr>
+                            <td colspan="<?php echo $cols?>" class="text-center"></td>
+                        </tr>
+                        <?php else: ?>
+                        <?php foreach($contractor['payment-grid']['items'] as $payment): ?>
+                        <tr>
+                            <?php foreach($contractor['payment-grid']['fields'] as $key => $options): ?>
+                            <?php
+                                $method = 'get' . Application_Model_Base_Object::uc_words($key, '');
+                                $wrap = '';
+                                $value = '';
+                                if (isset($contractor['payment-grid']['callbacks'][$key])) {
+                                    $callback = $contractor['payment-grid']['callbacks'][$key];
+                                    $wrap = $callback::getInstance()->renderWrapper($payment->getData(), $payment->$method(), $this);
+                                    $value = '<div>'.$callback::getInstance()->render($payment->getData(), $payment->$method(), $this).'</div>';
+                                } else {
+                                    $value = $payment->$method();
+                                }
+                            ?>
+                            <td <?php echo $wrap?>><?php echo $value ?></td>
+                            <?php endforeach ?>
+                        </tr>
+                        <?php endforeach ?>
+                        <?php endif ?>
+                        <tr>
+                            <td colspan="<?php echo ($cols - 3)?>" class="text-right bold-text">Total:</td>
+                            <td class="top-line num bold-text"><?php echo number_format($contractor['payment-grid']['total_quantity'], 1) ?></td>
+                            <td class="top-line bold-text"></td>
+                            <td class="top-line num bold-text"><?php echo '$' . number_format($contractor['payment-grid']['total_amount'], 2) ?></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- /Compensations -->
+            </td>
+        </tr>
+        <tr class="info-row">
+            <td colspan="2"></td>
+        </tr>
+        <tr class="report-title">
+            <td colspan="2" class="text-left">Deductions</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <!-- Deductions -->
+                <?php $cols = count($contractor['deduction-grid']['fields']); ?>
+                <table class="inner">
+                    <tbody>
+                        <tr class="subtable">
+                        <?php foreach($contractor['deduction-grid']['fields'] as $name => $options): ?>
+                            <td class="field-name-<?php echo $name ?>"><?php echo $options['title'] ?></td>
+                        <?php endforeach ?>
+                        </tr>
+                        <?php if(!count($contractor['deduction-grid']['items'])): ?>
+                        <tr>
+                            <td colspan="<?php echo $cols?>" class="text-center"></td>
+                        </tr>
+                        <?php else: ?>
+                        <?php foreach($contractor['deduction-grid']['items'] as $deduction): ?>
+                        <tr>
+                            <?php foreach($contractor['deduction-grid']['fields'] as $key => $title): ?>
+                            <?php
+                                $method = 'get' . Application_Model_Base_Object::uc_words($key, '');
+                                $wrap = '';
+                                $value = '';
+                                if (isset($contractor['deduction-grid']['callbacks'][$key])) {
+                                    $callback = $contractor['deduction-grid']['callbacks'][$key];
+                                    $wrap = $callback::getInstance()->renderWrapper($deduction->getData(), $deduction->$method(), $this);
+                                    $value = '<div>'.$callback::getInstance()->render($deduction->getData(), $deduction->$method(), $this).'</div>';
+                                } else {
+                                    $value = $deduction->$method();
+                                }
+                            ?>
+                            <td <?php echo $wrap?><?php echo $value ?></td>
+                            <?php endforeach ?>
+                        </tr>
+                        <?php endforeach ?>
+                        <?php endif ?>
+                        <tr>
+                            <td colspan="<?php echo ($cols - 2)?>" class="text-right bold-text">Total:</td>
+                            <td class="top-line num bold-text">-$<?php echo number_format($contractor['deduction-grid']['total_deduction_amount'], 2) ?></td>
+                            <td class="top-line num bold-text">$<?php echo number_format($contractor['deduction-grid']['total_deduction_balance'], 2) ?></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- /Deductions -->
+            </td>
+        </tr>
+        <tr class="info-row">
+            <td colspan="2"></td>
+        </tr>
+        <tr class="report-title">
+            <td colspan="2" class="text-left">Reserve Transactions.</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <!-- Reserve Transactions -->
+                <?php $cols = count($contractor['contribution-grid']['fields']); ?>
+                <table class="inner">
+                    <tbody>
+                        <tr class="subtable">
+                        <?php foreach($contractor['contribution-grid']['fields'] as $name => $options): ?>
+                            <td class="field-name-<?php echo $name ?>"><?php echo $options['title'] ?></td>
+                        <?php endforeach ?>
+                        </tr>
+                        <?php if(!count($contractor['contribution-grid']['items'])): ?>
+                        <tr>
+                            <td colspan="<?php echo $cols?>" class="text-center"></td>
+                        </tr>
+                        <?php else: ?>
+                        <?php foreach($contractor['contribution-grid']['items'] as $contribution): ?>
+                        <tr>
+                            <?php foreach($contractor['contribution-grid']['fields'] as $key => $options): ?>
+                            <?php
+                                $method = 'get' . Application_Model_Base_Object::uc_words($key, '');
+                                $wrap = '';
+                                $value = '';
+                                if (isset($contractor['contribution-grid']['callbacks'][$key])) {
+                                    $callback = $contractor['contribution-grid']['callbacks'][$key];
+                                    $wrap = $callback::getInstance()->renderWrapper($contribution->getData(), $contribution->$method(), $this);
+                                    $value = '<div>'.$callback::getInstance()->render($contribution->getData(), $contribution->$method(), $this).'</div>';
+                                } else {
+                                    $value = $contribution->$method();
+                                }
+                            ?>
+                                <td <?php echo $wrap ?>><?php echo $value ?></td>
+                            <?php endforeach ?>
+                        </tr>
+                        <?php endforeach ?>
+                        <?php endif ?>
+                        <tr>
+                            <td colspan="<?php echo ($cols - 1)?>" class="text-right bold-text">Total:</td>
+                            <td class="top-line num bold-text"><?php echo number_format($contractor['contribution-grid']['total_amount'], 2) ?></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- /Reserve Transactions -->
+            </td>
+        </tr>
+        <tr class="info-row">
+            <td colspan="2"></td>
+        </tr>
+        <tr class="info-row">
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td class="text-right bold-text">Total:</td>
+            <td class="top-line num bold-text"><?php echo number_format($contractor['contribution-grid']['total_amount'], 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right">Total Compensations:</td>
+            <td class="num">$<?php echo number_format($contractor['payment-grid']['total_amount'], 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right">Total Deductions:</td>
+            <td class="num">-$<?php echo number_format($contractor['deduction-grid']['total_deduction_amount'] * -1, 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right">Total Contributions:</td>
+            <td class="num">$<?php echo number_format($contractor['contribution-grid']['total_amount'] * -1, 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right">Total Withdrawals:</td>
+            <td class="num">$<?php echo number_format($contractor['account-balances-grid']['total_withdrawals'], 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right bold-text">Net Settlement:</td>
+            <td class="num top-line bold-text">$<?php echo number_format($contractor['settlement-grid']['total_net'], 2) ?></td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr class="info-row">
+            <td colspan="2" class="bottom-line"></td>
+        </tr>
+    </tfoot>
+</table>
+
+<!--  Reserve Account Balances  -->
+<table class="report-grid" topntail repeat_header="1">
+    <thead>
+        <tr class="report-title">
+            <th colspan="9" class="text-center">Reserve Account Balances</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="subtable">
+            <?php foreach($contractor['account-balances-grid']['fields'] as $name => $options): ?>
+                <td class="field-name-<?php echo $name ?>" style="width: <?php echo $options['size']?>"><?php echo $options['title'] ?></td>
+            <?php endforeach ?>
+        </tr>
+        <?php if(!count($contractor['account-balances-grid']['items'])): ?>
+            <tr><td colspan="8" class="text-center"></td></tr>
+        <?php else: ?>
+        <?php foreach($contractor['account-balances-grid']['items'] as $account): ?>
+            <tr>
+                <?php foreach($contractor['account-balances-grid']['fields'] as $key => $options): ?>
+                    <?php $method = 'get' . Application_Model_Base_Object::uc_words($key, '') ?>
+                    <?php if (isset($contractor['account-balances-grid']['callbacks'][$key])): ?>
+                        <?php $callback = $contractor['account-balances-grid']['callbacks'][$key]?>
+                        <td <?php echo $callback::getInstance()->renderWrapper($account->getData(), $account->$method(), $this) ?>><div><?php echo $callback::getInstance()->render($account->getData(), $account->$method(), $this) ?></div></td>
+                    <?php else: ?>
+                        <td><?php echo $account->$method() ?></td>
+                    <?php endif ?>
+                <?php endforeach ?>
+            </tr>
+        <?php endforeach ?>
+        <?php endif ?>
+        <tr>
+            <td colspan="4" class="text-right bold-text">Total:</td>
+            <td class="top-line num bold-text">$<?php echo number_format($contractor['account-balances-grid']['total_starting_balance'], 2) ?></td>
+            <td class="top-line num bold-text"><?php echo ($contractor['account-balances-grid']['total_adjustments'] >= 0)? '$' . number_format($contractor['account-balances-grid']['total_adjustments'], 2): '-$' . number_format(($contractor['account-balances-grid']['total_adjustments'] * -1), 2) ?></td>
+            <td class="top-line num bold-text">$<?php echo number_format($contractor['account-balances-grid']['total_withdrawals'], 2) ?></td>
+            <td class="top-line num bold-text">$<?php echo number_format($contractor['account-balances-grid']['total_contributions'], 2) ?></td>
+            <td class="top-line num bold-text">$<?php echo number_format($contractor['account-balances-grid']['total_ending_balance'], 2) ?></td>
+        </tr>
+    </tbody>
+    <tfoot><tr class="info-row"><td colspan="9"></td></tr></tfoot>
+</table>
+<?php if (isset($this->toPDF)): ?>
+    <?php if (++$currentCount != $reportsCount): ?>
+    <pagebreak /><div style="page-break-after: always"></div>
+    <?php endif ?>
+<?php else: ?>
+    <hr style="border-style: none none dashed;"/>
+<?php endif ?>
+<?php endforeach ?>
+<?php else: ?>
+<table class="report-grid" repeat_header="1">
+    <thead>
+        <tr class="report-title">
+            <th class="text-center">Contractor Settlement Statement</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="text-center">None!</td>
+        </tr>
+    </tbody>
+</table>
+<?php endif ?>

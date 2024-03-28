@@ -1,0 +1,117 @@
+<?php $visible = ($this->status != Application_Model_Entity_System_SettlementCycleStatus::VERIFIED_STATUS_ID)?>
+<?php $totals = $this->totals ?>
+<?php $search = $this->search ?>
+<table class="datagrid table table-bordered table-striped">
+    <thead>
+    <tr class="header">
+<th data-sort="division">Division<?php echo $this->sortUrl('division') ?>
+</th>
+<th data-sort="code">Contractor<br />Code
+    <?php echo $this->sortUrl('code') ?>
+</th>
+<th data-sort="settlement_group">Settlement<br />Group
+    <?php echo $this->sortUrl('settlement_group') ?>
+</th>
+        <th data-sort="company">Contractor<?php echo $this->sortUrl('company') ?></th>
+<th class="num" data-sort="payments_num">Compensations<br />Number<?php echo $this->sortUrl('payments_num') ?>
+</th>
+        <th class="num" data-sort="payments">Compensations<?php echo $this->sortUrl('payments') ?>
+        </th>
+        <th class="num" data-sort="deductions_amount">Deductions<?php echo $this->sortUrl('deductions_amount') ?></th>
+        <th class="num" data-sort="contribution">Contributions<?php echo $this->sortUrl('contribution') ?></th>
+        <th class="num" data-sort="withdrawal">Withdrawals<?php echo $this->sortUrl('withdrawal') ?></th>
+        <th class="num" data-sort="settlement">Settlement<br />Amount<?php echo $this->sortUrl('settlement') ?>
+        </th>
+        <th class="num" data-sort="deductions_balance">Balance Due<?php echo $this->sortUrl('deductions_balance') ?></th>
+        <th name="action">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="filter">
+<th></th>
+        <th><input id="code" type="text" value="<?php echo isset($search['code']) ? $search['code'] : '' ?>" class="settle filterInput"></th>
+        <th><input id="settlement_group" type="text" value="<?php echo isset($search['settlement_group']) ? $search['settlement_group'] : '' ?>"
+                class="settle filterInput"></th>
+        <th><input id="company" type="text" value="<?php echo isset($search['company']) ? $search['company'] : '' ?>" class="settle filterInput"></th>
+<th></th>
+        <th><input id="payments" type="text" value="<?php echo isset($search['payments']) ? $search['payments'] : '' ?>" class="num settle filterInput"></th>
+        <th><input id="deductions_amount" type="text" value="<?php echo isset($search['deductions_amount']) ? $search['deductions_amount'] : '' ?>" class="num settle filterInput"></th>
+        <th><input id="contribution" type="text" value="<?php echo isset($search['contribution']) ? $search['contribution'] : '' ?>" class="num settle filterInput"></th>
+        <th><input id="withdrawal" type="text" value="<?php echo isset($search['withdrawal']) ? $search['withdrawal'] : '' ?>" class="num settle filterInput"></th>
+        <th><input id="settlement" type="text" value="<?php echo isset($search['settlement']) ? $search['settlement'] : '' ?>" class="num settle filterInput"></th>
+        <th><input id="deductions_balance" type="text" value="<?php echo isset($search['deductions_balance']) ? $search['deductions_balance'] : '' ?>" class="num settle filterInput"></th>
+        <th>
+            <div class=" btn btnFilterContractors">
+                <span>Filter</span>
+            </div>
+            <div class=" btn btnClearFilterContractors">
+                <span>Clear</span>
+            </div>
+        </th>
+    </tr>
+ <tr class="totals">
+        <td colspan="5">Total</td>
+        <td class="num"><?php echo $this->money($totals['payments']) ?>
+    </td>
+    <td class="num">
+        <?php echo $this->money(-$totals['deductions_amount']) ?>
+    </td>
+    <td class="num">
+        <?php echo $visible ? $this->money(-$totals['contribution']) : '' ?>
+    </td>
+    <td class="num">
+        <?php echo $visible ? $this->money($totals['withdrawal']) : '' ?>
+    </td>
+    <td class="num">
+        <?php echo $visible ? $this->money($totals['settlement']) : '' ?>
+    </td>
+    <td class="num">
+        <?php echo $this->money($totals['deductions_balance']) ?>
+    </td>
+    <td></td>
+</tr>
+    <?php foreach ($this->contractors as  $contractor): ?>
+        <tr>
+<td><?php echo $contractor['division_name'] ?>
+    </td>
+    <td>
+        <?php echo $contractor['code'] ?>
+    </td>
+    <td>
+        <?php echo $contractor['settlement_group'] ?>
+    </td>
+    <td>
+        <?php echo $contractor['company'] ?>
+    </td>
+    <td>
+        <?php echo $contractor['payments_num'] ?>
+    </td>
+    <td class="num">
+        <?php echo $this->money($contractor['payments']) ?>
+    </td>
+    <td class="num">
+        <?php echo $this->money(-$contractor['deductions_amount']) ?>
+    </td>
+    <td class="num">
+        <?php echo $visible ? $this->money(-$contractor['contribution']) : '' ?>
+    </td>
+    <td class="num">
+        <?php echo $visible ? $this->money($contractor['withdrawal']) : '' ?>
+    </td>
+    <td class="num">
+        <?php echo $visible ? $this->money($contractor['settlement']) : '' ?>
+    </td>
+    <td class="num">
+        <?php echo $this->money($contractor['deductions_balance']) ?>
+    </td>
+    <td class="buttons">
+        <?php echo $this->setButtons(
+            array(
+                $this->status == Application_Model_Entity_System_SettlementCycleStatus::APPROVED_STATUS_ID ? 'settlementContractorView' : 'settlementContractor'
+            ),
+                    $contractor['id']) ?></td>
+        </tr>
+    <?php endforeach ?>
+   
+    </tbody>
+</table>

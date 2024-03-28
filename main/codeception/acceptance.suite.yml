@@ -1,0 +1,54 @@
+# Codeception Test Suite Configuration
+
+# suite for acceptance tests.
+# perform tests in browser using the WebDriver or PhpBrowser.
+# If you need both WebDriver and PHPBrowser tests - create a separate suite.
+
+class_name: AcceptanceTester
+#modules:
+#   enabled:
+#   - WebDriver
+#   config:
+#      WebDriver:
+#         url: 'http://qa.pfleet.com/'
+#         browser: phantomjs
+#         delay: 900
+#         wait: 3
+#         capabilities:
+#              unexpectedAlertBehaviour: 'accept'
+#              webStorageEnabled: true
+#
+#
+
+modules:
+    enabled:
+    - WebDriver
+    - AcceptanceHelper
+    config:
+        WebDriver:
+            url: 'http://qa.pfleet.com:8000'
+            browser: phantomjs
+            window_size: 'maximize'
+            delay: 900
+            wait: 1
+
+#capabilities:
+ #                unexpectedAlertBehaviour: 'accept'
+  #               webStorageEnabled: true
+
+
+
+#enabled:
+ #    - WebDriver
+  #  config:
+   #       WebDriver:
+    #         url: 'http://qa.pfleet.com'
+    #
+     #        browser: firefox
+      #       window_size: 1524x768
+       #      delay: 900
+        #     wait: 3
+
+         #    capabilities:
+          #       unexpectedAlertBehaviour: 'accept'
+           #      webStorageEnabled: true

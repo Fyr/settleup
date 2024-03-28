@@ -1,0 +1,57 @@
+<?php
+
+class Users_VisibilityController extends Zend_Controller_Action
+{
+    protected $_entity;
+    protected $_title = 'Edit list of visibility';
+
+    public function init()
+    {
+        $this->_entity = new
+            Application_Model_Entity_Accounts_UsersVisibility();
+    }
+
+    public function indexAction()
+    {
+        $entityId = (int)$this->getRequest()->getParam('userEntityId');
+        $this->_forward('list', null, null, array('userEntityId' => $entityId));
+    }
+
+    public function listAction()
+    {
+        $userEntityId = (int)$this->getRequest()->getParam('userEntityId');
+
+        $this->_entity->userEntityId = $userEntityId;
+        $this->view->title = $this->_title;
+        $this->view->entity = $this->_entity->getDefaultValues();
+
+        if ((bool)$this->getRequest()->getParam('isAjax')) {
+            $this->_helper->getHelper("layout")->disableLayout();
+        }
+    }
+
+    public function deleteAction()
+    {
+        $userEntityId = (int)$this->getRequest()->getParam('userEntityId');
+        $participantId = (int)$this->getRequest()->getParam('participantId');
+        $id = $this->_entity->getCollection()
+            ->addFilter('entity_id', $userEntityId)
+            ->addFilter('participant_id', $participantId)
+            ->getFirstItem()->getId();
+        $this->_entity->load($id);
+        $this->_entity->delete();
+        $this->_forward('list');
+    }
+
+    public function addselecteditemsAction()
+    {
+        if ($this->getRequest()->isXmlHttpRequest()) {
+            $selectedItemsId = $this->getRequest()->getParam('selectedItemsId');
+            $userEntityId = $this->getRequest()->getParam('userEntityId');
+            $this->_entity->addEntities($userEntityId, $selectedItemsId);
+            $this->_forward('list', null, null, array('isAjax'=>'true'));
+        } else {
+            $this->_helper->redirector('index');
+        }
+    }
+}

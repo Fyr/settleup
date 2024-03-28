@@ -1,0 +1,1 @@
+ALTER TABLE `carrier` ADD COLUMN `create_contractor_type` TINYINT(1) NOT NULL DEFAULT 1;

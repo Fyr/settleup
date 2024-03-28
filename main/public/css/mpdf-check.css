@@ -1,0 +1,189 @@
+@font-face {
+    font-family: Micr;
+    src: url(micrenc.ttf) format('truetype');
+}
+@page {
+    margin-top: 1.11cm;
+    margin-bottom: 0;
+    margin-left: 1cm;
+    margin-right: 0.6cm;
+}
+table {
+    border: none !important;
+}
+td, th {
+    font-family: Calibri, Tahoma, Geneva, sans-serif !important;
+}
+tbody td {
+    vertical-align: top;
+}
+h1 {
+    font-size: 14pt;
+    font-weight: bold;
+}
+th, tbody td {
+    padding: 0 1pt;
+    font-size: 9pt;
+    font-weight: normal;
+}
+tr.placeholder td {
+    height: 11pt;
+}
+th {
+    padding-bottom: 2.5pt;
+    padding-left: 0 !important;
+}
+td.big-font-size, th.big-font-size {
+    font-size: 11pt;
+}
+.escrow-account-big {
+    font-size: 14pt;
+}
+td.small-font-size {
+    font-size: 7.5pt;
+}
+h1, table {
+    margin: 0 !important;
+}
+h1.micr-code {
+    font-family: Micr;
+    font-size: 0.65cm;
+    line-height: 0.35cm;
+    margin: 0;
+    background-color: #ffffff;
+}
+.bordered {
+    border: 1pt solid #000000;
+}
+.escrow-account-grid-title-1,
+.escrow-account-grid-1,
+.escrow-account-grid-total-1,
+.escrow-account-grid-title-2,
+.escrow-account-grid-2,
+.escrow-account-grid-total-2,
+.escrow-address-grid,
+.pay-grid,
+.company-address-grid,
+.memo-grid {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    width: 19.99cm;
+}
+.micr-code-holder {
+    margin: 0 0 0 4.7cm;
+    padding: 0;
+    position: absolute;
+    left:0;
+}
+.escrow-account-grid-title-1 {
+    top: 1.09cm;
+}
+.escrow-account-grid-1 {
+    top: 2.65cm;
+}
+.escrow-account-grid-total-1 {
+    top: 8.9cm;
+}
+.escrow-account-grid-title-2 {
+    top: 11.32cm;
+}
+.escrow-account-grid-2 {
+    top: 12.39cm;
+}
+.escrow-account-grid-total-2 {
+    top: 17.69cm;
+}
+.escrow-address-grid {
+    top: 19.75cm;
+}
+.pay-grid {
+    top: 22.06cm;
+}
+.pay-label {
+    font-size: 12pt;
+}
+.company-address-grid {
+    top: 24.07cm;
+}
+.company-address-grid .td.big-font-size {
+    font-size: 12pt;
+}
+.memo-grid {
+    top: 25.57cm;
+}
+.micr-code-holder {
+    bottom: 0;
+    /*padding-top: 0.276cm;*/
+    padding-top: 0.47cm;
+    /*padding-bottom: 0.835cm;*/
+    padding-bottom: 0.85cm;
+    height: 0.35cm;
+    background-color: #ffffff;
+    /*background-color: #red;*/
+}
+h1.micr-code {
+    font-weight: normal;
+}
+.check-printing-file {
+    width: 19.99cm;
+    height: 26.83cm;
+    position: relative;
+}
+@media screen {
+    .page {
+        border: 1px dashed #000000;
+        padding-left: 1cm;
+        padding-right: 0.6cm;
+        padding-bottom: 0;
+        padding-top: 1.11cm;
+        margin: 0 auto;
+        width: 21.59cm;
+        box-sizing: border-box;
+    }
+    .check-printing-file {
+        width: 19.99cm;
+        height: 26.67cm;
+        position: relative;
+    }
+    .escrow-account-grid-title-1 {
+        top: 0 !important;
+    }
+    .escrow-account-grid-1 {
+        top: 1.5cm;
+    }
+    .escrow-account-grid-total-1 {
+        top: 7.84cm;
+    }
+    .escrow-account-grid-title-2 {
+        top: 10.32cm;
+    }
+    .escrow-account-grid-2 {
+        top: 11.34cm;
+    }
+    .escrow-account-grid-total-2 {
+        top: 16.64cm;
+    }
+    .escrow-address-grid {
+        top: 18.67cm;
+    }
+    .pay-grid {
+        top: 20.96cm;
+    }
+    .company-address-grid {
+        top: 22.6cm;
+    }
+    .memo-grid {
+        top: 24.11cm;
+    }
+    .company-address-grid table td:first-child {
+        width: 80px !important;
+    }
+    .micr-code-holder {
+        padding-top: 0.476cm;
+        height: 0.35cm;
+        margin: 0 0 0 3.7cm;
+        padding-bottom: 0.84cm;
+        /*background: initial;*/
+    }
+}

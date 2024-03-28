@@ -1,0 +1,45 @@
+<?php $this->headTitle()->append($this->title); ?>
+<h3><?php echo (!$this->form->id->getValue())?  'Create Disbursement' : 'Disbursement Details' ?></h3>
+<form action="<?php echo $this->escape($this->form->getAction()); ?>"
+      method="<?php echo $this->escape($this->form->getMethod()); ?>"
+      name="<?php echo $this->escape($this->form->getName()) ?>"
+      class="form-horizontal hide-buttons">
+    <fieldset>
+        <div class="hidden">
+            <?php echo $this->form->id ?>
+            <?php echo $this->form->reissue_parent_id ?>
+            <?php echo $this->form->entity_id ?>
+            <?php echo $this->form->settlement_cycle_id ?>
+            <?php echo $this->form->process_type ?>
+            <?php echo $this->form->reserve_account_id ?>
+            <?php echo $this->form->approved_by ?>
+            <?php echo $this->form->created_by ?>
+            <?php echo $this->form->status ?>
+        </div>
+        <div class="row">
+            <div class="span6">
+                <?php echo $this->form->entity_id_title ?>
+                <?php echo $this->form->process_type_title ?>
+                <?php echo $this->form->description ?>
+                <?php echo $this->form->settlement_cycle_id_title ?>
+            </div>
+            <div class="span6">
+                <?php echo $this->form->disbursement_code ?>
+                <?php echo $this->form->disbursement_date ?>
+                <?php echo $this->form->amount ?>
+                <?php echo $this->form->disbursement_reference ?>
+                <?php echo $this->form->approved_datetime ?>
+                <?php echo $this->form->approved_by_title ?>
+                <?php echo $this->form->created_datetime ?>
+                <?php echo $this->form->created_by_title ?>
+                <?php echo $this->form->status_title ?>
+            </div>
+        </div>
+        <div class="form-actions">
+            <?php if (isset($this->form->submit)): ?>
+                <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+            <?php endif ?>
+            <a class="btn cancel btn-danger">Cancel</a>
+        </div>
+    </fieldset>
+</form>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+    colors="true"
+    beStrictAboutChangesToGlobalState="true"
+    beStrictAboutOutputDuringTests="true"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+    testdox="true"
+>
+    <source>
+        <include>
+            <directory>./app</directory>
+        </include>
+    </source>
+
+    <testsuites>
+        <testsuite name="integration">
+            <directory>./tests/integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage
+        includeUncoveredFiles="false"
+        pathCoverage="false"
+        ignoreDeprecatedCodeUnits="true"
+        disableCodeCoverageIgnore="true"
+    >
+    </coverage>
+
+    <logging>
+        <testdoxHtml outputFile="/var/www/html/public/tests-coverage.html"/>
+        <testdoxText outputFile="tests-coverage.txt"/>
+    </logging>
+
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="CACHE_DRIVER" value="array"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+    </php>
+</phpunit>

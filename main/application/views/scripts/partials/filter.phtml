@@ -1,0 +1,102 @@
+<?php if ($this->cyclePeriods): ?>
+    <?php $filterType = $this->cycleFilterType ?>
+    <?php if (!$filterType) {
+        $filterType = Application_Model_Entity_Settlement_Cycle::CURRENT_FILTER_TYPE;
+    } ?>
+    <?php $cycleId = $this->cycle->getId() ?>
+                        <div class="datatable settlement-grid">
+                            <div class="row table-controll">
+                                <div class="filter-wrapper">
+                                    <div class="rowlimit_wrapper">
+                                        <label>
+                                            <span>Records:</span>
+                        <?php $options = array('25' => '25', '50' => '50', '100' => '100', '-1' => 'All') ?>
+                            <select id="rec_per_page" class="rowlimit_wrapper_select settlement-page">
+                                <?php foreach ($options as $value => $title): ?>
+                                                                        <option value="<?php echo $value ?>" <?php if ($this->limit == $value)
+                                                                               echo 'selected' ?>>
+                                                                            <?php echo $title ?>
+                                                                        </option>
+                                                                    <?php endforeach ?>
+                                                                    </select>
+                                                                    </label>
+                                                                    </div>
+                                                                    <?php $cyclePeriods = $this->cyclePeriods; ?>
+                                                                    <?php $filterYear = $this->cycleFilterYear; ?>
+                                                                    <?php if ($cyclePeriods): ?>
+                                                                        <div id="cycle-filter">
+                                                                            <span>Filter:</span>
+                                                                            <select id='settlement_cycle_filter_type' class='filterInput cycle-selector'>
+                                                                    <option value="<?php echo Application_Model_Entity_Settlement_Cycle::CURRENT_FILTER_TYPE ?>" <?php echo ($filterType == Application_Model_Entity_Settlement_Cycle::CURRENT_FILTER_TYPE) ? 'selected' : '' ?>>Open</option>
+                            <option value="<?php echo Application_Model_Entity_Settlement_Cycle::LAST_CLOSED_FILTER_TYPE ?>"
+                                <?php echo ($filterType == Application_Model_Entity_Settlement_Cycle::LAST_CLOSED_FILTER_TYPE) ? 'selected' : '' ?>>Closed</option>
+                            <option value="<?php echo Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE ?>" <?php echo ($filterType == Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE) ? 'selected' : '' ?>>Archive</option>
+                        </select>
+                        <div id="settlement_cycle_filter_year_wrapper"
+                            class="<?php if ($filterType != Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE)
+                                    echo "nondisplay" ?>">
+                                        <span>Year:</span>
+                                        <select id='settlement_cycle_filter_year' class='filterInput cycle-selector year'>
+                                        <?php if (!is_array($cyclePeriods[Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE])): ?>
+                                            <option value="none" selected="selected">None</option>
+                                        <?php else: ?>
+                                                                                                <?php foreach ($cyclePeriods[Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE] as $key => $value): ?>
+                                                                                                    <option value="<?php echo $key ?>" <?php echo ($key == $filterYear) ? "selected" : '' ?>>
+                                                                                                        <?php echo $key ?>
+                                                                                                    </option>
+                                                                                                <?php endforeach ?>
+                                                                                            <?php endif ?>
+                                                                                            </select>
+                                                                                            </div>
+                                                                                            <span>Period:</span>
+                                                                                            <select id='settlement_cycle_id_filter' class='filterInput cycle-selector period'>
+                                                                                                <?php if ($filterType != Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE): ?>
+                                                                                                    <?php $selectedPeriods = $cyclePeriods[$filterType] ?>
+                                                                                                <?php else: ?>
+                                                                                            <?php if ($filterYear == null)
+                                                                                                $filterYear = array_keys($cyclePeriods[$filterType])[0] ?>
+                                                                                            <?php $selectedPeriods = $cyclePeriods[$filterType][$filterYear] ?>
+                                                                                        <?php endif ?>
+                                                                                        <?php if (!is_array($selectedPeriods)): ?>
+                                                                                            <option value="0" selected="selected">not exist</option>
+                                                                                        <?php else: ?>
+                                                                                            <?php foreach ($selectedPeriods as $key => $value): ?>
+                                                                                                <option value="<?php echo $key ?>" <?php echo ($key == $cycleId) ? 'selected="selected"' : '' ?>>
+                                                                                                    <?php echo $value ?>
+                                                                                                </option>
+                                                                                            <?php endforeach ?>
+                                                                                        <?php endif ?>
+                                                                                        </select>
+                        <?php foreach ($cyclePeriods as $filterType => $cycles): ?>
+                                    <div class='periods hide filter-type-<?php echo $filterType ?>'>
+                                <?php foreach ($cycles as $periodCycleId => $period): ?>
+                                                <?php if (!is_array($period)): ?>
+                                        <option <?php if ($cycleId && $cycleId == $periodCycleId)
+                                            echo 'selected="selected"' ?>
+                                                label="<?php echo $period ?>" value="<?php echo $periodCycleId ?>">
+                                            <?php echo $period ?>
+                                        </option>
+                                    <?php else: ?>
+                                        <div class="periods-by-year" data-year="<?php echo $periodCycleId ?>">
+                                            <?php if (!is_array($period)): ?>
+                                                <option value="0" selected="selected">not exist</option>
+                                            <?php else: ?>
+                                                <?php foreach ($period as $archivedCycleId => $archivedPeriod): ?>
+                                                                                                                                                                                                <option <?php if ($cycleId && $cycleId == $archivedCycleId)
+                                                                                                                                                                                                    echo 'selected="selected"' ?>
+                                                                                                                                                                                                        label="<?php echo $archivedPeriod ?>" value="<?php echo $archivedCycleId ?>">
+                                                                                                                                                                                                    <?php echo $archivedPeriod ?>
+                                                                                                                                                                                                </option>
+                                                                                                                                                                                            <?php endforeach ?>
+                                                                                                                                                                                        <?php endif ?>
+                                                                                                                                                                                        </div>
+                                                                                                                                                                                    <?php endif ?>
+                                                                                                                                                                                <?php endforeach ?>
+                                                                                                                                                                                </div>
+                                                                                                                                                                            <?php endforeach; ?>
+                                                                                                                                                                            </div>
+                                                                                                                                                                        <?php endif ?>
+                                                                                                                                                                        </div>
+                                                                                                                                                                        </div>
+                                                                                                                                                                        </div>
+<?php endif ?>

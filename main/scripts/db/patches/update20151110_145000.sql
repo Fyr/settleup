@@ -1,0 +1,1 @@
+ALTER TABLE `reserve_account` ADD COLUMN `allow_negative` tinyint(1) NOT NULL DEFAULT 0 AFTER `current_balance`;

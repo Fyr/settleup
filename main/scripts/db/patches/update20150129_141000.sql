@@ -1,0 +1,1 @@
+UPDATE escrow_accounts SET bank_routing_number = '123456789' WHERE bank_routing_number NOT REGEXP  "^[0-9]{9}$" OR bank_routing_number IS NULL;

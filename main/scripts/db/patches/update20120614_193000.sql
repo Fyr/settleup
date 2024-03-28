@@ -1,0 +1,1 @@
+UPDATE `pfleet`.`payment_setup` SET `contractor_id` = NULL WHERE `payment_setup`.`id` =1;

@@ -1,0 +1,138 @@
+<?php $this->title = 'Deduction Details'; ?>
+<?php $this->headTitle()->append($this->title); ?>
+<h3>
+    <?php echo $this->title; ?>
+</h3>
+<div class="row">
+    <form class="form-horizontal hide-buttons" action="<?php echo $this->escape($this->form->getAction()) ?>"
+        method="<?php echo $this->escape($this->form->getMethod()) ?>"
+        name="<?php echo $this->escape($this->form->getName()) ?>">
+        <div class="span6">
+            <fieldset>
+                <?php echo $this->form->id ?>
+                <?php echo $this->form->deduction_code ?>
+                <?php echo $this->form->contractor_name ?>
+                <?php echo $this->form->contractor_code ?>
+                <?php echo $this->form->powerunit_code ?>
+                <?php echo $this->form->provider_id_title ?>
+                <?php echo $this->form->description ?>
+                <?php echo $this->form->department ?>
+                <?php echo $this->form->reference ?>
+                <?php echo $this->form->transaction_fee ?>
+                <?php echo $this->form->invoice_date ?>
+                <?php echo $this->form->disbursement_date ?>
+                <?php echo $this->form->settlement_cycle_id ?>
+                <div class="form-actions">
+                    <?php if ($this->cycle->getStatusId() < Application_Model_Entity_System_SettlementCycleStatus::APPROVED_STATUS_ID): ?>
+                        <?php if (isset($this->form->submit)): ?>
+                            <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+                        <?php endif ?>
+                        <a class="btn cancel btn-danger">Cancel</a>
+                    <?php endif ?>
+
+                </div>
+            </fieldset>
+        </div>
+        <div class="span6">
+            <fieldset>
+                <?php echo $this->form->amount ?>
+                <?php echo $this->form->balance ?>
+                <?php echo $this->form->adjusted_balance ?>
+                <?php echo $this->form->deduction_amount ?>
+                <?php echo $this->form->recurring ?>
+                <div id="change-cycle-rule-fields" class="<?php if (!$this->form->recurring->getValue() && !$this->form->first_start_day->getErrors() && !$this->form->second_start_day->getErrors() && !$this->form->week_day->getErrors())
+                    echo 'nondisplay' ?>">
+                    <?php echo $this->form->billing_cycle_id ?>
+                    <div id="semi-monthly-fields" class="<?php if (!in_array((int) $this->form->billing_cycle_id->getValue(), array(Application_Model_Entity_System_CyclePeriod::MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::SEMY_MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::MONTHLY_SEMI_MONTHLY_ID)) && !$this->form->first_start_day->getErrors() && !$this->form->second_start_day->getErrors())
+                        echo 'nondisplay' ?>">
+                        <?php echo $this->form->first_start_day ?>
+                        <div id="second_start_day_wrapper" class="<?php if (!in_array((int) $this->form->billing_cycle_id->getValue(), array(Application_Model_Entity_System_CyclePeriod::SEMY_MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::MONTHLY_SEMI_MONTHLY_ID)) && !$this->form->second_start_day->getErrors())
+                            echo 'nondisplay' ?>">
+                            <?php echo $this->form->second_start_day ?>
+                        </div>
+                    </div>
+                    <div id="week_offset_wrapper" class="<?php if (!$this->form->week_offset->getErrors())
+                        echo 'nondisplay' ?>">
+                        <?php echo $this->form->week_offset ?>
+                    </div>
+                    <div id="week_day_wrapper" class="<?php if (in_array((int) $this->form->billing_cycle_id->getValue(), array(Application_Model_Entity_System_CyclePeriod::MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::SEMY_MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::MONTHLY_SEMI_MONTHLY_ID)) && !$this->form->week_day->getErrors())
+                        echo 'nondisplay' ?>">
+                        <?php echo $this->form->week_day ?>
+                        <div id="second_week_day_wrapper" class="<?php if ($this->form->billing_cycle_id->getValue() != Application_Model_Entity_System_CyclePeriod::SEMI_WEEKLY_PERIOD_ID && !$this->form->second_week_day->getErrors())
+                            echo 'nondisplay' ?>">
+                            <?php echo $this->form->second_week_day ?>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <?php echo $this->form->eligible ?>
+                <?php echo $this->form->reserve_account_receiver_title ?>
+                <?php echo $this->form->reserve_account_receiver ?>
+                <?php echo $this->form->approved_datetime ?>
+                <?php echo $this->form->approved_by_name ?>
+                <?php echo $this->form->created_datetime ?>
+                <?php echo $this->form->created_by_name ?>
+                <?php echo $this->form->source_id ?>
+                <?php echo $this->form->provider_id ?>
+                <?php echo $this->form->contractor_id ?>
+                <?php echo $this->form->setup_id ?>
+                <?php echo $this->form->status ?>
+                <?php echo $this->form->status_name ?>
+                <!-- <?php echo $this->form->priority ?> -->
+            </fieldset>
+        </div>
+    </form>
+</div>
+<script>
+    $(function () {        
+        $("#invoice_date:not(:disabled, [readonly])").datepicker({dateFormat: 'mm/dd/yy', changeYear: true});
+        $("#invoice_due_date:not(:disabled, [readonly])").datepicker({dateFormat: 'mm/dd/yy', changeYear: true});
+
+        if ($('#level_id').val() === "<?php echo Application_Model_Entity_System_SetupLevels::MASTER_LEVEL_ID ?>") {
+            $('#contractor_id_title').val('null').parent().parent().css('display', 'none');
+        }
+
+        $('#level_id option').bind('click', function () {
+            return changeLavel();
+        });
+
+        function changeLavel() {
+            if ($('#level_id').val() === "<?php echo Application_Model_Entity_System_SetupLevels::MASTER_LEVEL_ID ?>") {
+                $('#contractor_id_title').parent().parent().hide('blind', null, 1000, callback());
+            } else {
+
+                if ($('#contractor_id_title').val() === "null") {
+                    $('#contractor_id_title').val('').parent().parent().show('blind');
+                }
+            }
+        }
+
+        function callback() {
+            setTimeout(function () {
+                $('#contractor_id_title').val('null');
+            }, 1000);
+        }
+
+        /*-------Hides or shows reserve account field in accordance with a marked eligible option-------------------------*/
+
+        if ($('#eligible').attr('checked') == null) {
+            $('#reserve_account_receiver_title').parent().parent().css('display', 'none');
+        }
+
+        $('#eligible:not([readonly])').bind('click', function () {
+            return changeEligible();
+        });
+
+        function changeEligible() {
+            if ($('#eligible').attr('checked') == 'checked') {
+                $('#reserve_account_receiver_title').parent().parent().show('blind');
+            } else {
+                $('#reserve_account_receiver_title').parent().parent().hide('blind');
+            }
+        }
+    });
+</script>
+
+<?php foreach ($this->popupSetup as $setings): ?>
+    <?php echo $this->popupGrid($setings); ?>
+<?php endforeach; ?>

@@ -1,0 +1,14 @@
+<?php
+
+$data = array(
+    "text" => $this->grid()->renderBody($this->gridModel),
+    "pager" => $this->grid()->renderPager($this->gridModel),
+);
+if (isset($this->gridModel->getHeader()['buttons'])) {
+    $data['buttons'] = $this->grid()->renderHeaderButtons($this->gridModel->getHeader()['buttons'], $this->gridModel);
+}
+if ($this->gridModel->getCycle()) {
+    $data['cycle'] = $this->grid()->renderCycleGrid($this->gridModel);
+}
+echo json_encode($data);
+

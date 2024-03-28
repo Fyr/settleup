@@ -1,0 +1,1 @@
+INSERT INTO  `vendor_status` (`id` ,`title` ) VALUES ('0', 'Approved'), ('1', 'Not Approved'), ('2', 'Rescinded');

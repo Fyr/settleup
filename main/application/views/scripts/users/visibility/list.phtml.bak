@@ -1,0 +1,18 @@
+<?php $this->headTitle()->append($this->title); ?>
+<h3><?php echo $this->title; ?></h3>
+
+<?php echo $this->partial(
+    'users/visibility/listGrid.phtml',
+    array(
+        'entities'  => $this->entity->entities,
+        'userEntityId'    => $this->entity->userEntityId,
+    )
+); ?>
+<?php echo $this->partial(
+    'users/visibility/popupGrid.phtml',
+    array(
+        'gridTitle' => 'Select entities',
+        'grids'  => $this->entity->grids,
+        'userEntityId' => $this->entity->userEntityId,
+    )
+); ?>

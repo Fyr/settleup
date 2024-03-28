@@ -1,0 +1,14 @@
+<?php if ($this->errors): ?>
+<?php $message = implode('<br><br>',$this->errors) ?>
+    <script>
+        $(function() {
+            $('.buttons .btn[confirm-type="Approving"]').popover({
+                title: "Warning!",
+                content: "<?php echo $message ?>",
+                placement: 'left'
+            }).click(function (e) {
+                e.preventDefault();
+            });
+        });
+    </script>
+<?php endif ?>

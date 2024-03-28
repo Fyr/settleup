@@ -1,0 +1,94 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  - group: settlement
+
+# pool:
+#   vmImage: 'ubuntu-latest'
+
+pool:
+  name: SettleUP
+
+stages:
+- stage: 'AuthPHPStaticAnalysis'
+  displayName: 'Auth PHP Static Analysis'
+  jobs:
+  - job: 'AuthPHPStaticAnalysis'
+    workspace:
+      clean: all
+    displayName: 'Auth PHP Static Analysis'
+
+    steps:
+      - bash: |
+          export REGISTRY_PASSWORD=$(REGISTRY_PASSWORD)
+          docker login -u commonSettlementAcr -p $REGISTRY_PASSWORD commonsettlementacr.azurecr.io
+          docker buildx build --progress=plain --cache-from commonsettlementacr.azurecr.io/main/settleup-auth-php:latest --tag settleup-auth-php --file docker/azure/php/Dockerfile-php-auth-qa .
+        displayName: 'Build Auth PHP Docker Image'
+
+      - bash: |
+          docker run -i --rm --entrypoint /bin/bash settleup-auth-php -c "composer phpcs"
+          code=$(echo "$?")
+          echo $code
+          if [[ $code == 0 ]]; then
+            echo "There is no errors"
+          else
+            echo "##vso[task.logissue type=error]phpcs contains errors."
+            exit 1
+          fi
+        displayName: 'composer phpcs'
+
+      - bash: |
+          docker run -i --rm --entrypoint /bin/bash settleup-auth-php -c "composer phpstan"
+          code=$(echo "$?")
+          echo $code
+          if [[ $code == 0 ]]; then
+            echo "There is no errors"
+          else
+            echo "##vso[task.logissue type=error]phpstan contains errors."
+            exit 1
+          fi
+        displayName: 'composer phpstan'
+
+      - bash: |
+          docker run -i --rm --entrypoint /bin/bash settleup-auth-php -c "composer rector"
+          code=$(echo "$?")
+          echo $code
+          if [[ $code == 0 ]]; then
+            echo "There is no errors"
+          else
+            echo "##vso[task.logissue type=error]rector contains errors."
+            exit 1
+          fi
+        displayName: 'composer rector'
+
+
+      - task: AzureKeyVault@2
+        inputs:
+          azureSubscription: 'nikasc'
+          KeyVaultName: 'settlementdevkv'
+          SecretsFilter: '*'
+          RunAsPreJob: false
+        displayName: Get Secrets from Keyvault for phpunit tests
+
+#          docker run -i --rm --entrypoint /bin/bash settleup-auth-php -c "composer tests-integration"
+      - bash: |
+          docker run -d --name auth --rm \
+          --env AUTH_DB_HOST='$(settlement-mysql-auth-db-name)' \
+          --env AUTH_DB_DATABASE='settlement_auth' \
+          --env AUTH_DB_USERNAME='$(settlement-mysql-admin-login)' \
+          --env AUTH_DB_PASSWORD='$(settlement-auth-mysql-pass)' \
+          --entrypoint /bin/bash settleup-auth-php -c "/var/www/html/docker/azure/php/entrypoint.sh && cat /var/www/html/.env"
+          docker exec -i auth composer tests-integration
+          code=$(echo "$?")
+          echo $code
+          docker stop auth
+          if [[ $code == 0 ]]; then
+            echo "There is no errors"
+          else
+            echo "##vso[task.logissue type=error]phpunit contains errors."
+            exit 1
+          fi
+        displayName: 'composer phpunit'

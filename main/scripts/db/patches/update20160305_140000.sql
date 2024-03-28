@@ -1,0 +1,1 @@
+UPDATE payments SET amount = 0 WHERE rate = 0 and amount is NULL;

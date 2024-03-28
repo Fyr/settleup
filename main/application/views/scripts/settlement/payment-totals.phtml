@@ -1,0 +1,9 @@
+<?php $data = $this->contractor ?>
+<tr class="totals">
+    <?php if (Application_Model_Entity_Accounts_User::getCurrentUser()->getCurrentCycle()->getStatusId() != Application_Model_Entity_System_SettlementCycleStatus::APPROVED_STATUS_ID) : ?>
+        <td></td>
+    <?php endif ?>
+    <td colspan="18">Total</td>
+    <td class="num"><?php echo $this->money($data['payments']) ?></td>
+    <td></td>
+</tr>

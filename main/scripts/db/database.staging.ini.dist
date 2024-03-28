@@ -1,0 +1,8 @@
+[database]
+db_user=pfleet
+db_pass=D@t@b@s3Rulz
+db_host=127.0.0.1
+db_name=pfleet_staging
+db_port=3306
+patches=patches/
+procedures=procedures.sql

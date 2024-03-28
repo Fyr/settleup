@@ -1,0 +1,1 @@
+INSERT INTO `file_storage_type` VALUES (7,'Powerunits');

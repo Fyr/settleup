@@ -1,0 +1,1 @@
+ALTER TABLE `reserve_transaction`CHANGE COLUMN `created_by` `created_by` INT(10) UNSIGNED NULL DEFAULT NULL;

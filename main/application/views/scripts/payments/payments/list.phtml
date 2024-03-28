@@ -1,0 +1,19 @@
+<?php $title = 'Compensations' ?>
+<?php $this->headTitle()->append($title) ?>
+<h3><?php echo $title ?></h3>
+<?php echo $this->grid() ?>
+<?php if (isset($this->setupGrid) && isset($this->powerunitGrid)):?>
+<?php echo $this->partial(
+    'popup_setup_powerunit.phtml',
+    [
+        'gridTitle' => 'Select Compensation Templates and Power Unit',
+        'tabTitle' => 'Compensation',
+        'cyclePeriods' => $this->activeCyclePeriods,
+        'setupGrid' => $this->setupGrid,
+        'powerunitGrid' => $this->powerunitGrid,
+        'selector' => 'payment-setup',
+        'showInvoiceDateSelector' => true,
+        'cycle' => $this->cycle,
+    ]
+) ?>
+<?php endif ?>

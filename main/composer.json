@@ -1,0 +1,53 @@
+{
+  "require": {
+    "php": "^8.1",
+    "ext-curl": "*",
+    "ext-mbstring": "*",
+    "ext-pdo": "*",
+    "ext-mcrypt": "*",
+    "ext-zip": "*",
+    "ext-xml": "*",
+    "ext-intl": "*",
+    "ext-bz2": "*",
+    "guzzlehttp/guzzle": "^6.5.8",
+    "h4cc/wkhtmltopdf-amd64": "^0.12.4",
+    "knplabs/knp-snappy": "^1.4.2",
+    "phpoffice/phpspreadsheet": "^1.29.0",
+    "shardj/zf1-future": "^1.23.5",
+    "microsoft/azure-storage-blob": "^1.5"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.46.0",
+    "phpstan/phpstan": "^1.10.52",
+    "rector/rector": "^0.18.13",
+    "phpunit/phpunit": "^10",
+    "thenetworg/oauth2-azure": "^2.2",
+    "microsoft/application-insights": "^0.4.5"
+  },
+  "autoload": {
+    "classmap": [
+      "library/My"
+    ],
+    "psr-4": {
+      "Migrate\\": "src/Migrate/"
+    },
+    "files": [
+      "application/helpers/helpers.php"
+    ]
+  },
+  "scripts": {
+    "phpcs": "./vendor/bin/php-cs-fixer fix --config=tests/phpcs/config.php --dry-run",
+    "phpcs-fix": "./vendor/bin/php-cs-fixer fix --config=tests/phpcs/config.php",
+    "phpstan": "./vendor/bin/phpstan analyse -c tests/phpstan/config.neon --memory-limit=-1",
+    "rector": "./vendor/bin/rector process --config tests/rector/config.php --dry-run",
+    "rector-fix": "./vendor/bin/rector process --config tests/rector/config.php",
+    "tests": "./vendor/bin/phpunit --bootstrap ./tests/unit/bootstrap.php --testsuite unit",
+    "tests-integration": "./vendor/bin/phpunit --bootstrap ./tests/integration/bootstrap.php --testsuite integration",
+    "tests-coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --bootstrap tests/bootstrap.php tests --coverage-text"
+  },
+  "config": {
+    "allow-plugins": {
+      "simplesamlphp/composer-module-installer": true
+    }
+  }
+}

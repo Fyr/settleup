@@ -1,0 +1,76 @@
+<?php
+$this->headMeta()->appendHttpEquiv('Content-Type', 'text/html;charset=utf-8');
+?>
+<?php echo $this->doctype(); ?>
+<?php $this->headLink(array('rel' => 'shortcut icon','href' => $this->baseUrl().'/images/logo.png'),'PREPEND');?>
+<?php foreach ($this->reportingModel->getCss() as $css): ?>
+<?php $this->headLink()->prependStylesheet($this->baseUrl().$css); ?>
+<?php endforeach ?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <?php echo $this->headMeta();?>
+    <?php echo $this->headTitle('P-Fleet - ' . $this->title . ' Report');?>
+    <?php echo $this->headLink();?>
+    <?php echo $this->headScript();?>
+    <?php if (!isset($this->toPDF)): ?>
+    <style>
+        table {
+            border: 1px solid #000000;
+            background-image: none;
+            font-size: 10.5pt;
+            margin-bottom: 10pt;
+        }
+        table.inner {
+            border: none;
+        }
+        .top-line {
+            border-top: 1px solid #000000;
+            background-image: none;
+        }
+        .bottom-double-line {
+            border-bottom: 3px double #000000;
+            background-image: none;
+        }
+        .bottom-line {
+            border-bottom: 1px solid #000000;
+            background-image: none;
+        }
+        tr.subtable td, tr.subtable th {
+            border-top: 1px solid #000000;
+            border-bottom: 1px solid #000000;
+            background-image: none;
+        }
+        td, th {
+            height: 0.5cm;
+            padding: 1px 5pt;
+        }
+        tr.report-title th, tr.report-title td {
+            font-size: 12pt;
+            height: 45px;
+        }
+        tr.report-title th.bottom-line {
+            background-image: none;
+            background-color: rgb(242, 242, 242);
+        }
+        td.big-upper-case {
+            font-size: 12pt;
+        }
+
+        pre {
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            background-image: none;
+        }
+        .bordered {
+            border: 1px solid #000000;
+            background-image: none;
+        }
+        tr.fake-table-border div {
+            background-image: none;
+        }
+    </style>
+    <?php endif ?>
+</head>
+<body>
+    <?php echo $this->render($this->gridTemplate) ?>
+</body>
+</html>

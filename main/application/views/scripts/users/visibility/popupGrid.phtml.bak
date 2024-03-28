@@ -1,0 +1,111 @@
+<div id="popup_checkbox_modal" class="modal hide fade in" >
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">X</button>
+        <h3><?php echo $this->gridTitle; ?></h3>
+    </div>
+    <div class="modal-body">
+        <ul class="nav nav-tabs" id="popup_checkbox_tab">
+            <?php foreach($this->grids as $grid ): ?>
+            <li><a href="#<?php echo $grid['tabTitle']; ?>"><?php echo $grid['tabTitle']; ?></a></li>
+            <?php endforeach; ?>
+        </ul>
+            <div class="tab-content">
+        <?php foreach($this->grids as $grid ): ?>
+                <div class="tab-pane" id="<?php echo $grid['tabTitle']; ?>">
+        <table  class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <th>+</th>
+                <?php $keys = array_keys($grid['columns']);?>
+                <?php $values = array_values($grid['columns']);?>
+                <?php foreach($values as $key): ?>
+                <th><?php echo $key ?></th>
+                <?php endforeach;?>
+            </tr>
+            </thead>
+            <tbody>
+                <?php if( count( $grid['items'] ) ):?>
+                    <?php foreach($grid['items'] as  $item):?>
+                    <?php $value = $item->getData(); ?>
+                <tr>
+                    <td class="checkboxField">
+                        <?php echo $this->formCheckbox('id' . $value[$grid['idField']]); ?>
+                    </td>
+                    <?php foreach($keys as $ke):?>
+                            <?php $isMoneyFormat = false; ?>
+                            <?php $class = ''; ?>
+                            <?php if (in_array($ke, array('amount', 'rate', 'balance', 'adjusted_balance', 'initial_balance', 'current_balance', 'contribution_amount', 'min_balance', 'max_withdrawal_amount'))): ?>
+                                <?php $isMoneyFormat = true ?>
+                            <?php endif ?>
+                            <?php if (preg_match('/^[.]?[\d]+/i', $value[$ke]) || $isMoneyFormat): ?>
+                                <?php $class .= ' num' ?>
+                            <?php endif ?>
+                            <td class="<?php echo $class ?>">
+                                <?php if (!$value[$ke]): ?>
+                                -
+                                <?php else: ?>
+                                <?php if ($isMoneyFormat): ?>
+                                    <?php echo money_format('$%i', $value[$ke]); ?>
+                                <?php else: ?>
+                                    <?php if (preg_match(Application_Model_Entity_System_CyclePeriod::DATE_OR_DATETIME_PATTERN, $value[$ke])): ?>
+                                        <?php $datePart = explode('-', $value[$ke]); ?>
+                                        <?php if (strlen($datePart[2]) > 2): ?>
+                                            <?php $datePart[2] = substr($datePart[2], 0, 2) ?>
+                                        <?php endif ?>
+                                        <?php $value[$ke] = $datePart[1] . '-' . $datePart[2] . '-' . $datePart[0]; ?>
+                                    <?php endif ?>
+                                    <?php echo $value[$ke]; ?>
+                                <?php endif; ?>
+                            <?php endif ?>
+                            </td>
+
+                    <?php endforeach; ?>
+                </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                <tr>
+                    <td style="text-align: center" colspan="<?php echo count($grid['columns']) + 1 ?>">Nothing to show</td>
+                </tr>
+                 <?php endif;?>
+            </tbody>
+        </table>
+                </div>
+        <?php endforeach; ?>
+            </div>
+    </div>
+    <div class="modal-footer">
+        <a id="addSelectedItems" class="btn btn-mini btn-success" data-dismiss="modal"><i class="icon-ok icon-white"></i> Add to my list</a>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#addSelectedItems').bind('click',function(){
+            var selectedItemsId = [];
+            var selectedItems = $(".checkboxField input:checkbox:checked");
+            if (selectedItems.length == 0){
+                return;
+            }
+            for (var index=0; index<selectedItems.length; index++)
+            {
+                selectedItemsId.push((selectedItems[index].id).replace('id',''));
+            }
+            $.ajax({
+                url:'<?php echo $this->url(array('action' =>'addselecteditems')); ?>',
+                data:{ 'selectedItemsId': selectedItemsId, 'userEntityId': <?php echo $this->userEntityId ?> },
+                type: 'POST',
+                success: function(grid){
+                    $('.content').html(grid);
+                }
+            })
+        });
+
+        $('#popup_checkbox_tab li:first').toggleClass('active');
+        $('#popup_checkbox_modal.modal .tab-content div:first').toggleClass('active');
+
+        $('#popup_checkbox_tab a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        })
+    });
+
+</script>

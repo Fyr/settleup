@@ -1,0 +1,26 @@
+<?php if ($this->error): ?>
+    <div class="alert alert-error">
+        <strong><?php echo $this->error ?></strong>
+    </div>
+<?php endif; ?>
+<form class="form-horizontal"
+      action="<?php echo $this->escape($this->form->getAction()) ?>"
+      method="<?php echo $this->escape($this->form->getMethod()) ?>"
+      name="<?php echo $this->escape($this->form->getName()) ?>"
+>
+    <fieldset>
+        <?php echo $this->form->email ?>
+        <?php echo $this->form->password ?>
+        <div class="form-actions">
+            <p>
+                <input type="submit" name="submit" id="submit" value="Log In" class="btn btn-primary span1">
+                <a href="<?php echo $this->url(['action' => 'forgot']); ?>">Forgot password?</a>
+            </p>
+            <p>
+                <a href="<?php echo $this->url(['action' => 'sso-login']); ?>">
+                    <input type="button" value="Log In with SSO" class="btn btn-success">
+                </a>
+            </p>
+        </div>
+    </fieldset>
+</form>

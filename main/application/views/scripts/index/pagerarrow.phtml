@@ -1,0 +1,7 @@
+<?php
+
+$data = array(
+            "text" => $this->renderRows($this->data), 
+            "pager" => $this->renderPager($this->pager)
+        );
+echo json_encode($data);

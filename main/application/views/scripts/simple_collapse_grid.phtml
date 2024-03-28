@@ -1,0 +1,78 @@
+<?php
+$keys = array_keys($this->columns);
+$values = array_values($this->columns);
+?>
+
+<div class="collapsible">
+    <div class="collapse-heading">
+        <table class="table table-bordered table-striped">
+            <tr>
+                <th width="15" data-toggle="collapse" data-target="#collapseDeductions<?php echo $this->number ?>" class="aCenter">
+                    <div class="btn" data-toggle="button"><i class="icon-plus-sign icon-black"></i></div>
+                </th>
+                <th>
+                    <h4 class="report-grid-title">
+                        <?php echo $this->title ?>
+                    </h4>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <div class="report">
+        <div id="collapseDeductions<?php echo $this->number ?>" class="collapse in hide collapse-body">
+            <table class="table table-bordered table-striped report-grid">
+                <thead>
+                    <tr>
+                        <?php foreach ($values as $key): ?>
+                            <th>
+                                <?php echo $key ?>
+                            </th>
+                        <?php endforeach; ?>
+                        </tr>
+                </thead>
+                <tbody>
+                    <?php if ($this->collection->count()): ?>
+                        <?php foreach ($this->collection->getItems() as $item): ?>
+                            <?php $data = $item->getData(); ?>
+                            <tr>
+                                <?php foreach ($keys as $ke): ?>
+                                            <?php $isMoneyFormat = false; ?>
+                                            <?php $class = ''; ?>
+                                            <?php if (in_array($ke, array('amount', 'rate', 'balance', 'adjusted_balance', 'initial_balance', 'current_balance', 'contribution_amount', 'min_balance'))): ?>
+                                                <?php $isMoneyFormat = true ?>
+                                            <?php endif ?>
+                                            <?php if (preg_match('/^[.]?[\d]+/i', $data[$ke]) || $isMoneyFormat): ?>
+                                                <?php $class .= ' num' ?>
+                                            <?php endif ?>
+                                            <td class="<?php echo $class ?>">
+                                                <?php if (!$data[$ke]): ?>
+                                                    -
+                                                <?php else: ?>
+                                                    <?php if ($isMoneyFormat): ?>
+                                                                            <?php echo $this->money($data[$ke]); ?>
+                                                    <?php else: ?>
+                                                        <?php if (preg_match(Application_Model_Entity_System_CyclePeriod::DATE_OR_DATETIME_PATTERN, $data[$ke])): ?>
+                                                            <?php $datePart = explode('-', $data[$ke]); ?>
+                                                            <?php if (strlen($datePart[2]) > 2): ?>
+                                                                <?php $datePart[2] = substr($datePart[2], 0, 2) ?>
+                                                            <?php endif ?>
+                                                            <?php $data[$ke] = $datePart[1] . '-' . $datePart[2] . '-' . $datePart[0]; ?>
+                                                        <?php endif ?>
+                                                        <?php echo $data[$ke]; ?>
+                                                    <?php endif ?>
+                                                <?php endif; ?>
+                                            </td>
+                                        <?php endforeach; ?>
+                                        </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                            <tr>
+                                <td style="text-align: center" colspan="<?php echo count($this->columns) + 1 ?>">Nothing to show
+                                </td>
+                                </tr>
+                    <?php endif ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div><br />

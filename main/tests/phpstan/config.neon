@@ -1,0 +1,33 @@
+parameters:
+  level: 0  # max level 9
+  paths:
+    - ../../application
+    - ../../public
+    - ../../src
+  excludePaths:
+    - ../../application/models/Grid/ReserveAccount/Contractor.php
+  ignoreErrors:
+    -
+      message: '/Result of method Application_Model_Grid::__construct\(\) \(void\) is used./'
+      paths:
+        - ../../application/models/Grid/
+    -
+      message: '/Unsafe usage of new static./'
+      paths:
+        - ../../application/models/Grid/Callback/BaseTrait.php
+        - ../../application/models/Base/Entity.php
+    -
+      message: '/Instantiated class mPDF not found./'
+      path: ../../application/models/File.php
+    -
+      message: '/Instantiated class Application_Model_Grid_ReserveAccount_Contractor not found./'
+      path: ../../application/controllers/Reserve/AccountcontractorController.php
+    -
+      message: '/Static call to instance method Application_Model_Entity_Accounts_User::getSelectedCarrier\(\)./'
+      path: ../../application/models/Entity/Accounts/User.php
+    -
+      message: '/Static call to instance method [a-zA-Z_]+\:\:+[a-zA-Z0-9]+\(\)./'
+      paths:
+        - ../../application/models
+        - ../../application/forms
+        - ../../application/controllers

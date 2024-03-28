@@ -1,0 +1,158 @@
+<?php $header = $this->gridModel->getHeader() ?>
+<?php $this->gridModel->getControllerDataStorage() ?>
+<?php $this->gridModel->getPaginator() ?>
+<?php $checkboxField = (isset($header['checkboxField'])) ? $header['checkboxField'] : 'id'; ?>
+<?php if ($checkboxField === 'false') $checkboxField = false; ?>
+<?php
+$crypt = new Application_Model_Base_Crypt();
+$gridId = $crypt->encrypt($this->gridModel->getGridId());
+?>
+<div class="datatable <?php echo isset($header['class']) ? $header['class'] : ''  ?>" data-grid-id="<?php echo $gridId ?>">
+
+    <div class="row table-controll">
+
+        <?php $filterValues = $this->gridModel->getFilter() ?>
+        <?php if ($filterValues == null): ?>
+            <?php $filterValues = array()?>
+        <?php endif?>
+        <?php if (!array_key_exists("filter", $header)) $header['filter'] = false; ?>
+        <?php if (!isset($header['pagination']) || ( isset($header['pagination']) && $header['pagination'] == true)) : ?>
+        <div class="filter-wrapper">
+            <div  class="rowlimit_wrapper ">
+                <?php echo $this->grid()->renderLimit($this->gridModel); ?>
+            </div>
+            <?php $cyclePeriods = $this->gridModel->getCyclePeriods(); ?>
+            <?php $filterType = $this->gridModel->getSettlementCycleFilterType(); ?>
+            <?php $filterYear = $this->gridModel->getSettlementCycleFilterYear(); ?>
+            <?php $cycleId = $this->gridModel->getSettlementCycleId(); ?>
+            <?php if ($cyclePeriods): ?>
+                <div id="cycle-filter">
+                    <span>Filter:</span>
+                    <select id='settlement_cycle_filter_type' class='filterInput cycle-selector'>
+                        <?php if (!$this->gridModel->getCycle()): ?>
+                        <option value="<?php echo Application_Model_Entity_Settlement_Cycle::CURRENT_FILTER_TYPE ?>" <?php echo ($filterType ==Application_Model_Entity_Settlement_Cycle::CURRENT_FILTER_TYPE) ? 'selected':'' ?>>Open</option>
+                        <?php elseif($filterType == Application_Model_Entity_Settlement_Cycle::CURRENT_FILTER_TYPE): ?>
+                            <?php $filterType = Application_Model_Entity_Settlement_Cycle::LAST_CLOSED_FILTER_TYPE?>
+                        <?php endif ?>
+                        <option value="<?php echo Application_Model_Entity_Settlement_Cycle::LAST_CLOSED_FILTER_TYPE ?>" <?php echo ($filterType ==Application_Model_Entity_Settlement_Cycle::LAST_CLOSED_FILTER_TYPE) ? 'selected':'' ?>>Closed</option>
+                        <option value="<?php echo Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE ?>" <?php echo ($filterType ==Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE) ? 'selected':'' ?>>Archive</option>
+                    </select>
+                    <div id="settlement_cycle_filter_year_wrapper" class="<?php if($filterType != Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE) echo "nondisplay"?>">
+                        <span>Year:</span>
+                        <select id='settlement_cycle_filter_year' class='filterInput cycle-selector year'>
+                            <?php if (!is_array($cyclePeriods[Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE])): ?>
+                                <option value="none" selected="selected">None</option>
+                            <?php else: ?>
+                                <?php foreach($cyclePeriods[Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE] as $key => $value): ?>
+                                    <option value="<?php echo $key ?>" <?php echo ($key == $filterYear) ? "selected" : ''?>><?php echo $key ?></option>
+                                <?php endforeach ?>
+                            <?php endif ?>
+                        </select>
+                    </div>
+                     <span>Period:</span>
+                    <select id='settlement_cycle_id_filter' class='filterInput cycle-selector period reload'>
+                        <?php if ($filterType != Application_Model_Entity_Settlement_Cycle::ARCHIVE_FILTER_TYPE): ?>
+                            <?php $selectedPeriods = $cyclePeriods[$filterType] ?>
+                        <?php else: ?>
+                            <?php if ($filterYear == null) $filterYear = array_keys($cyclePeriods[$filterType])[0]?>
+                            <?php $selectedPeriods = $cyclePeriods[$filterType][$filterYear] ?>
+                        <?php endif ?>
+                        <?php if (!is_array($selectedPeriods)): ?>
+                            <option value="0" selected="selected">not exist</option>
+                        <?php else: ?>
+                        <?php foreach($selectedPeriods as $key => $value): ?>
+                                <option value="<?php echo $key ?>" <?php echo ($key == $cycleId) ? 'selected="selected"' : ''?>><?php echo $value ?></option>
+                        <?php endforeach ?>
+                        <?php endif ?>
+                    </select>
+                    <?php foreach($cyclePeriods as $filterType => $cycles): ?>
+                        <div class='periods hide filter-type-<?php echo $filterType ?>'>
+                            <!--<option <?php //if ($filterValues['settlement_cycle_id'] == '') echo "selected" ?> label="not filter" value="0">all</option>-->
+                            <?php foreach ( $cycles as $cycleId => $period ): ?>
+                                <?php if (!is_array($period)): ?>
+                                    <option <?php if (array_key_exists('settlement_cycle_id', $filterValues) && $filterValues['settlement_cycle_id'] == $cycleId) echo 'selected="selected"' ?> label="<?php echo $period ?>" value="<?php echo $cycleId ?>"><?php echo $period ?></option>
+                                <?php else: ?>
+                                    <div class="periods-by-year" data-year="<?php echo $cycleId ?>">
+                                    <?php if (!is_array($period)): ?>
+                                        <option value="0" selected="selected">not exist</option>
+                                    <?php else: ?>
+                                    <?php foreach ($period as $archivedCycleId => $archivedPeriod): ?>
+                                        <option <?php if (array_key_exists('settlement_cycle_id', $filterValues) && $filterValues['settlement_cycle_id'] == $archivedCycleId) echo 'selected="selected"' ?> label="<?php echo $archivedPeriod ?>" value="<?php echo $archivedCycleId ?>"><?php echo $archivedPeriod ?></option>
+                                    <?php endforeach ?>
+                                    <?php endif ?>
+                                    </div>
+                                <?php endif ?>
+                            <?php endforeach ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif ?>
+            <div class="additional-filters">
+            <?php if (isset($this->gridModel->getHeader()['additionalFilters'])): ?>
+            <?php foreach ($this->gridModel->getHeader()['additionalFilters'] as $filterName => $addFilter): ?>
+                <?php echo $this->partial('grid/filters/' . $filterName . '.phtml', $addFilter); ?>
+            <?php endforeach ?>
+            <?php endif ?>
+            </div>
+        </div>
+        <?php else : ?>
+            <?php $this->gridModel->setLimit(1000) ?>
+        <?php endif ?>
+        <?php if (isset($header['title'])) : ?>
+        <div class="row grid-title">
+            <h3><?php echo $header['title'] ?></h3>
+        </div>
+        <?php endif; ?>
+        <?php if (isset($header['buttons'])) : ?>
+            <div class="row right">
+                <?php echo $this->grid()->renderHeaderButtons($header['buttons'], $this->gridModel) ?>
+            </div>
+        <?php else : ?>
+        <div class="row right <?php echo (isset($header['hideMultiAction']) && $header['hideMultiAction']) ? 'hide':'' ?>">
+            <?php if(!isset($header['ignoreMassactions'])) :?>
+            <?php echo $this->grid()->renderButtons($this->gridModel->getMassaction()); ?>
+            <?php endif ?>
+            <?php echo $this->grid()->renderButtons($this->gridModel->getButtons()); ?>
+        </div>
+        <?php endif ?>
+        <div class="clearfix"></div>
+    </div>
+
+
+    <?php if ($cycle = $this->gridModel->getCycle()): ?>
+        <?php echo $this->grid()->renderCycleGrid($this->gridModel) ?>
+    <?php endif ?>
+    <table class="datagrid table table-bordered table-striped <?php if (isset($header['fixable']) && $header['fixable']) echo 'fixable-head' ?>">
+        <thead>
+            <tr id="updateheader-<?php echo $this->gridModel->getEntityName() ?>" class="header" entity="<?php echo $this->gridModel->getEntityName() ?>">
+                <?php echo $this->grid()->renderHeader($this->gridModel); ?>
+            </tr>
+            <?php if ($header['filter']) { ?>
+                <tr class="filter">
+                    <?php if ($checkboxField) echo "<th></th>" ?>
+                    <?php echo $this->grid()->renderFilter($this->gridModel); ?>
+                </tr>
+            <?php } ?>
+        </thead>
+        <tbody id="updatethis-<?php echo $this->gridModel->getEntityName() ?>" <?php echo (isset($header['dragrows'])&&$header['dragrows'])?'class="dragrow"':''?>>
+            <?php echo $this->grid()->renderBody($this->gridModel); ?>
+        </tbody>
+    </table>
+    <div class="priority-buttons">
+        <a class="btn priority-save btn-primary">Save</a>
+        <a class="btn priority-cancel btn-danger">Cancel</a>
+    </div>
+    <?php if ($this->gridModel->getNote()): ?>
+        <span class="grid-note"><?php echo $this->gridModel->getNote() ?></span>
+    <?php endif ?>
+    <div id="pager_wrapper_id">
+        <div class="pager_wrapper pagination">
+            <?php echo $this->grid()->renderPager($this->gridModel); ?>
+        </div>
+    </div>
+</div>
+
+<form id="multiaction" class="hidden" name="multiaction" method="post" action="<?php echo $this->url(array('action' => 'multiaction')) ?>">
+    <input type="text" id="action-type" name="action-type">
+    <input type="text" id="ids" name="ids">
+</form>

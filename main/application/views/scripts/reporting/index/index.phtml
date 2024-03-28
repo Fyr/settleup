@@ -1,0 +1,171 @@
+<?php $this->headTitle()->append($this->title); ?>
+<?php $hiddenViewButtonReports = array(
+    Application_Model_Report_Reporting::DEDUCTION_REMITTANCE_FILE,
+    Application_Model_Report_Reporting::UNFUNDED_DEDUCTIONS,
+    Application_Model_Report_Reporting::CONTRACTOR_EXPORT_FILE,
+) ?>
+<br>
+<h3><?php echo $this->title?></h3><br/>
+<div class="span">
+    <form  action="<?php echo $this->escape($this->form->getAction()); ?>"
+           method="<?php echo $this->escape($this->form->getMethod()); ?>"
+           name="<?php echo $this->escape($this->form->getName()) ?>"
+           class="form-horizontal"
+        >
+        <fieldset>
+            <?php echo $this->form->action ?>
+            <?php echo $this->form->type ?>
+            <div id="date-filters">
+                <?php echo $this->form->date_filter_type ?>
+
+                <div class="date-filter <?php if ($this->form->date_filter_type->getValue() != Application_Model_Report_Reporting::SETTLEMENT_CYCLE) echo 'nondisplay'?>" data-type="<?php echo Application_Model_Report_Reporting::SETTLEMENT_CYCLE ?>">
+                    <?php echo $this->form->year ?>
+                    <?php echo $this->form->period ?>
+                    <div class="nondisplay period-options">
+                        <?php foreach($this->periods as $year => $options): ?>
+                        <div class="year-options" data-year="<?php echo $year ?>">
+                            <?php foreach($options as $id => $value): ?>
+                                <option class="<?php if ($value['status'] != Application_Model_Entity_System_SettlementCycleStatus::APPROVED_STATUS_ID) echo 'not-closed-cycle'?>" value="<?php echo $id ?>"><?php echo $value['title'] ?></option>
+                            <?php endforeach ?>
+                        </div>
+                        <?php endforeach ?>
+                    </div>
+                </div>
+
+                <div class="date-filter date-range <?php if ($this->form->date_filter_type->getValue() != Application_Model_Report_Reporting::DATE_RANGE) echo 'nondisplay'?>" data-type="<?php echo Application_Model_Report_Reporting::DATE_RANGE ?>">
+                    <div class="control-group">
+                        <?php echo $this->form->range_start_date->renderLabel() ?>
+                        <div class="controls">
+                            <?php echo $this->form->range_start_date->renderViewHelper() ?>
+                        </div>
+                    </div>
+                    <div class="end-date">
+                        <div class="control-group">
+                            <?php echo $this->form->range_end_date->renderLabel() ?>
+                            <div class="controls">
+                                <?php echo $this->form->range_end_date->renderViewHelper() ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="controls report-custom-errors">
+                        <?php echo $this->form->range_start_date->renderErrors() ?>
+                        <?php echo $this->form->range_end_date->renderErrors() ?>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="date-filter date-cycles <?php if ($this->form->date_filter_type->getValue() != Application_Model_Report_Reporting::SETTLEMENT_CYCLES) echo 'nondisplay'?>" data-type="<?php echo Application_Model_Report_Reporting::SETTLEMENT_CYCLES ?>">
+                    <div>
+                        <?php echo $this->form->starting_year ?>
+                        <?php echo $this->form->starting_period ?>
+                    </div>
+                    <div>
+                        <?php echo $this->form->ending_year ?>
+                        <?php echo $this->form->ending_period ?>
+                    </div>
+                </div>
+                <div class="date-filter invoice-date-range <?php if ($this->form->date_filter_type->getValue() != Application_Model_Report_Reporting::INVOICE_DATE) echo 'nondisplay'?>" data-type="<?php echo Application_Model_Report_Reporting::INVOICE_DATE ?>">
+                    <div class="control-group">
+                        <?php echo $this->form->invoice_start_date->renderLabel() ?>
+                        <div class="controls">
+                            <?php echo $this->form->invoice_start_date->renderViewHelper() ?>
+                        </div>
+                    </div>
+                    <div class="end-date">
+                        <div class="control-group">
+                            <?php echo $this->form->invoice_end_date->renderLabel() ?>
+                            <div class="controls">
+                                <?php echo $this->form->invoice_end_date->renderViewHelper() ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="controls report-custom-errors">
+                        <?php echo $this->form->invoice_start_date->renderErrors() ?>
+                        <?php echo $this->form->invoice_end_date->renderErrors() ?>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+
+            <div class="additional-filter <?php if (!$this->form->showField($this->form->type->getValue(), 'contractor_status')) echo 'nondisplay'?>" data-additional-filter-type="contractor_status">
+                <?php echo $this->form->select_contractor_status ?>
+            </div>
+
+            <div class="additional-filter <?php if (!$this->form->showField($this->form->type->getValue(), 'vendor_status')) echo 'nondisplay'?>" data-additional-filter-type="vendor_status">
+                <?php echo $this->form->select_vendor_status ?>
+            </div>
+
+            <div class="additional-filter <?php if (!$this->form->showField($this->form->type->getValue(), 'check_entity_type')) echo 'nondisplay'?>" data-additional-filter-type="check_entity_type">
+                <?php echo $this->form->select_check_entity_type ?>
+            </div>
+
+            <div class="additional-filter <?php if (!$this->form->showField($this->form->type->getValue(), 'entity_type')) echo 'nondisplay'?>" data-additional-filter-type="entity_type">
+                <?php echo $this->form->select_entity_type ?>
+            </div>
+
+            <div class="additional-filter <?php if (!$this->form->showField($this->form->type->getValue(), 'contractor')) echo 'nondisplay'?>" data-additional-filter-type="contractor">
+                <?php echo $this->form->select_contractor ?>
+                <div class="additional-filter-popup <?php if ($this->form->select_contractor->getValue() == Application_Model_Report_Reporting::ALL_CONTRACTORS) echo 'nondisplay'?>">
+                    <?php echo $this->form->contractor_id ?>
+                    <?php echo $this->form->contractor_id_title ?>
+                </div>
+            </div>
+
+            <div class="additional-filter <?php if (!$this->form->showField($this->form->type->getValue(), 'reserve_account')) echo 'nondisplay'?>" data-additional-filter-type="reserve_account">
+                <?php echo $this->form->select_reserve_account ?>
+                <div class="additional-filter-popup  <?php if ($this->form->select_reserve_account->getValue() == Application_Model_Report_Reporting::ALL_RA) echo 'nondisplay'?>">
+                    <?php echo $this->form->reserve_account_id ?>
+                    <?php echo $this->form->reserve_account_id_title ?>
+                </div>
+            </div>
+
+            <div class="additional-filter <?php if (!$this->form->showField($this->form->type->getValue(), 'reserve_account_contractor')) echo 'nondisplay'?>" data-additional-filter-type="reserve_account_contractor">
+                <?php echo $this->form->select_reserve_account_contractor ?>
+                <div class="additional-filter-popup  <?php if ($this->form->select_reserve_account_contractor->getValue() == Application_Model_Report_Reporting::ALL_RA) echo 'nondisplay'?>">
+                    <?php echo $this->form->reserve_account_contractor_id ?>
+                    <?php echo $this->form->reserve_account_contractor_id_title ?>
+                </div>
+            </div>
+
+            <div class="additional-filter <?php if (!$this->form->showField($this->form->type->getValue(), 'carrier_vendor')) echo 'nondisplay'?>" data-additional-filter-type="carrier_vendor">
+                <?php echo $this->form->select_carrier_vendor ?>
+                <div class="additional-filter-popup  <?php if ($this->form->select_carrier_vendor->getValue() == Application_Model_Report_Reporting::ALL_CV) echo 'nondisplay'?>">
+                    <?php echo $this->form->carrier_vendor_id ?>
+                    <?php echo $this->form->carrier_vendor_id_title ?>
+                </div>
+            </div>
+
+            <?php echo $this->form->file_type ?>
+        </fieldset>
+        <div class="form-actions">
+            <input type="submit" class="btn btn-primary <?php echo (in_array($this->form->type->getValue(), $hiddenViewButtonReports)) ? 'hide' : '' ?>" value="View" id="view" name="view" data-action="<?php echo Application_Model_Report_Reporting::VIEW_ACTION ?>">
+            <div class="btn-group">
+                <input type="submit" class="btn btn-primary" value="Download" id="download" name="download" data-action="<?php echo Application_Model_Report_Reporting::DOWNLOAD_ACTION ?>">
+            </div>
+        </div>
+    </form>
+</div>
+<?php if (isset($this->gridData)): ?>
+    <div class="span report-grid-wrapper">
+        <a class="btn btn-success print-report"><i class="icon-list-alt icon-white"></i> Print</a>
+        <div class="report-body">
+            <?php echo $this->render($this->gridTemplate) ?>
+        </div>
+    </div>
+<?php endif ?>
+
+<div class="popup-grids-wrapper">
+    <?php foreach ($this->popupSettings as $popup): ?>
+        <?php echo $this->popupGrid($popup)?>
+    <?php endforeach ?>
+</div>
+
+<?php $this->inlineScript()->appendFile($this->baseUrl() . '/js/popup-multiselect.js') ?>
+<?php $this->inlineScript()->appendFile($this->baseUrl() . '/js/report-page.js') ?>
+<script>
+    additionalFilter = <?php echo json_encode($this->form->getAllUserAdditionalFilterByType()) ?>;
+    dateFilter = <?php echo json_encode($this->form->getAllDateFilterTypeOptions()) ?>;
+    dateTypeOptions = <?php echo json_encode(Application_Model_Report_Reporting::getDateFilterTypeOptions()) ?>;
+    periodFilter = <?php echo json_encode($this->form->getAllPeriodOptions())?>;
+    noCycleFilter = <?php echo json_encode($this->form->getAllNoCycleOptions()) ?>;
+    fileTypes = <?php echo json_encode($this->form->getAllFileTypeOptions())?>;
+</script>

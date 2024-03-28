@@ -1,0 +1,305 @@
+.field-name-quantity,
+.field-name-rate,
+.field-name-amount,
+.field-name-deduction_amount,
+.field-name-deduction_balance,
+.field-name-balance,
+.field-name-min_balance,
+.field-name-contribution_amount,
+.field-name-max_withdrawal_amount,
+.field-name-current_balance,
+.field-name-starting_balance,
+.field-name-percentage,
+.field-name-adjusted_balance,
+.field-name-adjustments,
+.field-name-withdrawals,
+.field-name-balance_due,
+.field-name-contributions,
+.field-name-ending_balance,
+.field-name-deductions_amount,
+.field-name-withdrawal_amount,
+.field-name-withdrawals_amount,
+.field-name-limit_value {
+    text-align: right !important;
+}
+.table-bordered, .table-bordered th, .table-bordered td {
+    -webkit-border-radius: 0px !important;
+    -moz-border-radius: 0px !important;
+    border-radius: 0px !important;
+}
+
+.datagrid.table-bordered {
+    border: 1px solid #000;
+}
+.datagrid th:first-child, .datagrid td:first-child {
+    border-left: 0;
+}
+.datagrid th input {
+    display: inline-block;
+    width: 100%;
+}
+.datagrid td.checkboxField, .datagrid th.checkAllField {
+    text-align: center;
+}
+.datagrid th.checkAllField input {
+    width: auto;
+}
+
+.table-bordered td > div {
+    height: 40px;
+    max-height: 40px;
+    /*line-height: 40px;*/
+    overflow: hidden;
+}
+
+.datagrid.table td, .datagrid.table th {
+    vertical-align: top;
+    padding: 0px 4px;
+}
+
+.table-controll div.row.grid-title {
+    float: left;
+    margin-left: 0;
+    height: 37px;
+}
+
+.checkboxField .checkbox {
+    vertical-align: top;
+    margin: 0;
+}
+
+.checkAll {
+    vertical-align: top;
+}
+
+.datagrid a.btn {
+    width: 77px;
+}
+.datagrid a.btn.statement-btn {
+    width: 78px;
+}
+
+.datagrid th[name=action] {
+    text-align: center;
+}
+
+.datagrid tr td:last-child, .datagrid tr td:last-child > div {
+    width: 202px;
+    min-width: 202px;
+}
+
+.datagrid tr.filter > th:last-child > div.btn {
+    width: 77px;
+}
+
+.datagrid thead tr th {
+    white-space: nowrap;
+}
+
+.datagrid [name=quantity],
+.datagrid [name=min_balance],
+.datagrid [name=contribution_amount],
+.datagrid [name=max_withdrawal_amount],
+.datagrid [name=current_balance],
+.datagrid [name=starting_balance],
+.datagrid [name=verify_balance],
+.datagrid [name=adjustments],
+.datagrid [name=rate],
+.datagrid [name=amount],
+.datagrid [name=percentage],
+.datagrid [name=balance],
+.datagrid [name=adjusted_balance],
+.datagrid [name=withdrawals],
+.datagrid [name=balance_due],
+.datagrid [name=contributions],
+.datagrid [name=ending_balance],
+.datagrid [name=deduction_amount],
+.datagrid [name=withdrawal_amount],
+.datagrid [name=withdrawals_amount],
+.datagrid [name=balance_due],
+.datagrid [field-name=quantity] input,
+.datagrid [field-name=priority] input,
+.datagrid [field-name=rate] input,
+.datagrid [field-name=amount] input,
+.datagrid [field-name=adjusted_balance] input {
+    text-align: right;
+}
+
+.datagrid.table div {
+    vertical-align: middle;
+}
+
+.datagrid.table tr.filter th {
+    vertical-align: middle;
+    font-weight: normal;
+}
+.datagrid td.buttons > div {
+    height: auto;
+}
+.datagrid td.buttons {
+    width: 180px;
+    min-width: 180px;
+    text-align: center;
+    vertical-align: middle;
+}
+.datagrid td.buttons.none-label {
+    vertical-align: top;
+}
+
+tr.totals {
+    font-weight: bold;
+}
+
+.datagrid tr {
+    height: 40px;
+    vertical-align: top;
+    padding: 0 5px;
+}
+
+.datagrid .filter input, #quick-edit-input {
+    padding: 3px;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    height: 28px;
+    cursor: text;
+}
+
+.table .filter th {
+    text-align: center;
+}
+
+.buttons_wrapper_class {
+
+    width: 235px;
+}
+
+.datatable .right {
+    float: right;
+    text-align: right;
+
+}
+
+.datagrid {
+    width: 100%;
+    font-size: 13px;
+
+}
+
+.datatable {
+    margin-bottom: 0;
+    display: inline-block;
+    min-width: 100%;
+}
+
+.rowlimit_wrapper {
+    float: left;
+}
+
+.rowlimit_wrapper .rowlimit_wrapper_select {
+    width: 60px !important;
+    display: inline;
+
+}
+
+.inline {
+    display: inline;
+}
+
+.arrows {
+    padding: 2px;
+    background-color: #808080;
+    color: wheat;
+    cursor: pointer;
+}
+
+.pages {
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.pagetogo {
+    color: orange;
+    cursor: pointer;
+    display: inline;
+}
+.datagrid thead span.arrow {
+    background: url('../images/sort_both.png') no-repeat top 4px right;
+    height: 21px;
+    width: 13px;
+    margin-left: 5px;
+
+    display: none;
+}
+.datagrid thead .sorting {
+    cursor: pointer;
+}
+.datagrid thead .sorting span.arrow {
+    display: inline-block;
+}
+
+.datagrid thead .sorting.asc span.arrow{
+    background: url('../images/sort_asc.png') no-repeat top 4px right;
+}
+
+.datagrid thead .sorting.desc span.arrow{
+    background: url('../images/sort_desc.png') no-repeat top 4px right;
+}
+
+.datagrid tbody .highlight {
+    height: 37px;
+}
+
+.datagrid tbody .ui-sortable-helper td {
+    border-bottom: 1px solid #DDDDDD;
+}
+
+div.btnFilter, div.btnClearFilter, div.btnFilterContractors, div.btnClearFilterContractors {
+    background: #808080;
+    text-shadow: none;
+    color: #ffffff;
+}
+
+div.btnFilter:hover, div.btnClearFilter:hover, div.btnFilterContractors:hover, div.btnClearFilterContractors:hover {
+    background: #666666;
+    color: #fff;
+}
+
+.quick-edit {
+    color: #0088cc;
+    cursor: pointer;
+}
+.quick-edit.disabled {
+    color: #808080;
+    cursor: text;
+}
+
+tr.header {
+    background-color: #a6a6a6;
+}
+table.fixable-head thead.fixed {
+    position: fixed;
+    border: 1px solid #000000;
+    background-color: #ffffff;
+    z-index: 5;
+    box-shadow: 0 0 8px -2px #000000;
+    top: 0px;
+}
+.priority-buttons {
+    display: none;
+}
+
+.deductions .datagrid .header [name=priority],
+.deductions .datagrid .header [name=recurring_title],
+.deductions .datagrid .header [name=billing_title],
+.deductions .datagrid .header [name=priority],
+.payments .datagrid .header [name=recurring_title],
+.payments .datagrid .header [name=billing_title],
+.payments .datagrid .header [name=quantity] {
+    width: 4%;
+}
+.payments .datagrid .header [name=company_name],
+.deductions .datagrid .header [name=company_name] {
+    width: 20%;
+}

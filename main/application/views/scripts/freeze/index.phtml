@@ -1,0 +1,19 @@
+<div class="info-freeze-state-index">
+	<div class="preloader"><span>Processing</span> <img src="<?php echo $this->baseUrl() ?>/images/preloader.gif" alt=""></div>
+	<div class="freeze-restore-list">
+		<label for="list-db-states">States to restore:</label>
+		<ul class="list-db-states" name="list-db-states">
+			<?php
+			foreach($this->states as $state){
+				?>
+				<li><a href="#" class="btn-small btn-success"><i class="icon-arrow-up icon-white"></i> <?php echo $state; ?></a></li>
+			<?php } ?>
+		</ul>
+	</div>
+	<div class="freeze-save-new">
+		<label for="new-state-desc">State description</label>
+		<input type="text" alt="state description" name="new-state-desc" class="new-state-desc" />
+		<a href="#" class="btn btn-primary save-state"><i class="icon-download-alt icon-white"></i> save current state</a>
+	</div>
+</div>
+<?php echo $this->partial('freeze/freeze_notify.phtml') ?>

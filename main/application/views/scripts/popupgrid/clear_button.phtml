@@ -1,0 +1,14 @@
+<script>
+    clrBtn = $("<div>", {
+        id: "<?php echo $this->destFieldName; ?>_clear",
+        class: "btn btn-small btn-danger",
+        style: "margin-right:-27px; margin-bottom:10px"
+    });
+    clrBtn.text('X');
+    $("#<?php echo $this->destFieldName . '_' . $this->titleColumn; ?>").after(clrBtn);
+    $("#<?php echo $this->destFieldName; ?>_clear").bind("click", function(event){
+        event.preventDefault();
+        $("#<?php echo $this->destFieldName . '_' . $this->titleColumn; ?>").attr("value","");
+        $("#<?php echo $this->destFieldName; ?>").attr("value","");
+    });
+</script>

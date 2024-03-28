@@ -1,0 +1,65 @@
+<?php
+$this->headTitle('Settlement')->setSeparator(' - ');
+$this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0');
+
+$this->headLink(['rel' => 'shortcut icon', 'href' => "{$this->baseUrl()}/images/logo.png"], 'PREPEND');
+//$this->headLink()->appendStylesheet($this->baseUrl().'/css/bootstrap.min.css');
+$this->headLink()->appendStylesheet($this->manifest('main.css'));
+//$this->headLink()->appendStylesheet($this->baseUrl().'/css/bootstrap-responsive.min.css');
+//$this->headLink()->appendStylesheet($this->baseUrl().'/css/jquery-ui-1.8.18.custom.css');
+//$this->headLink()->appendStylesheet($this->baseUrl().'/css/main.css');
+//$this->headLink()->appendStylesheet($this->baseUrl().'/css/grid.css');
+$this->headScript()->appendFile($this->manifest('main.js'));
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/jquery.validate.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/bootstrap.js');
+//$this->headScript()->appendFile($this->baseUrl() . '/js/jquery.mask.min.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/jquery.printElement.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/jquery.cookie.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/jquery.preventDoubleSubmission.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/main.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/grid.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/hide-buttons.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/jquery.pfleetPopup.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/sortable.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/quick-edit.js');
+//$this->inlineScript()->appendFile($this->baseUrl() . '/js/popup-user-entity.js');
+?>
+<?php echo $this->doctype(); ?>
+<html lang="en">
+<head>
+    <?php echo $this->headMeta();?>
+    <?php echo $this->headTitle();?>
+    <?php echo $this->headLink();?>
+    <?php echo $this->headScript();?>
+</head>
+<body>
+<div class="main">
+    <div class="main-logo">
+        <a href="/" title="P-fleet"><img src="/images/fulllogo.png"></a>
+    </div>
+    <div class="user-info">
+        <?php if (Application_Model_Entity_Accounts_User::getCurrentUser()->isLoggedIn()) : ?>
+            <?php echo $this->topUserMenu() ?>
+            <?php echo $this->selector(1) ?>
+            <?php echo $this->selector(3) ?>
+        <?php endif ?>
+    </div>
+        <div class="menu">
+            <?php echo $this->navigation()->menu($this->menu)->setPartial('main_menu.phtml')->setMaxDepth(1)->render(new My_Navigation($this->navigation()->findAllBy('level','1',true))); ?>
+        </div>
+<!--        --><?php //if (!isset($this->hideContractorSelector)): ?>
+        <?php if (false): ?>
+            <?php if(!preg_match('#\bcontractor.*\/new#i', $_SERVER['REQUEST_URI'])) : ?>
+                <?php echo $this->selector(2); ?>
+            <?php endif; ?>
+        <?php else : ?>
+            <div class="current-selector contractor"></div>
+        <?php endif ?>
+    <div class="content clearfix">
+        <?php echo $this->flashMessenger() ?>
+        <?php echo $this->layout()->content ?>
+    </div>
+</div>
+<?php echo $this->inlineScript() ?>
+</body>
+</html>

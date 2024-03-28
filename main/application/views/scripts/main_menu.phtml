@@ -1,0 +1,48 @@
+<?php
+$iterator = new RecursiveIteratorIterator ( $this->container, RecursiveIteratorIterator::SELF_FIRST );
+$isCarrier = Application_Model_Entity_Accounts_User::getCurrentUser()->isCarrier();
+?>
+<ul class="nav nav-pills">
+    <?php foreach ($iterator as $page): ?>
+        <?php if (!$this->navigation()->accept($page)) : ?>
+            <?php continue; ?>
+        <?php else: ?>
+            <?php /** @var Zend_Navigation_Page_Mvc $page*/?>
+            <?php if ($isCarrier && $page->getResource() == 'carriers_index'): ?>
+                <?php continue; ?>
+            <?php endif ?>
+            <?php if ($iterator->getDepth() == 0): ?>
+                <?php $active = ($page->isActive(true)) ? 'active' : '' ?>
+            <?php if ( $page->hasPages() ): ?>
+                <li class="dropdown <?php echo $active?>">
+                    <a href="#" data-toggle="dropdown" class="dropdown-toggle"><?php echo $page->getLabel()?> <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        <?php foreach($page->getPages() as $childPage): ?>
+                            <?php if (!$this->navigation()->accept($childPage)) : ?>
+                                <?php continue; ?>
+                            <?php else: ?>
+                                <?php if ($childPage->hasPages()): ?>
+                                    <li class="<?php echo ($childPage->isActive(false)) ? 'active' : '' ?> dropdown-submenu">
+                                    <a tabindex="-1" href="#"><?php echo $childPage->getLabel(); ?></a>
+                                    <ul class="dropdown-menu">
+                                        <?php foreach($childPage as $subChildPage): ?>
+                                            <li class="<?php echo ($subChildPage->isActive(false)) ? 'active' : '' ?>"><a href="<?php echo $subChildPage->getHref()?>"><?php echo $subChildPage->getLabel()?></a></li>
+                                        <?php endforeach ?>
+                                    </ul>
+                                    </li>
+                                <?php else: ?>
+                                    <li class="<?php echo ($childPage->isActive(false)) ? 'active' : '' ?>"><a href="<?php echo $childPage->getHref()?>"><?php echo $childPage->getLabel()?></a></li>
+                                <?php endif ?>
+                            <?php endif ?>
+                        <?php endforeach;?>
+                        </ul>
+                    </li>
+                <?php else: ?>
+                <li class="<?php echo $active?>">
+                    <a href="<?php echo $page->getHref() ?>"><?php echo $page->getLabel()?></a>
+                    </li>
+                <?php endif; ?>
+            <?php endif; ?>
+        <?php endif; ?> 
+    <?php endforeach; ?>
+</ul>

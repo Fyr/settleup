@@ -1,0 +1,12 @@
+<?php
+
+$data = array(
+    "text" => $this->grid()->renderBody($this->gridModel),
+    "pager" => $this->grid()->renderPager($this->gridModel),
+    "header" => $this->grid()->renderHeader($this->gridModel),
+    "sort" => $this->sort,
+);
+if ($this->gridModel->getCycle()) {
+    $data['cycle'] = $this->grid()->renderCycleGrid($this->gridModel);
+}
+echo json_encode($data);

@@ -1,0 +1,1 @@
+ALTER TABLE `deductions_temp` CHANGE `invoice` `invoice_id` VARCHAR( 255 ) NULL DEFAULT NULL;

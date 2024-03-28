@@ -1,0 +1,1 @@
+UPDATE `users` SET deleted = 1 WHERE `email` IS NULL and deleted = 0;

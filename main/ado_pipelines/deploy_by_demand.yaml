@@ -1,0 +1,92 @@
+trigger:
+- none
+
+parameters:
+  - name: environment
+    displayName: Environment
+    type: string
+    default: dev
+    values:
+      - dev
+      - qa
+      # - staging
+      # - production
+  - name: imageTag
+    type: string
+    default: latest
+
+pool:
+  name: SettleUP
+
+stages:
+- stage: 'DeployMainApp${{ parameters.environment }}'
+  displayName: 'Deploy Desired Version of Main Application to ${{ parameters.environment }}'
+  jobs: 
+  - job: 'DeployMainApp${{ parameters.environment }}'
+    displayName: 'Deploy Desired Version of Main Application to ${{ parameters.environment }}'
+
+    steps:
+      - task: AzureKeyVault@2
+        inputs:
+          azureSubscription: 'nikasc' 
+          KeyVaultName: 'settlement${{ parameters.environment }}kv'
+          SecretsFilter: '*'
+          RunAsPreJob: false
+        displayName: Get Secrets from Keyvault on ${{ parameters.environment }} environment
+
+      - task: AzureKeyVault@2
+        inputs:
+          azureSubscription: 'nikasc'
+          KeyVaultName: 'settlementcommonkv'
+          SecretsFilter: '*'
+          RunAsPreJob: false
+        displayName: Get Secrets from Common Keyvault
+
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'nikasc'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az container create --resource-group rg-main-settlement-${{ parameters.environment }} \
+            --name settlement-main-php-${{ parameters.environment }}-aci \
+            --registry-username $(settlement-common-acr-username) \
+            --ports 9000 \
+            --protocol TCP \
+            --registry-password $(settlement-common-acr-password) \
+            --image commonsettlementacr.azurecr.io/main/settleup-main-php:${{ parameters.imageTag }} \
+            --restart-policy Never \
+            --vnet settlement-${{ parameters.environment }}-vnet \
+            --subnet main-php-${{ parameters.environment }}-sub \
+            --environment-variables DB_PORT=3306 \
+            DB_DATABASE=settlement \
+            DB_USERNAME=$(settlement-mysql-admin-login) \
+            APP_AUTH_DOMAIN=https://settlement-auth-web-${{ parameters.environment }}-app.azurewebsites.net \
+            --secure-environment-variables DB_PASSWORD=$(settlement-mysql-main-pass) \
+            DB_HOST=$(settlement-mysql-main-db-name) \
+            AZURE_BLOB_CONNECTION_STRING="$(settlement-sa-connection-string)"
+        displayName: 'Deploy Desired Version to ${{ parameters.environment }}'
+
+      - task: AzureKeyVault@2
+        inputs:
+          azureSubscription: 'nikasc'
+          KeyVaultName: 'settlement${{ parameters.environment }}kv'
+          SecretsFilter: '*'
+          RunAsPreJob: false
+        displayName: Get Secrets from Keyvault
+
+      - bash: |
+          echo "Start Execution"
+          cd scripts/db
+          cat > database.ini << EOL
+          [database]
+          db_user=$(settlement-mysql-admin-login)
+          db_pass=$(settlement-mysql-main-pass)
+          db_host=$(settlement-mysql-main-db-name)
+          db_name=settlement
+          db_port=3306
+          patches=patches/
+          procedures=procedures.sql
+          EOL
+          ./migrate.sh
+        displayName: 'SettleUP Database Migrations on ${{ parameters.environment }}'

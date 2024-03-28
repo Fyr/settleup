@@ -1,0 +1,53 @@
+<?php use Application_Model_Entity_System_ContractorStatus as ContractorStatus;?>
+<?php if (isset($this->selector)) :?>
+<div class="<?php echo $this->selector ?> setup popup_checkbox_modal modal hide fade in" data-entity="<?php echo $this->setupGrid->getEntityName() ?>">
+    <?php else: ?>
+    <?php $this->selector = '' ?>
+<div class="popup_checkbox_modal modal hide fade in">
+    <?php endif ?>
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">X</button>
+        <h3><?php echo $this->gridTitle; ?></h3>
+    </div>
+    <div class="modal-body">
+        <ul class="nav nav-pills popup_checkbox_tab">
+            <li><a href="#setup<?php echo ($this->selector)? '-'.$this->selector : ''?>"><?php echo $this->tabTitle ?></a></li>
+            <li><a href="#contractors<?php echo ($this->selector)? '-'.$this->selector : ''?>">Power Units</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane" id="setup<?php echo ($this->selector)? '-'.$this->selector : ''?>">
+                <?php echo $this->grid()->render($this->setupGrid) ?>
+            </div>
+            <div class="tab-pane" id="contractors<?php echo ($this->selector)? '-'.$this->selector : ''?>">
+                <?php echo $this->grid()->render($this->powerunitGrid) ?>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="pull-left">
+            Period:
+            <input class="settlement-cycle-data span2" type="text" readonly="readonly">
+        </div>
+        <?php if (isset($this->showInvoiceDateSelector) && $this->showInvoiceDateSelector = true): ?>
+        <div class="span pull-left">
+            Invoice Date:
+            <input class="invoice-date span2" type="text" placeholder="If empty - set automatically">
+        </div>
+        <?php endif ?>
+        <?php $urlArray = array('action' => 'new');
+        if (isset($this->type)) {
+            $urlArray['type'] = $this->type;
+        }
+        ?>
+        <?php if(isset($this->powerunitGrid)): ?>
+        <div class="span pull-left nondisplay">
+            Filter:
+            <select class="contractor-status">
+                <option value="<?php echo ContractorStatus::STATUS_ACTIVE?>">Active</option>
+                <option value="0">All Contractors</option>
+            </select>
+        </div>
+        <?php endif ?>
+        <a class="btn btn-success addSelectedItems" data-target-url="<?php echo $this->url($urlArray); ?>"><i class="icon-plus icon-white"></i> Add</a>
+    </div>
+</div>

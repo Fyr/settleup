@@ -1,0 +1,79 @@
+<div class="current-selector contractor">
+    <span>Selected Contractor: </span><a data-toggle='modal' href='#change_contractor_modal' id='current_contractor_name'><?php echo $this->currentEntityName; ?></a>
+</div>
+<br/>
+<div id="change_contractor_modal" class="modal hide fade in" >
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">X</button>
+        <h3><?php echo $this->gridTitle; ?></h3>
+    </div>
+    <div class="modal-body">
+            <table  class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <?php $keys = array_keys($this->grid['columns']);?>
+                        <?php $values = array_values($this->grid['columns']);?>
+                        <?php foreach($values as $key): ?>
+                        <th><?php echo $key ?></th>
+                        <?php endforeach;?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if( count( $this->grid['items'] ) ):?>
+                        <?php foreach($this->grid['items'] as  $item):?>
+                            <?php $data = $item->getData(); ?>
+                            <tr>
+                                <?php $class = ''; ?>
+                                <?php foreach($keys as $ke):?>
+                                    <?php $class = ''; ?>
+                                    <?php if( $this->grid['titleField'] === $ke ): ?>
+                                        <?php $class = 'titleField'; ?>
+                                    <?php endif; ?>
+                                    <td class="<?php echo $class; ?>" >
+                                        <?php echo $data[$ke]; ?>
+                                    </td>
+                                <?php endforeach; ?>
+                                <td class="idField hidden"><?php echo $data[$this->idField] ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td style="text-align: center" colspan="<?php echo count($this->grid['columns']) + 1 ?>">Nothing to show</td>
+                        </tr>
+                    <?php endif;?>
+                </tbody>
+            </table>
+
+    </div>
+
+    <div class="modal-footer">
+        <a class="btn btn-primary" data-toggle='modal' href='#change_contractor_modal' id='change_contractor_name'> Clear </a>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#change_contractor_name').bind('click', function(event){
+            $('#change_contractor_name').modal('hide');
+            window.location.replace("<?php echo $this->url(array(
+                'controller' => 'index',
+                'action' =>'changecurrentcontractor',
+                'currentController' => $this->grid['controller'],
+            )); ?>/selectedContractorId/none");
+
+        });
+        $('#change_contractor_modal.modal tbody tr').css('cursor','pointer');
+        $(document).ready(function() {
+            $('#change_contractor_modal.modal tbody tr').bind('click', function(event) {
+                $('#change_contractor_modal').modal('hide');
+
+                window.location.replace("<?php echo $this->url(array(
+                        'controller' => 'index',
+                        'action' =>'changecurrentcontractor',
+                        'currentController' => $this->grid['controller'],
+                    )); ?>/selectedContractorId/" + $.trim($(this).children('td.idField').html()));
+            });
+        });
+    });
+</script>

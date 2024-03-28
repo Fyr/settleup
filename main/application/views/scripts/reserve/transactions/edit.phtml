@@ -1,0 +1,64 @@
+<?php $this->headTitle()->append($this->title); ?>
+<h3><?php echo ($this->form->type->getValue() >= Application_Model_Entity_System_ReserveTransactionTypes::ADJUSTMENT_DECREASE)? 'Contractor Reserve Account Adjustment' : $this->title ?></h3>
+
+<div class="row">
+    <form class="form-horizontal hide-buttons" action="<?php echo $this->escape($this->form->getAction()) ?>" method="<?php echo $this->escape($this->form->getMethod()) ?>" name="<?php echo $this->escape($this->form->getName()) ?>">
+        <fieldset>
+            <div class="hidden">
+                <?php echo $this->form->reserve_account_vendor ?>
+                <?php echo $this->form->reserve_account_contractor ?>
+                <?php echo $this->form->type ?>
+                <?php echo $this->form->approved_by ?>
+                <?php echo $this->form->created_by ?>
+                <?php echo $this->form->contractor_id ?>
+            </div>
+            <div class="row">
+                <div class="span6">
+                    <?php echo $this->form->id ?>
+                    <?php echo $this->form->contractor_code ?>
+                    <?php echo $this->form->company_name ?>
+                    <?php if (count($this->popupSetup)): ?>
+                        <?php echo $this->form->reserve_account_contractor_title ?>
+                    <?php endif ?>
+                    <?php if ($this->form->id->getValue()): ?>
+                    <?php echo $this->form->reserve_account_vendor_title ?>
+                    <?php endif ?>
+                    <?php echo $this->form->type_title ?>
+                    <?php echo $this->form->reserve_code ?>
+                    <?php echo $this->form->description ?>
+                    <?php echo $this->form->powerunit_code ?>
+                    <?php echo $this->form->reference ?>
+                    <?php echo $this->form->settlement_cycle_id ?>
+                    <?php echo $this->form->deduction_id ?>
+                </div>
+                <div class="span6">
+                    <?php if ($this->form->type->getValue() >= Application_Model_Entity_System_ReserveTransactionTypes::ADJUSTMENT_DECREASE): ?>
+                    <?php echo $this->form->current_balance ?>
+                    <?php echo $this->form->adjustment_type ?>
+                    <?php endif ?>
+                    <?php echo $this->form->amount ?>
+                    <?php echo $this->form->balance ?>
+                    <?php echo $this->form->approved_datetime ?>
+                    <?php echo $this->form->approved_by_title ?>
+                    <?php echo $this->form->created_datetime ?>
+                    <?php echo $this->form->created_by_title ?>
+                    <?php echo $this->form->source_id ?>
+                    <?php echo $this->form->settlement_status ?>
+                </div>
+            </div>
+            <div class="form-actions">
+                <?php if (isset($this->form->submit)): ?>
+                    <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+                    <a class="btn cancel btn-danger">Cancel</a>
+                <?php endif ?>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<?php foreach($this->popupSetup as $grid): ?>
+    <?php echo $this->popupGrid($grid); ?>
+<?php endforeach; ?>
+
+<script type="text/javascript" >
+    getRASetupUrl = '<?php echo $this->url(array('action' =>'updaterasetup')); ?>';
+</script>

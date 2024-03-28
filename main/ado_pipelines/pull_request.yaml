@@ -1,0 +1,74 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  - group: settlement
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: 'MainPHPStaticAnalysis'
+  displayName: 'Main PHP Static Analysis'
+  jobs:
+  - job: 'MainPHPStaticAnalysis'
+    workspace:
+      clean: all
+    displayName: 'Main PHP Static Analysis'
+
+    steps:
+      - bash: |
+          export REGISTRY_PASSWORD=$(REGISTRY_PASSWORD)
+          docker login -u commonSettlementAcr -p $REGISTRY_PASSWORD commonsettlementacr.azurecr.io
+          docker buildx build --progress=plain --cache-from commonsettlementacr.azurecr.io/main/settleup-main-php:latest --tag settleup-main-php --file docker/azure/php/Dockerfile .
+        displayName: 'Build Main PHP Docker Image'
+
+      - bash: |
+          docker run --rm settleup-main-php composer phpcs
+          code=$(echo "$?")
+          echo $code
+          if [[ $code == 0 ]]; then
+            echo "There is no errors"
+          else
+            echo "##vso[task.logissue type=error]phpcs contains errors."
+            exit 1
+          fi
+        displayName: 'composer phpcs'
+
+      - bash: |
+          docker run --rm settleup-main-php composer phpstan
+          code=$(echo "$?")
+          echo $code
+          if [[ $code == 0 ]]; then
+            echo "There is no errors"
+          else
+            echo "##vso[task.logissue type=error]phpstan contains errors."
+            exit 1
+          fi
+        displayName: 'composer phpstan'
+
+      - bash: |
+          docker run --rm settleup-main-php composer rector
+          code=$(echo "$?")
+          echo $code
+          if [[ $code == 0 ]]; then
+            echo "There is no errors"
+          else
+            echo "##vso[task.logissue type=error]rector contains errors."
+            exit 1
+          fi
+        displayName: 'composer rector'
+
+      - bash: |
+          docker run --rm settleup-main-php composer tests
+          code=$(echo "$?")
+          echo $code
+          if [[ $code == 0 ]]; then
+            echo "There is no errors"
+          else
+            echo "##vso[task.logissue type=error]phpunit contains errors."
+            exit 1
+          fi
+        displayName: 'composer phpunit'

@@ -1,0 +1,25 @@
+<?php
+$I = new AcceptanceTester($scenario);
+$scenario->group('ui');
+$I->wantTo('create new user with exist email');
+$I->amOnPage("auth/login");
+$I->fillField("Email","admin@test.com");
+$I->fillField("Password","12345");
+$I->click("Log In");
+$I->see("Hello, Tanya Admin");
+$I->click("//div[3]//li[10]/a");
+$I->seeLink('Users', $I->getBaseUrl() . '/users_index');
+$I->seeLink('States', $I->getBaseUrl() . '/freeze');
+$I->click('//div[3]//li[10]//li[1]/a');
+$I->see('Users', '//div[5]/h3');
+$I->see('Add User');
+$I->click(['css'=>'a.btn.btn-success']);
+$I->seeCurrentUrlEquals('/users_index/new');
+$I->see('Create User');
+$I->fillField('Name', 'test');
+$I->fillField('Login (Email)','admin@test.com');
+$I->fillField('Password','12345');
+$I->click("#entity_id_title");
+//$I->click('#updatethis-Application_Model_Entity_Entity_Carrier>tr[data-title="Tanya08"]');
+$I->click('Save');
+$I->see("This email is already in use");

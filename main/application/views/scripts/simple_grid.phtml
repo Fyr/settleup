@@ -1,0 +1,137 @@
+<?php
+$keys = array_keys($this->columns);
+$values = array_values($this->columns);
+?>
+<div class="report">
+    <h4 class="report-grid-title">
+        <?php echo $this->title ?>
+    </h4>
+    <table class="table table-bordered table-striped report-grid">
+        <thead>
+            <tr>
+                <?php foreach ($values as $key): ?>
+                    <th>
+                        <?php echo $key ?>
+                    </th>
+                <?php endforeach; ?>
+                </tr>
+                </thead>
+                <tbody>
+            <?php if ($this->collection->count()): ?>
+                <?php foreach ($this->collection as $item): ?>
+                    <?php $data = $item->getData(); ?>
+                    <tr>
+                        <?php foreach ($keys as $ke): ?>
+                                    <?php switch ($ke):
+
+                                            case 'payment_sum': ?>
+                                                        <td class="money-cell">
+                                                            <?php echo $this->money($this->sumArray[$data['contractor_id']]); ?>
+                                                        </td>
+                                                        <?php break;
+
+                                            case 'am-bal': ?>
+                                                        <td class="money-cell">
+                                                            <?php echo $this->money($data['amount'] - $data['adjusted_balance']); ?>
+                                                        </td>
+                                                        <?php break;
+
+                                            case 'trans-am-bal': ?>
+                                                        <td class="money-cell">
+                                                            <?php echo $this->money($item->getAmountWithSign()) ?>
+                                                        </td>
+                                                        <?php break;
+
+                                            case 'sender_description': ?>
+                                                        <td>
+                                        <?php echo $item->getSender()->getDescription(); ?>
+                                                            </td>
+                                                            <?php break;
+
+                                            case 'provider_name': ?>
+                                                        <td>
+                                                            <?php echo $item->getProviderName(); ?>
+                                                        </td>
+                                                        <?php break;
+
+                                            case 'start_balance': ?>
+                                                        <td class="money-cell">
+                                                            <?php echo $this->money($item->getSender()->getCurrentBalance() - $item->getAmountWithSign()); ?>
+                                                        </td>
+                                                        <?php break;
+
+                                            case 'sender_balance': ?>
+                                                        <td class="money-cell">
+                                                            <?php echo $this->money($item->getSender()->getCurrentBalance()); ?>
+                                                        </td>
+                                                        <?php break;
+
+                                            case 'start_balance': ?>
+                                                        <td class="money-cell">
+                                                            <?php echo $this->money($item->getSender()->getCurrentBalance() - $item->getAmount() + $item->getAdjustedBalance()); ?>
+                                                        </td>
+                                                        <?php break;
+
+
+
+                                            case 'with-amount': ?>
+                                                        <td class="money-cell">
+                                                            <?php if (!$item->getWithdrawalAmount()): ?>
+                                                                    -
+                                                            <?php else: ?>
+                                                                                            <?php echo $this->money($item->getWithdrawalAmount()); ?>
+                                                            <?php endif ?>
+                                                        </td>
+                                                        <?php break;
+
+                                            case 'am-bal-with': ?>
+                                                        <td class="money-cell">
+                                                            <?php echo $this->money($data['amount'] - $data['adjusted_balance'] - $item->getWithdrawalAmount()); ?>
+                                                        </td>
+                                                        <?php break;
+
+                                            default: ?>
+                                                        <?php $isMoneyFormat = false; ?>
+                                                        <?php $class = ''; ?>
+                                                        <?php if (in_array($ke, array('amount', 'rate', 'balance', 'adjusted_balance', 'initial_balance', 'current_balance', 'contribution_amount', 'min_balance'))): ?>
+                                                                <?php $isMoneyFormat = true ?>
+                                                        <?php endif ?>
+                                                        <?php if (preg_match('/^[.]?[\d]+/i', $data[$ke]) || $isMoneyFormat): ?>
+                                                                <?php $class .= ' num' ?>
+                                                        <?php endif ?>
+                                                        <td class="<?php echo $class ?>">
+                                                            <?php if (!$data[$ke]): ?>
+                                                                    -
+                                                            <?php else: ?>
+                                                                    <?php if ($isMoneyFormat): ?>
+                                                                                                        <?php echo $this->money($data[$ke]); ?>
+                                                                    <?php else: ?>
+                                                                            <?php if (preg_match(Application_Model_Entity_System_CyclePeriod::DATE_OR_DATETIME_PATTERN, $data[$ke])): ?>
+                                                                                    <?php $datePart = explode('-', $data[$ke]); ?>
+                                                                                    <?php if (strlen($datePart[2]) > 2): ?>
+                                                                                            <?php $datePart[2] = substr($datePart[2], 0, 2) ?>
+                                                                                    <?php endif ?>
+                                                                                    <?php $data[$ke] = $datePart[1] . '-' . $datePart[2] . '-' . $datePart[0]; ?>
+                                                                            <?php endif ?>
+                                                                            <?php echo $data[$ke]; ?>
+                                                                    <?php endif ?>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <?php break;
+                                        endswitch; ?>
+
+                        <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td style="text-align: center" colspan="<?php echo count($this->columns) + 1 ?>">Nothing to show</td>
+                            </tr>
+                        <?php endif ?>
+                        </tbody>
+                        </table>
+</div><br />
+
+<script type="text/javascript">
+    $('tbody td').each(function () {if (!$(this).text().trim()) {$(this).text('-');} });
+</script>

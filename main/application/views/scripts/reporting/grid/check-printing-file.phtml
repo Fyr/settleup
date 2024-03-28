@@ -1,0 +1,187 @@
+<?php $disbursementCount = count($this->gridData['data']) ?>
+<?php $iterator = 1; ?>
+<?php foreach ($this->gridData['data'] as $disbursement): ?>
+    <?php $escrowAddress = implode(', ', array_filter(
+        array($disbursement->getEscrowAccount()->getHolderCity(), $disbursement->getEscrowAccount()->getHolderState(), $disbursement->getEscrowAccount()->getHolderZip()))) ?>
+    <?php $contractorAddress = implode(', ', array_filter(array($disbursement->getEntityHistory()->getAddress()[0]['city'], $disbursement->getEntityHistory()->getAddress()[0]['state'], $disbursement->getEntityHistory()->getAddress()[0]['zip']))) ?>
+    <?php if (!$this->toPDF):?>
+<div class="page">
+<div class="check-printing-file">
+    <?php elseif ($this->reportingModel->getPrefix() == 'wkhtmlto'): ?>
+        <div class="check-printing-file">
+    <?php endif ?>
+    <h1 class="text-center escrow-account-grid-title-1"><?php echo $disbursement->getEscrowAccount()->getEscrowAccountHolder() ?></h1>
+    <div class="escrow-account-grid-1"><table>
+        <thead>
+            <tr>
+                <th class="bottom-line" style="width:4.34cm">Disbursement Date</th>
+                <th class="bottom-line" style="width:4.24cm">Settlement Cycle</th>
+                <th class="bottom-line" style="width:7.62cm">Comments</th>
+                <th class="bottom-line text-right" style="width:3.97cm">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><?php echo $disbursement->getDisbursementDate() ?></td>
+                <td><?php echo $disbursement->getSettlementDate() ?></td>
+                <td class="text-right"><?php echo Application_Model_Grid_Callback_Balance::getInstance()->render($disbursement->getData(), $disbursement->getAmount(), $this) ?></td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+    <div class="escrow-account-grid-total-1"><table>
+        <tfoot>
+            <tr>
+                <td class="bottom-line top-line big-font-size" style="width:4.19cm; font-size: 11pt; padding: 1pt 0.5pt">Check: <?php echo $disbursement->getDisbursementReference() ?></td>
+                <td class="bottom-line top-line big-font-size" style="width:4.65cm; font-size: 11pt; padding: 1pt 0.5pt"><?php echo $disbursement->getDisbursementDate() ?></td>
+                <td class="bottom-line top-line big-font-size text-right" style="width:4.99cm; font-size: 11pt; padding: 2pt 0.5pt">Check Total: <?php echo Application_Model_Grid_Callback_Balance::getInstance()->render($disbursement->getData(), $disbursement->getAmount(), $this) ?></td>
+            </tr>
+        </tfoot>
+    </table></div>
+    <h1 class="text-center escrow-account-grid-title-2"><?php echo $disbursement->getEscrowAccount()->getEscrowAccountHolder() ?></h1>
+    <div class="escrow-account-grid-2"><table >
+        <thead>
+        <tr>
+            <th class="bottom-line" style="width:4.34cm">Disbursement Date</th>
+            <th class="bottom-line" style="width:4.24cm">Settlement Cycle</th>
+            <th class="bottom-line" style="width:7.62cm">Comments</th>
+            <th class="bottom-line text-right" style="width:3.97cm">Amount</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><?php echo $disbursement->getDisbursementDate() ?></td>
+            <td><?php echo $disbursement->getSettlementDate() ?></td>
+            <td class="text-right"><?php echo Application_Model_Grid_Callback_Balance::getInstance()->render($disbursement->getData(), $disbursement->getAmount(), $this) ?></td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
+            <td></td>
+        </tbody>
+    </table></div>
+    <div class="escrow-account-grid-total-2"><table>
+        <tfoot>
+        <tr>
+            <td class="bottom-line top-line big-font-size" style="width:4.19cm; font-size: 11pt; padding: 1pt 0.5pt">Check: <?php echo $disbursement->getDisbursementReference() ?></td>
+            <td class="bottom-line top-line big-font-size" style="width:4.65cm; font-size: 11pt; padding: 1pt 0.5pt"><?php echo $disbursement->getDisbursementDate() ?></td>
+            <td class="bottom-line top-line big-font-size text-right" style="width:4.99cm; font-size: 11pt; padding: 1pt 0.5pt">Check Total: <?php echo Application_Model_Grid_Callback_Balance::getInstance()->render($disbursement->getData(), $disbursement->getAmount(), $this) ?></td>
+        </tr>
+        </tfoot>
+    </table></div>
+    <div class="escrow-address-grid"><table>
+        <tbody>
+            <tr>
+                <td width="33%" class="text-left escrow-account-big" style="font-size: 13pt"><?php echo $disbursement->getEscrowAccount()->getEscrowAccountHolder() ?></td>
+                <td width="33%" class="text-right big-font-size"><?php echo $disbursement->getDisbursementReference() ?></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="small-font-size" style="font-size: 12px">
+                    <?php if ($disbursement->getEscrowAccount()->getHolderAddress()) {
+                        echo $disbursement->getEscrowAccount()->getHolderAddress();
+                    } elseif ($disbursement->getEscrowAccount()->getData('holder_address_2')) {
+                        echo $disbursement->getEscrowAccount()->getData('holder_address_2');
+                    } else {
+                        echo $escrowAddress;
+                    }?>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="small-font-size" style="font-size: 12px">
+                    <?php if ($disbursement->getEscrowAccount()->getHolderAddress()) {
+                        if ($disbursement->getEscrowAccount()->getData('holder_address_2')) {
+                            echo $disbursement->getEscrowAccount()->getData('holder_address_2');
+                        } else {
+                            echo $escrowAddress;
+                        }
+                    } else {
+                        if ($disbursement->getEscrowAccount()->getData('holder_address_2')) {
+                            echo $escrowAddress;
+                        }
+                    }?>
+                </td>
+                <td class="big-font-size text-right"><?php echo $disbursement->getDisbursementDate()?></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="small-font-size" style="font-size: 12px">
+                    <?php if ($disbursement->getEscrowAccount()->getHolderAddress()
+                              && $disbursement->getEscrowAccount()->getData('holder_address_2')) {
+                        echo $escrowAddress;
+                    }?>
+                </td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table></div>
+    <div class="pay-grid"><table>
+        <tbody>
+        <tr>
+            <td class="text-left big-font-size pay-label" style="width:1cm; vertical-align: middle">PAY:</td>
+            <td class="bordered big-font-size" style="padding: 1pt; vertical-align: middle"><?php echo My_AmountToWords::toWords($disbursement->getAmount()) ?></td>
+            <td class="bordered text-right big-font-size" style="width:4cm; padding: 1pt; vertical-align: middle"><?php echo Application_Model_Grid_Callback_Balance::getInstance()->render($disbursement->getData(), $disbursement->getAmount(), $this) ?></td>
+        </tr>
+        </tbody>
+    </table></div>
+    <div class="company-address-grid"><table>
+        <tbody>
+            <tr>
+                <td colspan="2"></td>
+                <td class="text-center small-font-size" style="font-size: 12px">VOID AFTER 120 DAYS</td>
+            </tr>
+            <tr>
+                <td class="big-font-size">ORDER OF</td>
+                <td class="big-font-size" colspan="2">
+                    <?php if ($disbursement->getEntityHistory()->getAddress()[0]['address']) {
+                        echo $disbursement->getEntityHistory()->getAddress()[0]['address'];
+                    } elseif ($disbursement->getEntityHistory()->getAddress()[0]['address2']) {
+                        echo $disbursement->getEntityHistory()->getAddress()[0]['address2'];
+                    } else {
+                        echo $contractorAddress;
+                    }?>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="big-font-size" style="width:10.5cm">
+                    <?php if ($disbursement->getEntityHistory()->getAddress()[0]['address']) {
+                        if ($disbursement->getEntityHistory()->getAddress()[0]['address2']) {
+                            echo $disbursement->getEntityHistory()->getAddress()[0]['address2'];
+                        } else {
+                            echo $contractorAddress;
+                        }
+                    } elseif ($disbursement->getEntityHistory()->getAddress()[0]['address2']) {
+                        echo $contractorAddress;
+                    }?>
+                </td>
+                <td class="text-center small-font-size top-line" style="font-size: 12px">AUTHORIZED SIGNATURE</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="big-font-size" colspan="2">
+                    <?php if ($disbursement->getEntityHistory()->getAddress()[0]['address']
+                              && $disbursement->getEntityHistory()->getAddress()[0]['address2']) {
+                        echo $contractorAddress;
+                    }?>
+                </td>
+            </tr>
+
+        </tbody>
+    </table></div>
+    <div class="micr-code-holder">
+        <h1 class="micr-code text-left"><?php echo $disbursement->getMICRCode() ?></h1>
+    </div>
+    <?php if (isset($this->toPDF)): ?>
+        <?php if ($this->reportingModel->getPrefix() == 'wkhtmlto'): ?>
+            </div>
+        <?php endif ?>
+        <?php if (++$iterator < $disbursementCount): ?>
+            <pagebreak /><div style="page-break-after: always"></div>
+        <?php endif ?>
+    <?php else: ?>
+        </div></div><hr style="border-style: none none dashed;"/>
+    <?php endif ?>
+<?php endforeach ?>

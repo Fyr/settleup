@@ -1,0 +1,110 @@
+<br />
+<?php $callbacks = $this->callbacks ?>
+<div id="<?php echo $this->destFieldName; ?>_modal" class="modal hide fade in multiselect <?php if ($this->multigrid)
+       echo 'multigrid' ?>" data-dest-field="<?php echo $this->destFieldName; ?>">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">X</button>
+        <h3>
+            <?php echo $this->gridTitle; ?>
+        </h3>
+    </div>
+    <div class="modal-body">
+        <?php if ($this->multigrid): ?>
+            <ul class="nav nav-tabs" id="<?php echo $this->destFieldName; ?>_tab">
+                <?php foreach ($this->grids as $grid): ?>
+                        <li><a href="#<?php echo $grid['tabTitle']; ?>">
+                                <?php echo $grid['tabTitle']; ?>
+                            </a></li>
+                    <?php endforeach; ?>
+                    </ul>
+                    <div class="tab-content">
+            <?php endif ?>
+            <?php foreach ($this->grids as $grid): ?>
+                <?php if ($this->multigrid): ?>
+                    <div class="tab-pane" id="<?php echo $grid['tabTitle']; ?>">
+                    <?php endif; ?>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                <?php $keys = array_keys($grid['columns']); ?>
+                                    <?php $values = array_values($grid['columns']); ?>
+                                    <th><input type="checkbox" class="select-all"></th>
+                                <?php foreach ($values as $key): ?>
+                                        <th>
+                                            <?php echo $key ?>
+                                        </th>
+                                    <?php endforeach; ?>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                            <?php if (count($grid['items'])): ?>
+                                    <?php foreach ($grid['items'] as $item): ?>
+                                        <?php $data = $item->getData(); ?>
+                                        <tr>
+                                            <td class="checkboxField">
+                                                        <input type="checkbox" data-title="<?php echo $data[$grid['titleField']] ?>"
+                                                            data-id="<?php echo $data[$this->idField] ?>">
+                                                        </td>
+                                        <?php foreach ($keys as $ke): ?>
+                                                        <?php $class = ''; ?>
+                                                            <?php if ($item->getTitleColumn() === $ke): ?>
+                                                                <?php $class = 'titleField'; ?>
+                                                            <?php endif; ?>
+                                                            <?php if (isset($callbacks[$ke])): ?>
+                                                                    <td <?php echo $callbacks[$ke]::getInstance()->renderWrapper($data, $data[$ke], $this, array('class' => $class)) ?>>
+                                                                        <?php echo $callbacks[$ke]::getInstance()->render($data, $data[$ke], $this) ?>
+                                                                    </td>
+                                                                <?php else: ?>
+                                                                    <?php $isMoneyFormat = false; ?>
+                                                                    <?php if (in_array($ke, array('amount', 'rate', 'balance', 'adjusted_balance', 'initial_balance', 'current_balance', 'contribution_amount', 'min_balance'))): ?>
+                                                                        <?php $isMoneyFormat = true ?>
+                                                                    <?php endif ?>
+                                                                    <?php if (preg_match('/^[.]?[\d]+/i', $data[$ke]) || $isMoneyFormat): ?>
+                                                                        <?php $class .= ' num' ?>
+                                                                    <?php endif ?>
+                                                                    <td class="<?php echo $class ?>">
+                                                                        <?php if (!$data[$ke]): ?>
+                                                                            -
+                                                                        <?php else: ?>
+                                                                            <?php if ($isMoneyFormat): ?>
+                                                                                                            <?php echo $this->money($data[$ke]); ?>
+                                                                            <?php else: ?>
+                                                                                <?php if (preg_match(Application_Model_Entity_System_CyclePeriod::DATE_OR_DATETIME_PATTERN, $data[$ke])): ?>
+                                                                                    <?php $datePart = explode('-', $data[$ke]); ?>
+                                                                                    <?php if (strlen($datePart[2]) > 2): ?>
+                                                                                        <?php $datePart[2] = substr($datePart[2], 0, 2) ?>
+                                                                                    <?php endif ?>
+                                                                                    <?php $data[$ke] = $datePart[1] . '-' . $datePart[2] . '-' . $datePart[0]; ?>
+                                                                                <?php endif ?>
+                                                                                <?php echo $data[$ke]; ?>
+                                                                            <?php endif; ?>
+                                                                        <?php endif ?>
+                                                                    </td>
+                                                                <?php endif ?>
+                                                            <?php endforeach; ?>
+                                                    <td class="idField hidden">
+                                                        <?php echo $data[$this->idField] ?>
+                                                    </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <tr>
+                                            <td class="placeholder" style="text-align: center"
+                                                colspan="<?php echo count($grid['columns']) + 1 ?>">Nothing to show
+                                            </td>
+                                            </tr>
+                            <?php endif; ?>
+                                </tbody>
+                                </table>
+                    <?php if ($this->multigrid): ?>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+            <?php if ($this->multigrid): ?>
+                </div>
+            <?php endif; ?>
+    </div>
+    <div class="modal-footer">
+        <a class="btn btn-success add-selected-items disabled"><i class="icon-plus icon-white"></i> Add</a>
+    </div>
+</div>

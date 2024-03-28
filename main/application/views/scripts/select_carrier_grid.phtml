@@ -1,0 +1,45 @@
+<div class="current-selector">
+    <span>Division: </span><a data-toggle='modal' href='#change_carrier_modal' id='current_carrier_name'><?php echo $this->currentEntityName->getName(); ?></a>
+</div>
+
+<?php
+$keys = array_keys($this->grid['columns']);
+$values = array_values($this->grid['columns']);
+?>
+<div id="change_carrier_modal" data-controller="<?php echo $this->grid['controller'] ?>" class="modal hide fade in">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">X</button>
+        <h3><?php echo $this->gridTitle; ?></h3>
+    </div>
+    <div class="modal-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <?php foreach ($values as $key): ?>
+                    <th><?php echo $key ?></th>
+                <?php endforeach; ?>
+            </tr>
+            </thead>
+            <tbody>
+            <?php if (count($this->grid['items'])): ?>
+                <?php foreach ($this->grid['items'] as $item): ?>
+                    <?php $data = $item->getData(); ?>
+                    <tr>
+                        <?php foreach ($keys as $ke): ?>
+                            <td class="<?php echo ($this->grid['titleField'] === $ke) ? 'titleField' : '' ?>">
+                                <?php echo $data[$ke]; ?>
+                            </td>
+                        <?php endforeach; ?>
+                        <td class="idField hidden"><?php echo $data[$this->idField] ?></td>
+                        <td class="entityField hidden"><?php echo $item->getEntityId() ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td style="text-align: center" colspan="<?php echo count($this->grid['columns']) + 1 ?>">Nothing to show</td>
+                </tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>

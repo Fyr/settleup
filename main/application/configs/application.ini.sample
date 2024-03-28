@@ -1,0 +1,84 @@
+[development]
+phpSettings.date.timezone = "America/Los_Angeles"
+resources.locale.default = "en_US"
+resources.locale.force = true
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+bootstrap.path = APPLICATION_PATH "/Bootstrap.php"
+bootstrap.class = "Bootstrap"
+appnamespace = "Application"
+resources.frontController.controllerDirectory = APPLICATION_PATH "/controllers"
+resources.frontController.params.displayExceptions = 1
+resources.layout.layoutPath = APPLICATION_PATH "/layouts/scripts/"
+resources.view.doctype = "HTML5"
+resources.view.helperPath.Application_Views_Helpers = APPLICATION_PATH "/views/helpers"
+pdfAdapter = "wkhtmltopdf"
+
+cache.enabled = 0
+cache.dir = APPLICATION_PATH "/../data/cache"
+
+environment = "local"
+auth.domain = "http://web_auth"
+domain = "http://localhost"
+
+resources.log.stream.writerName = "Stream"
+resources.log.stream.writerParams.stream = APPLICATION_PATH "/../data/logs/application.log"
+resources.log.stream.writerParams.mode = "a"
+resources.log.stream.filterName = "Priority"
+resources.log.stream.filterParams.priority = 7
+
+files.storagePath = APPLICATION_PATH "/../data/uploads"
+files.storageAzure = 0
+
+resources.db.adapter = PDO_MYSQL
+resources.db.params.charset = "utf8"
+
+resources.db.params.host = database
+resources.db.params.dbname = settleup_main
+resources.db.params.username = settleup_main_user
+resources.db.params.password = "NaDeQuRe354!"
+resources.db.params.profiler.enabled = "false"
+resources.db.params.profiler.class = "Zend_Db_Profiler_Firebug"
+
+azure.insightsLogger = 0
+settle_up_api.url = "https://settlement-interface-dev-fapp.azurewebsites.net"
+settle_up_api.auth_token = "xxx"
+
+
+[testing]
+phpSettings.date.timezone = "America/Los_Angeles"
+resources.locale.default = "en_US"
+resources.locale.force = true
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+bootstrap.path = APPLICATION_PATH "/Bootstrap.php"
+bootstrap.class = "Bootstrap"
+appnamespace = "Application"
+resources.frontController.controllerDirectory = APPLICATION_PATH "/controllers"
+resources.frontController.params.displayExceptions = 1
+resources.layout.layoutPath = APPLICATION_PATH "/layouts/scripts/"
+resources.view.doctype = "HTML5"
+resources.view.helperPath.Application_Views_Helpers = APPLICATION_PATH "/views/helpers"
+pdfAdapter = "wkhtmltopdf"
+
+cache.enabled = 0
+cache.dir = APPLICATION_PATH "/../data/cache"
+
+auth.domain = "http://web_auth"
+domain = "http://localhost"
+
+resources.log.stream.writerName = "Stream"
+resources.log.stream.writerParams.stream = APPLICATION_PATH "/../data/logs/application.log"
+resources.log.stream.writerParams.mode = "a"
+
+files.storagePath = APPLICATION_PATH "/../data/uploads"
+
+resources.db.adapter = PDO_MYSQL
+resources.db.params.charset = "utf8"
+
+resources.db.params.host = database
+resources.db.params.dbname = settleup_main
+resources.db.params.username = settleup_main_user
+resources.db.params.password = "NaDeQuRe354!"
+resources.db.params.profiler.enabled = "false"
+resources.db.params.profiler.class = "Zend_Db_Profiler_Firebug"

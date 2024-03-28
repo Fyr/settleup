@@ -1,0 +1,8 @@
+<?php if ($this->message):?>
+    <div class="alert alert-success">
+        <strong><?php echo $this->message ?></strong>
+    </div>
+<?php else: ?>
+    <h3>Please, enter your new password: </h3>
+    <?php echo $this->form ?>
+<?php endif;?>

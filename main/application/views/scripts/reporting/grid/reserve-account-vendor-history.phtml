@@ -1,0 +1,89 @@
+<?php $colspan = count($this->gridData['fields']); ?>
+<?php $itemsCount = 0; ?>
+<table class="report-grid" topntail repeat_header="1">
+    <thead>
+    <tr class="report-title">
+        <th colspan="<?php echo $colspan ?>" class="text-center bottom-line"><?php echo $this->gridData['title'] ?></th>
+    </tr>
+    <tr class="info-row"><th colspan="<?php echo $colspan ?>"></th></tr>
+    <?php if ($this->gridData['form']['date_filter_type'] == Application_Model_Report_Reporting::INVOICE_DATE): ?>
+        <tr class="info-row">
+            <th class="info-title">View By:</th>
+            <th class="info-value" colspan="<?php echo $colspan - 1 ?>" style="font-weight: normal">Invoice Date</th>
+        </tr>
+        <tr class="info-row">
+            <th class="info-title">Range:</th>
+            <th class="info-value" colspan="<?php echo $colspan - 1 ?>" style="font-weight: normal"><?php echo \DateTime::createFromFormat('m/d/Y', $this->gridData['form']['invoice_start_date'])->format('m/d/y') . ' - ' . \DateTime::createFromFormat('m/d/Y', $this->gridData['form']['invoice_end_date'])->format('m/d/y') ?></th>
+        </tr>
+    <?php else: ?>
+        <?php
+        $startCycle = Application_Model_Entity_Settlement_Cycle::staticLoad($this->gridData['form']['starting_period']);
+        $startCycle->changeDateFormat(array('cycle_start_date'), true, true);
+        $endCycle = Application_Model_Entity_Settlement_Cycle::staticLoad($this->gridData['form']['ending_period']);
+        $endCycle->changeDateFormat(array('cycle_close_date'), true, true);
+        ?>
+        <tr class="info-row">
+            <th class="info-title">View By:</th>
+            <th class="info-value" colspan="<?php echo $colspan - 1 ?>" style="font-weight: normal">Settlement Cycle</th>
+        </tr>
+        <tr class="info-row">
+            <th class="info-title">Range:</th>
+            <th class="info-value" colspan="<?php echo $colspan - 1 ?>" style="font-weight: normal"><?php echo $startCycle->getCycleStartDate() . ' - ' . $endCycle->getCycleCloseDate() ?></th>
+        </tr>
+    <?php endif ?>
+    <tr class="info-row">
+        <th class="info-title">Contractors:</th>
+        <th class="info-value" colspan="<?php echo $colspan - 1 ?>" style="font-weight: normal"><?php echo $this->gridData['contractor_title'] ?></th>
+    </tr>
+    <tr class="info-row"><th colspan="<?php echo $colspan ?>"></th></tr>
+    <tr class="subtable">
+        <?php foreach($this->gridData['fields'] as $name => $title): ?>
+            <th class="field-name-<?php echo $name ?>"><?php echo $title ?></th>
+        <?php endforeach ?>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach($this->gridData['accounts'] as $account): ?>
+        <?php foreach($account['items'] as $entity): ?>
+            <tr>
+                <?php foreach($this->gridData['fields'] as $key => $title): ?>
+                    <?php $method = 'get' . Application_Model_Base_Object::uc_words($key, '') ?>
+                    <?php if (isset($this->gridData['callbacks'][$key])): ?>
+                        <?php $callback = $this->gridData['callbacks'][$key]?>
+                        <td <?php echo $callback::getInstance()->renderWrapper($entity->getData(), $entity->$method(), $this, array('forReport' => true)) ?>><div><?php echo $callback::getInstance()->render($entity->getData(), $entity->$method(), $this, array('forReport' => true)) ?></div></td>
+                    <?php else: ?>
+                        <td><?php echo $entity->$method() ?></td>
+                    <?php endif ?>
+                <?php endforeach ?>
+            </tr>
+        <?php endforeach ?>
+        <?php if (count($account['items']) > 0): ?>
+            <?php ++$itemsCount ?>
+            <tr>
+                <td colspan="8" class="text-right  bold-text">Total:</td>
+                <td class="top-line num  bold-text"><?php echo '<span class="pull-left">$</span>' . number_format($account['total_starting_balance'], 2) ?></td>
+                <td class="top-line num  bold-text"><?php echo '<span class="pull-left">$</span>' . number_format($account['total_adjustments'], 2) ?></td>
+                <td class="top-line num  bold-text"><?php echo '<span class="pull-left">$</span>' . number_format($account['total_contributions'], 2) ?></td>
+                <td class="top-line num  bold-text"><?php echo '<span class="pull-left">$</span>' . number_format($account['total_withdrawals'], 2) ?></td>
+                <td class="top-line num  bold-text"><?php echo '<span class="pull-left">$</span>' . number_format($account['total_ending_balance'], 2) ?></td>
+            </tr>
+            <tr class="info-row"><td colspan="<?php echo $colspan ?>"></td></tr>
+        <?php endif ?>
+    <?php endforeach ?>
+    <tr>
+        <?php if ($itemsCount > 0): ?>
+            <?php if ($itemsCount > 1): ?>
+            <td colspan="8" class="text-right  bold-text">Grand Total:</td>
+            <td class="top-line bottom-double-line num  bold-text"><?php echo '<span class="pull-left">$</span>' . number_format($this->gridData['grand_total_starting_balance'], 2) ?></td>
+            <td class="top-line bottom-double-line num  bold-text"><?php echo '<span class="pull-left">$</span>' . number_format($this->gridData['grand_total_adjustments'], 2) ?></td>
+                <td class="top-line bottom-double-line num  bold-text"><?php echo '<span class="pull-left">$</span>' . number_format($this->gridData['grand_total_contributions'], 2) ?></td>
+                <td class="top-line bottom-double-line num  bold-text"><?php echo '<span class="pull-left">$</span>' . number_format($this->gridData['grand_total_withdrawals'], 2) ?></td>
+            <td class="top-line bottom-double-line num  bold-text"><?php echo '<span class="pull-left">$</span>' . number_format($this->gridData['grand_total_ending_balance'], 2) ?></td>
+            <?php endif ?>
+        <?php else: ?>
+            <td colspan="<?php echo $colspan ?>" class="text-center">Nothing to show!</td>
+        <?php endif ?>
+    </tr>
+    <tr class="info-row"><td colspan="<?php echo $colspan ?>"></td></tr>
+    </tbody>
+</table>

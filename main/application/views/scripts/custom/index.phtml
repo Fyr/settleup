@@ -1,0 +1,25 @@
+<?php
+$title = 'Custom Field Descriptions';
+$this->headTitle()->append($title);
+?>
+<h3><?php echo $title ?></h3>
+
+<form  action="<?php echo $this->escape($this->form->getAction()); ?>" method="<?php echo $this->escape($this->form->getMethod()); ?>" name="<?php echo $this->escape($this->form->getName()); ?>" class="form-horizontal hide-buttons">
+<?php echo $this->form->id ?>
+<?php echo $this->form->carrier_id ?>
+<?php echo $this->form->payment_code ?>
+<?php echo $this->form->carrier_payment_code ?>
+<?php echo $this->form->description ?>
+<?php echo $this->form->category ?>
+<?php echo $this->form->department ?>
+<?php echo $this->form->gl_code ?>
+<?php echo $this->form->invoice ?>
+<?php echo $this->form->invoice_date ?>
+<?php echo $this->form->disbursement_code ?>
+
+<div class="form-actions">
+    <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+    <a class="btn cancel btn-danger">Cancel</a>
+</div>
+
+</form>

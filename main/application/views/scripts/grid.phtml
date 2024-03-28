@@ -1,0 +1,158 @@
+<?php
+$keys = array_keys($this->columns);
+$values = array_values($this->columns);
+?>
+<div class="right">
+<?php if (in_array('approve',$this->buttons)): ?>
+    <a id="approve-selected" class="btn btn-info btn-multiaction" confirm-type="Approving" target-url="" action-type="approve"><i class="icon-ok icon-white"></i> Approve Selected</a>
+<?php endif ?>
+<?php if (in_array('delete',$this->buttons)): ?>
+    <a id="delete-selected" class="btn btn-danger confirm-delete btn-multiaction" confirm-type="Deletion" target-url="" action-type="delete"><i class="icon-trash icon-white"></i> Delete Selected</a>
+<?php endif ?>
+<?php if (!$this->removeActionNew) : ?>
+    <a class="btn btn-success" href="<?php echo $this->url(array('action' =>'new')); ?>"><i class="icon-plus icon-white"></i> Create New</a>
+<?php endif ?>
+
+</div></br>
+<table  class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <?php if (!in_array('select',$this->buttons) && !isset($this->isValid) ): ?>
+                <th width="14px">
+                    <?php echo $this->formCheckbox('checkAll'); ?>
+                </th>
+            <?php endif ?>
+            <?php foreach($this->columns as $key => $title): ?>
+            <th class="field-name-<?php echo $key ?>"><?php echo $title ?></th>
+            <?php endforeach;?>
+            <?php if ( !isset($this->isValid)): ?>
+                <th>Action</th>
+            <?php endif ?>
+        </tr>
+    </thead>
+    <tbody id="sortable">
+    <?php if( $this->collection->count() ):?>
+    <?php foreach($this->collection->getItems() as  $item):?>
+        <?php $data = $item->getData(); ?>
+        <tr>
+            <?php if (!in_array('select',$this->buttons) && !isset($this->isValid) ): ?>
+                <td class="checkboxField">
+                    <?php echo $this->formCheckbox('id' . $data['id']); ?>
+                </td>
+            <?php endif ?>
+            <?php foreach($keys as $ke):?>
+                <?php $isMoneyFormat = false; ?>
+                <?php $class = ''; ?>
+                                        <?php if (in_array($ke, array('amount', 'rate', 'balance', 'initial_balance', 'current_balance', 'contribution_amount', 'min_balance'))): ?>
+                    <?php $isMoneyFormat = true ?>
+                    <?php endif ?>
+                <?php if ((preg_match('/^[.]?[\d]+/i', $data[$ke]) || $isMoneyFormat) && !in_array($ke, array('deduction_code', 'payment_code', 'invoice_date', 'contractor_code', 'description', 'category', 'invoice', 'invoice_id'))): ?>
+                    <?php $class .= ' num' ?>
+                <?php endif ?>
+                <?php $idFieldClass = ($ke == $this->idField) ? 'idField' : '';?>
+                <td class="<?php echo $class . $idFieldClass ?>">
+                    <?php if (!$data[$ke]): ?>
+                    -
+                    <?php else: ?>
+                        <?php if ($ke == 'title' && isset($this->isValid) && array_key_exists('status_id',$data)): ?>
+                            <?php if ($data['status_id'] == Application_Model_Entity_System_PaymentTempStatus::CONST_STATUS_NOT_VALID) : ?>
+                                <span class="label label-important show-errors" data-content="<?php echo $data['error'] ?>" rel="popover" href="#" data-original-title="Errors:">
+                            <?php elseif ($data['status_id'] == Application_Model_Entity_System_PaymentTempStatus::CONST_STATUS_VALID) : ?>
+                                <?php if ($error = $data['error'] ?: $data['warning']): ?>
+                                    <span class="label label-warning show-errors" data-content="<?php echo $error ?>" rel="popover" href="#" data-original-title="Warning:">
+                                <?php else: ?>
+                                    <span class="label label-success" data-content="<?php echo $error ?>" rel="popover" href="#" data-original-title="Errors:">
+                                <?php endif ?>
+                            <?php endif ?>
+                            <?php endif ?>
+                            <?php if ($isMoneyFormat): ?>
+                                <?php echo '$' . number_format($data[$ke], 2); ?>
+                            <?php else: ?>
+                                <?php if (preg_match(Application_Model_Entity_System_CyclePeriod::DATE_OR_DATETIME_PATTERN, $data[$ke])): ?>
+                                    <?php $datePart = explode('-', $data[$ke]); ?>
+                                    <?php if (strlen($datePart[2]) > 2): ?>
+                                        <?php $datePart[2] = substr($datePart[2], 0, 2) ?>
+                                    <?php endif ?>
+                                    <?php $data[$ke] = $datePart[1] . '/' . $datePart[2] . '/' . $datePart[0]; ?>
+                                <?php endif ?>
+<!--                                --><?php //if ($ke == 'title' && isset($this->isValid) && $data['status_id'] == Application_Model_Entity_System_PaymentTempStatus::CONST_STATUS_VALID && $data['error']): ?>
+<!--                                    Valid (Warning)-->
+<!--                                --><?php //else: ?>
+                                    <?php echo $data[$ke]; ?>
+<!--                                --><?php //endif ?>
+                            <?php endif; ?>
+
+                            <?php if ($ke == 'title' && isset($this->isValid)): ?>
+                                </span>
+                            <?php endif ?>
+                        <?php endif ?>
+                </td>
+            <?php endforeach; ?>
+            <?php if (!array_key_exists('status_id', $data)): ?>
+                <td style="width: 217px; text-align: center;">
+                    <?php if( (in_array('approve',$this->buttons)) && ($data['status'] == Application_Model_Entity_System_PaymentStatus::APPROVED_STATUS) ):?>
+                        <?php echo $this->setButtons(array('show'), $data[$item->getPrimaryKey()]); ?>
+                    <?php else: ?>
+                        <?php echo $this->setButtons($this->buttons, $data[$item->getPrimaryKey()]); ?>
+                    <?php endif ?>
+                </td>
+            <?php endif ?>
+        </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+    <tr class="not_sortable">
+        <?php (!in_array('select',$this->buttons)) ? $colspan = 2 : $colspan = 1;  ?>
+        <td style="text-align: center" colspan="<?php echo count($this->columns) + $colspan ?>">Nothing to show</td>
+    </tr>
+    <?php endif;?>
+    <?php
+    if (isset($this->collection)) {
+        if ($this->collection instanceof Application_Model_Entity_Collection_Payments_Temp) {
+            echo $this->partial('file/payment-totals.phtml', ['totals' => $this->collection->getTotals()]);
+        } elseif ($this->collection instanceof Application_Model_Entity_Collection_Deductions_Temp) {
+            echo $this->partial('file/deduction-totals.phtml', ['totals' => $this->collection->getTotals()]);
+        }
+    }
+    ?>
+    </tbody>
+    <?php if ($this->sortable): ?>
+        <tfoot>
+            <tr>
+                <?php (!in_array('select',$this->buttons)) ? $colspan = 2 : $colspan = 1;  ?>
+                <td colspan="<?php echo (count($this->columns) + $colspan); ?>">*You can sort the entries by priority by dragging</td>
+            </tr>
+        </tfoot>
+    <?php endif ?>
+</table>
+
+<form id="multiaction" class="hidden" name="multiaction" method="post" action="<?php echo $this->url(array('action' =>'multiaction')) ?>">
+    <input type="text" id="action-type" name="action-type">
+    <input type="text" id="ids" name="ids">
+</form>
+
+<?php if (isset($this->isValid)): ?>
+    <div class="right">
+        <?php if ($this->isValid): ?>
+        <a id="approve" class="btn btn btn-info" href="<?php echo $this->url(array('action' => 'approve', 'id' => $this->id)) ?>" ><i class="icon-ok icon-white"></i> Approve</a>
+        <?php endif ?>
+        <a class="btn cancel btn-danger" <?php if ($this->cancelUrl) echo 'href="' . $this->cancelUrl . '"'?>>Cancel</a>
+    </div>
+<?php endif ?>
+
+<?php if (in_array('delete',$this->buttons)): ?>
+<div id="confirm-modal" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="btn close" data-dismiss="modal">X</a>
+        <h3>Confirm <span class="confirm-type"></span> of Records</h3>
+    </div>
+    <div class="modal-body">
+        <p class="confirm-description"><span class="confirm-type"></span> these records is irreversible.</p>
+        <p>Do you want to proceed?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="" class="btn btn-danger" id="btn-confirm">Yes</a>
+        <a data-dismiss="modal" class="btn btn-success">No</a>
+    </div>
+</div>
+
+<?php endif ?>

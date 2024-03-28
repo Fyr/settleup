@@ -1,0 +1,186 @@
+<?php $this->headTitle()->append($this->title); ?>
+<?php $user = Application_Model_Entity_Accounts_User::getCurrentUser() ?>
+
+<?php if ($this->form->id->getValue()): ?>
+    <h3>Edit <?php echo $this->title?></h3><br />
+    <div class="left bank-reserve-acc-actions">
+        <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::RESERVE_ACCOUNT_CARRIER_VIEW)): ?>
+        <?php echo $this->setButtons(array('reserve-accounts-carrier'),$this->form->entity_id->getValue());?>
+        <?php endif ?>
+        <?php if ($user->isAdmin()) : ?>
+            <a class="btn btn-primary" href="<?php echo $this->url(array('action' => 'escrow', 'controller' => 'carriers_index', 'carrier' => $this->form->entity_id->getValue(), 'redirect' => 'true'), null, true)?>"><i class="icon-pencil icon-white"></i> Escrow Account</a>
+        <?php endif ?>
+        <?php if ($user->isSuperAdmin()) : ?>
+            <a class="btn btn-danger confirm" data-confirm-description-title="Purging of" confirm-type="Purge" target-url="<?php echo $this->url(array('action' => 'purge', 'controller' => 'carriers_index', 'id' => $this->form->id->getValue()), null, true)?>"><i class="icon-trash icon-white"></i> Purge Data</a>
+        <?php endif ?>
+    </div>
+<?php else: ?>
+    <h3>Create <?php echo $this->title?></h3><br />
+    <div class="left bank-reserve-acc-actions">
+        <a class="btn btn-primary disabled" href="#"><i class="icon-pencil icon-white"></i> Reserve Accounts</a>
+        <?php if (Application_Model_Entity_Accounts_User::getCurrentUser()->isAdmin()) : ?>
+        <a class="btn btn-primary disabled" href="#"><i class="icon-pencil icon-white"></i> Escrow Account</a>
+        <?php endif ?>
+    </div>
+<?php endif; ?>
+<form  action="<?php echo $this->escape($this->form->getAction()); ?>"
+       method="<?php echo $this->escape($this->form->getMethod()); ?>"
+       name="<?php echo $this->escape($this->form->getName()); ?>"
+       class="form-horizontal">
+
+        <?php echo $this->form->id; ?>
+        <?php echo $this->form->entity_id; ?>
+        <?php echo $this->form->short_code; ?>
+        <?php echo $this->form->name; ?>
+        <?php echo $this->form->tax_id; ?>
+        <?php echo $this->form->contact; ?>
+        <?php echo $this->form->settlement_cycle; ?>
+        <?php echo $this->form->settlement_day; ?>
+        <?php echo $this->form->recurring_payments; ?>
+        <?php echo $this->form->payment_terms; ?>
+        <?php echo $this->form->terms; ?>
+
+
+    <div class="contact">
+        <?php if ($this->form->getElement('id') && $this->form->getElement('id')->getAttrib('readonly') == 'readonly') {
+            $readonly = 'readonly="readonly"';
+            $disabled = 'disabled';
+        } else {
+            $readonly = '';
+            $disabled = '';
+        }
+        ?>
+        <?php $addressSubforms = $this->form->getContactSubForms(Application_Model_Entity_Entity_Contact_Type::TYPE_ADDRESS)?>
+        <?php foreach ($addressSubforms as $subform): ?>
+            <div class="subform row <?php if ($subform->deleted->getValue() == Application_Model_Entity_System_SystemValues::DELETED_STATUS) echo 'nondisplay'?>" data-contact-type="<?php echo $subform->contact_type->getValue() ?>">
+                <div class="span4">
+                    <?php echo $subform->id; ?>
+                    <?php echo $subform->entity_id; ?>
+                    <?php echo $subform->user_id; ?>
+                    <?php echo $subform->contact_type; ?>
+                    <?php echo $subform->deleted; ?>
+                    <?php $addressData = json_decode($subform->value->getValue(), true) ?>
+                    <?php $subform->value->setValue($addressData['address']) ?>
+                    <div class="address-block">
+                        <div class="hidden address-data-holder">
+                            <?php echo $subform->value ?>
+                        </div>
+                        <div class="address-fields">
+                            <div class="control-group">
+                                <label class="control-label optional" for="address">Address 1</label>
+                                <div class="controls">
+                                    <input <?php echo $readonly ?> type="text" value="<?php echo $addressData['address'] ?>" name="address">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label optional" for="address2">Address 2</label>
+                                <div class="controls">
+                                    <input <?php echo $readonly ?> type="text" value="<?php echo (isset($addressData['address2']))?$addressData['address2']:'' ?>" name="address2">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label optional" for="city">City</label>
+                                <div class="controls">
+                                    <input <?php echo $readonly ?> type="text" value="<?php echo $addressData['city'] ?>"  name="city">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label optional" for="state">State</label>
+                                <div class="controls">
+                                    <input <?php echo $readonly ?> type="text" value="<?php echo $addressData['state'] ?>" name="state">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label optional" for="zip">Zip</label>
+                                <div class="controls">
+                                    <input <?php echo $readonly ?> type="text" value="<?php echo $addressData['zip'] ?>" name="zip">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="span2">
+                    <a href="#" class="btn btn-success add <?php echo $disabled ?>"><i class="icon-plus icon-white"></i></a>
+                    <a href="#" class="btn btn-danger delete <?php echo $disabled ?> <?php if ($this->form->getContactSubFormsCount(Application_Model_Entity_Entity_Contact_Type::TYPE_ADDRESS) < 2) echo 'disabled' ?>"><i class="icon-trash icon-white"></i></a>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <div class="contact">
+        <?php foreach (array(Application_Model_Entity_Entity_Contact_Type::TYPE_HOME_PHONE, Application_Model_Entity_Entity_Contact_Type::TYPE_FAX, Application_Model_Entity_Entity_Contact_Type::TYPE_EMAIL) as $contactType): ?>
+            <?php $otherSubforms = $this->form->getContactSubForms($contactType)?>
+            <?php foreach ($otherSubforms as $subform): ?>
+                <div class="subform row <?php if ($subform->deleted->getValue() == Application_Model_Entity_System_SystemValues::DELETED_STATUS) echo 'nondisplay'?>" data-contact-type="<?php echo $subform->contact_type->getValue() ?>">
+                    <div class="span4">
+                        <?php echo $subform->id; ?>
+                        <?php echo $subform->entity_id; ?>
+                        <?php echo $subform->user_id; ?>
+                        <?php echo $subform->contact_type; ?>
+                        <?php echo $subform->value; ?>
+                        <?php echo $subform->title; ?>
+                        <?php echo $subform->deleted; ?>
+                    </div>
+                    <div class="span2">
+                        <a href="#" class="btn btn-success add <?php echo $disabled ?>"><i class="icon-plus icon-white"></i></a>
+                        <a href="#" class="btn btn-danger delete <?php echo $disabled ?> <?php if ($this->form->getContactSubFormsCount($contactType) < 2) echo 'disabled' ?>"><i class="icon-trash icon-white"></i></a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endforeach ?>
+        <?php if($user->isSuperAdmin()): ?>
+            <?php echo $this->form->create_contractor_type ?>
+        <?php endif ?>
+    </div>
+    <div class="form-actions">
+        <?php if (isset($this->form->submit)): ?>
+            <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+        <?php endif ?>
+        <a class="btn cancel btn-danger" <?php echo $this->cancelUrl ?>>Cancel</a>
+    </div>
+</form>
+<div id="confirm-modal" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="btn close" data-dismiss="modal">X</a>
+        <h3>Confirm <span class="confirm-type"></span> of Records</h3>
+    </div>
+    <div class="modal-body">
+        <p class="confirm-description"><span class="confirm-type"></span> these records is irreversible.</p>
+        <p>Do you want to proceed?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="" class="btn btn-danger" id="btn-confirm">Yes</a>
+        <a data-dismiss="modal" class="btn btn-success">No</a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function delete_element(elem)
+    {
+        $(elem).parent().parent().attr("class","hide");
+        var delEl = $(elem).parent().parent().clone();
+        $(elem).parent().parent().remove();
+        $(".element_value", delEl).attr("value", "");
+        $(delEl).appendTo('.contact');
+        return false;
+    }
+
+
+    $(document).ready(function(){
+        var counter = 1000;
+        $('.add').click(function() {
+
+            var newEl = $(".listform").clone();
+            $(".element_id", newEl).attr("name", "id" + counter);
+            $(".element_user_id", newEl).attr("name", "user_id" + counter);
+            $(".element_contact_type", newEl).attr("name", "contact_type" + counter);
+            $(".element_value", newEl).attr("name", "value" + counter);
+            $(newEl).attr('class',"subform");
+            $(newEl).appendTo('.contact');
+            ++counter;
+        });
+    });
+</script>
+
+
+
+

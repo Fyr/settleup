@@ -1,0 +1,12 @@
+<?php $this->headTitle()->append($this->title); ?>
+<h3><?php echo $this->title;?></h3>
+
+<?php
+    echo $this->form;
+    echo $this->partial('popup_grid.phtml', array(
+        'data'=> $this->data,
+        'columns'=> $this->columns,
+        'checkedField' => $this->checkedFields,
+        'title' => strtolower($this->gridTitle)
+    ));
+?>

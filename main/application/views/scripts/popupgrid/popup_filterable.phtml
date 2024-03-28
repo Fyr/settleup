@@ -1,0 +1,32 @@
+<br/>
+<?php $callbacks = $this->callbacks ?>
+<div id="<?php echo $this->destFieldName; ?>_modal" class="modal hide fade in filterable simple <?php if ($this->multigrid) echo 'multigrid'?>" data-dest-field="<?php echo $this->destFieldName; ?>">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">X</button>
+        <h3><?php echo $this->gridTitle; ?></h3>
+    </div>
+    <div class="modal-body">
+        <?php if( $this->multigrid || (!is_int(array_keys($this->grids)[0]))): ?>
+        <ul class="nav nav-tabs" id="<?php echo $this->destFieldName; ?>_tab">
+            <?php foreach($this->grids as $tabTitle => $grid ): ?>
+                <li><a href="#<?php echo $tabTitle; ?>"><?php echo $tabTitle; ?></a></li>
+                <?php $firstTab = false; ?>
+            <?php endforeach; ?>
+        </ul>
+        <div class="tab-content">
+            <?php endif ?>
+            <?php foreach($this->grids as $tabTitle => $grid ): ?>
+                <?php if( $this->multigrid ): ?>
+                    <div class="tab-pane" id="<?php echo $tabTitle; ?>">
+                <?php endif; ?>
+                <?php echo $this->grid()->render($grid); ?>
+                <?php if( $this->multigrid ): ?>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+            <?php if( $this->multigrid || (!is_int(array_keys($this->grids)[0]))): ?>
+        </div>
+    <?php endif; ?>
+    </div>
+</div>
+<?php echo $this->clearButton; ?>

@@ -1,0 +1,8 @@
+[database]
+db_user=settleup_main_user
+db_pass=NaDeQuRe354!
+db_host=localhost
+db_name=settleup_main
+db_port=3306
+patches=patches/
+procedures=procedures.sql

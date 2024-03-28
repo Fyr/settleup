@@ -1,0 +1,17 @@
+<?php $title = 'Deductions' ?>
+<?php $this->headTitle()->append($title) ?>
+<h3><?php echo $title ?></h3>
+<?php echo $this->grid() ?>
+<?php echo $this->partial(
+    'popup_setup_powerunit.phtml',
+    array(
+        'gridTitle' => 'Select Deduction Templates and Power Units',
+        'tabTitle' => 'Deductions',
+        'cyclePeriods' => $this->activeCyclePeriods,
+        'setupGrid' => $this->setupGrid,
+        'powerunitGrid' => $this->powerunitGrid,
+        'selector' => 'deduction-setup',
+        'showInvoiceDateSelector' => true,
+        'cycle' => $this->cycle
+    )
+) ?>

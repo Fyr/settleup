@@ -1,0 +1,1 @@
+ALTER TABLE `reserve_account` DROP COLUMN max_withdrawal_amount;

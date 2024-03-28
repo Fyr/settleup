@@ -1,0 +1,12 @@
+<?php $title = 'Disbursements' ?>
+<?php $this->headTitle()->append($title) ?>
+    <h3><?php echo $title ?></h3>
+<?php
+
+echo $this->grid();
+echo $this->partial('partials/settlement/confirm.phtml', [
+    'id' => 'confirm-settlement-approve',
+    'title' => 'Approve Current Disbursements',
+    'text' => 'Approving the current disbursements is irreversible.'
+]);
+?>

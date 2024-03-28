@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+# main part
+    web:
+        container_name: settleup-main-nginx
+        image: nginx:latest
+        volumes:
+            - ./docker/nginx/vhost.conf:/etc/nginx/conf.d/default.conf
+            - ./:/var/www/html:delegated
+        ports:
+            - "80:80"
+        restart: on-failure
+        depends_on:
+          - app
+
+    app:
+        container_name: settleup-main-php
+        build:
+            context: .
+            dockerfile: ./docker/php/Dockerfile
+        environment:
+            XDEBUG_REMOTE_HOST: host.docker.internal
+            PHP_IDE_CONFIG: "serverName=Docker"
+        volumes:
+            - ./:/var/www/html:delegated
+            - ./docker/php/conf.d/limits.ini:/usr/local/etc/php/conf.d/limits.ini
+            - ./docker/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+        working_dir: /var/www/html
+        restart: on-failure
+        depends_on:
+          - database
+
+    database:
+        container_name: settleup-main-db
+        build:
+            dockerfile: ./docker/mysql/Dockerfile
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ALLOW_EMPTY_PASSWORD=true
+            - MYSQL_DATABASE=settleup_main
+            - MYSQL_USER=settleup_main_user
+            - MYSQL_PASSWORD=NaDeQuRe354!
+        volumes:
+            - ./scripts/db:/var/scripts/db
+            - mysql_data:/var/lib/mysql
+        working_dir: /var/scripts/db
+        restart: always
+
+# auth part
+    web_auth:
+        container_name: settleup-auth-nginx
+        image: nginx:latest
+        volumes:
+            - ./../settlement_auth/docker/nginx/vhost.conf:/etc/nginx/conf.d/default.conf
+            - ./../settlement_auth/:/var/www/html:delegated
+        ports:
+            - "8080:80"
+        depends_on:
+            - app_auth
+        restart: on-failure
+
+    app_auth:
+        container_name: settleup-auth-php
+        build:
+            context: ./../settlement_auth
+            dockerfile: ./../settlement_auth/docker/php/Dockerfile
+        environment:
+            XDEBUG_REMOTE_HOST: settlement_auth.docker.internal
+            PHP_IDE_CONFIG: "serverName=Docker"
+        volumes:
+            - ./../settlement_auth/:/var/www/html:delegated
+            - ./../settlement_auth/docker/php/conf.d/limits.ini:/usr/local/etc/php/conf.d/limits.ini
+            - ./../settlement_auth/docker/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+        working_dir: /var/www/html
+        depends_on:
+            - database_auth
+        restart: on-failure
+
+    database_auth:
+        container_name: settleup-auth-db
+        image: mysql:5.7
+        ports:
+            - "33060:3306"
+        environment:
+            - MYSQL_ALLOW_EMPTY_PASSWORD=true
+            - MYSQL_DATABASE=settleup_auth
+            - MYSQL_USER=settleup_auth_user
+            - MYSQL_PASSWORD=zA8eZ3dA
+        volumes:
+            - mysql_data_auth:/var/lib/mysql
+        restart: always
+
+
+volumes:
+    mysql_data:
+    mysql_data_auth:

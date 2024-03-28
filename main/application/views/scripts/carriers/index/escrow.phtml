@@ -1,0 +1,24 @@
+<?php $this->headTitle()->append('Edit Settlement Escrow Account'); ?>
+<h3>Edit Settlement Escrow Account</h3>
+
+<?php $user = Application_Model_Entity_Accounts_User::getCurrentUser() ?>
+
+<form  action="<?php echo $this->escape($this->form->getAction()); ?>" method="<?php echo $this->escape($this->form->getMethod()); ?>" name="<?php echo $this->escape($this->form->getName()); ?>" class="form-horizontal hide-buttons">
+<?php echo $this->form->id; ?>
+<?php echo $this->form->carrier_id; ?>
+<?php echo $this->form->carrier_title; ?>
+<?php echo $this->form->escrow_account_holder; ?>
+<?php echo $this->form->holder_federal_tax_id; ?>
+<?php echo $this->form->holder_address; ?>
+<?php echo $this->form->holder_address_2; ?>
+<?php echo $this->form->holder_city; ?>
+<?php echo $this->form->holder_state; ?>
+<?php echo $this->form->holder_zip; ?>
+<?php echo $this->form->next_check_number; ?>
+<?php if ($user->isAdmin()) : ?>
+    <div class="form-actions">
+        <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+        <a class="btn cancel btn-danger">Cancel</a>
+    </div>
+<?php endif ?>
+</form>

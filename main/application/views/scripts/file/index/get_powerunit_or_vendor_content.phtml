@@ -1,0 +1,73 @@
+<?php if(count($this->collections)):?>
+<table  class="table table-bordered table-striped table-importing">
+    <tbody>
+        <tr>
+            <?php foreach($this->columns as $key => $options): ?>
+                <th <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"'?> class="field-name-<?php echo $key ?>"><?php echo $options['title'] ?></th>
+            <?php endforeach;?>
+            <th class="field-name-status">Import Status</th>
+        </tr>
+        <?php foreach ($this->collections as $entity): ?>
+            <?php
+            $fieldsWithError = [];
+            $dataErrors = json_decode((string) $entity->getError(), true) ?: [];
+            if ($dataErrors) {
+                $fieldsWithError = array_keys($dataErrors);
+                $entity->setError(implode('</br>', array_values($dataErrors)));
+            }
+            ?>
+            <tr>
+                <?php foreach($this->columns as $key => $options): ?>
+                    <?php $class = array_key_exists($key, $dataErrors) ? 'has-error show-errors' : ''; ?>
+                    <?php $method = 'get' . Application_Model_Base_Object::uc_words($key, '') ?>
+                    <?php if (isset($options['callback'])): ?>
+                        <?php $callback = $options['callback'] ?>
+                        <td class="<?php echo $class; ?>" <?php if (isset($options['colspan'])) echo 'colspan="' .
+                            $options['colspan'] . '"'?><?php echo $callback::getInstance()->renderWrapper($entity->getData(), $entity->$method(), $this) ?>>
+                            <div data-content="<?php echo $dataErrors[$key] ?? null; ?>" rel="popover" href="#" data-original-title="Errors:">
+                                    <?php echo $callback::getInstance()->render($entity->getData(), $entity->$method(), $this) ?>
+                            </div>
+                        </td>
+                    <?php else: ?>
+                        <td class="<?php echo $class; ?>" <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"'?>>
+                            <div data-content="<?php echo $dataErrors[$key] ?? null; ?>" rel="popover" href="#" data-original-title="Errors:">
+                                <?php echo (($value = $entity->$method()) || (string)$value === '0')? $value : '-' ?>
+                            </div>
+                        </td>
+                    <?php endif ?>
+                <?php endforeach ?>
+                <td>
+                    <?php if ($error = ($entity->getStatusId() == Application_Model_Entity_System_FileTempStatus::CONST_STATUS_NOT_VALID)? $entity->getError(): ''): ?>
+                        <span class="label label-important show-errors" data-content='<?php echo $error ?>' rel="popover" href="#" data-original-title="Errors:">
+                            Not Valid
+                        </span>
+                    <?php else: ?>
+                        <?php if ($error = $entity->getError() ?: $entity->getWarning()): ?>
+                            <span class="label label-warning show-errors" data-content='<?php echo $error ?>' rel="popover" href="#" data-original-title="Warnings:">
+                                Warning
+                            </span>
+                        <?php else: ?>
+                            <span class="label label-success">
+                                Valid
+                            </span>
+                        <?php endif ?>
+                    <?php endif ?>
+                </td>
+            </tr>
+        <?php endforeach ?>
+    </tbody>
+</table>
+<div class="right">
+<?php if ($this->isValid): ?>
+    <a id="approve" class="btn btn btn-success" href="<?php echo $this->url(array('action' => 'approve', 'id' => $this->id)) ?>" ><i class="icon-ok icon-white"></i> Approve</a>
+<?php elseif ('powerunit' === $this->entityType): ?>
+    <a id="download" class="btn btn-info" href="<?php echo $this->url([
+        'action' => 'export',
+        'controller' => 'file_index',
+        'source_id' => $this->id,
+        'file_type' => Application_Model_Entity_System_FileStorageType::CONST_POWERUNIT_TEMP_FILE_TYPE,
+    ], 'default', true) ?>" ><i class="icon-file icon-white"></i>Download Validation Report</a>
+<?php endif ?>
+    <a id="cancel" class="btn cancel btn-danger" href="<?php echo $this->url(array('action' => 'edit', 'fileType' => Zend_Controller_Front::getInstance()->getRequest()->getParam('file_type'))) ?>" > Cancel</a>
+</div>
+<?php endif ?>

@@ -1,0 +1,6 @@
+<div class="user-name dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Hello, <?php echo $this->user->getName()?><span class="caret"></span></a>
+    <ul class="user-menu dropdown-menu pull-right" role="menu" aria-labelledby="dLabel">
+        <li class="text-right"><a href="<?php echo $this->url(array('controller' => 'auth', 'action' => 'logout', 'redirect' => 'true'), null, true); ?>">Log Out</a></li>
+        <?php echo $this->partial($this->roleTemplate, array('user' => $this->user)); ?>
+    </ul>
+</div>

@@ -1,0 +1,57 @@
+<?php
+    $currentCycle = Application_Model_Entity_Accounts_User::getCurrentUser()->getCurrentCycle();
+    $selectedStatus = ($currentCycle->getStatusId() && isset($this->cycleStatus[$currentCycle->getStatusId()]))? $currentCycle->getStatusId() : Application_Model_Entity_System_SettlementCycleStatus::VERIFIED_STATUS_ID;
+    $selectedId = $currentCycle->getId()
+?>
+<?php if(isset($this->showApproveErrorMessage)): ?>
+<div class="alert alert-block alert-error">
+    <a href="#" data-dismiss="alert" class="close">×</a>
+    <h3 class="alert-heading">Error!</h3>
+    Some of the <?php echo $this->entityType ?> did not upload because the Invoice is not older or within the selected settlement cycles.
+</div>
+<?php endif ?>
+<div class="alert alert-block alert-info <?php echo $selectedStatus == Application_Model_Entity_System_SettlementCycleStatus::PROCESSED_STATUS_ID ? '' : 'nondisplay'?>" id="importing-cycle-type-info">
+    <a href="#" data-dismiss="alert" class="close">×</a>
+    <h3 class="alert-heading">Warning!</h3>
+    You are importing <?php echo $this->entityType ?> into a cycle that has already been processed. You will have to manually adjust settlements where necessary.
+</div>
+<div class="row" style="margin-bottom: -39px">
+    <div class="span">
+        Cycle Status:&nbsp
+        <select id="importing-cycle-type">
+            <?php foreach ($this->cycleStatus as $value => $title):?>
+                <option value="<?php echo $value ?>" <?php if ($value == $selectedStatus) echo 'selected'?>><?php echo $title ?></option>
+            <?php endforeach ?>
+        </select>
+    </div>
+    <div class="span">
+        Cycle Period:&nbsp
+        <select id="importing-cycle">
+            <?php foreach ($this->periods[$selectedStatus] as $value => $title):?>
+                <option value="<?php echo $value ?>" <?php if ($value == $this->cycleId || $value == $selectedId) echo 'selected'?>><?php echo $title ?></option>
+            <?php endforeach ?>
+        </select>
+        <div class="nondisplay" id="cycle-options">
+            <?php foreach ($this->periods as $status => $periodCollection): ?>
+                <div class="options" data-status="<?php echo $status ?>">
+                    <?php foreach($periodCollection as $value => $title): ?>
+                        <option value="<?php echo $value ?>"><?php echo $title ?></option>
+                    <?php endforeach ?>
+                </div>
+            <?php endforeach ?>
+        </div>
+    </div>
+</div>
+<?php
+echo $this->partial(
+    'payment_deduction_grid.phtml',
+    array(
+        'collection' => $this->entity->getCollection()->addFilter($this->entity->getResource()->getTableName().'.source_id',$this->id),
+        'columns'  => $this->entity->getResource()->getInfoFields(),
+        'buttons'  => array(),
+        'removeActionNew' => true,
+        'sortable' => false,
+        'isValid'  => $this->isValid,
+        'id'       => $this->id,
+        'cancelUrl' => $this->url(array('action' => 'edit', 'fileType' => Zend_Controller_Front::getInstance()->getRequest()->getParam('file_type')))
+    )); ?>

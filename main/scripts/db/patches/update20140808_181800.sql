@@ -1,0 +1,6 @@
+ALTER TABLE `payment_setup` ADD COLUMN `week_day` TINYINT(1) NULL DEFAULT 1;
+ALTER TABLE `payments` ADD COLUMN `week_day` TINYINT(1) NULL DEFAULT 1;
+ALTER TABLE `deduction_setup` ADD COLUMN `week_day` TINYINT(1) NULL DEFAULT 1;
+ALTER TABLE `deductions` ADD COLUMN `week_day` TINYINT(1) NULL DEFAULT 1;
+ALTER TABLE `settlement_cycle` ADD COLUMN `week_day` TINYINT(1) NULL DEFAULT 1;
+ALTER TABLE `settlement_cycle_rule` ADD COLUMN `week_day` TINYINT(1) NULL DEFAULT 1;

@@ -1,0 +1,11 @@
+<?php $totals = $this->totals ?>
+
+<tr class="totals">
+    <td colspan="9">Totals:</td>
+    <td class="num">$<?php echo number_format($totals['transaction_fee'], 2)?></td>
+    <td class="num">$<?php echo number_format($totals['amount'], 2)?></td>
+    <td class="num">$<?php echo number_format($totals['adjusted_balance'], 2)?></td>
+    <td class="num">$<?php echo number_format($totals['deduction_amount'], 2)?></td>
+    <td class="num">$<?php echo number_format($totals['balance'], 2)?></td>
+    <td colspan="2"></td>
+</tr>

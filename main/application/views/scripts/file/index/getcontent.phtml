@@ -1,0 +1,13 @@
+<?php $this->headTitle()->append($this->title); ?>
+<h3>
+
+    <?php echo $this->title; ?>
+
+</h3><br />
+<?php if ($this->entityType == 'powerunit' || $this->entityType == 'vendor' || $this->entityType == 'contractorRA'): ?>
+    <?php echo $this->render('file/index/get_powerunit_or_vendor_content.phtml'); ?>
+<?php elseif ($this->entityType == 'compensation' || $this->entityType == 'deduction'): ?>
+    <?php echo $this->render('file/index/get_payment_deduction_content.phtml'); ?>
+<?php else: ?>
+    <?php echo $this->render('file/index/get_contractor_content_advanced.phtml'); ?>
+<?php endif ?>

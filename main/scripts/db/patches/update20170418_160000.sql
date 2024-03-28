@@ -1,0 +1,1 @@
+ALTER TABLE `deductions_temp` MODIFY COLUMN provider_id int(10) unsigned not null DEFAULT 0;

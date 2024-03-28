@@ -1,0 +1,1 @@
+UPDATE `payment_status` SET `title` = 'Reversed' WHERE `id` = 5;

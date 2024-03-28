@@ -1,0 +1,7 @@
+<span>Filter:</span>
+<?php $defaultValue = (isset($this->defaultValue))? $this->defaultValue: -1 ?>
+<select id='contractor_status' class='filterInput contractor-status-selector'>
+    <?php foreach($this->options as $id => $title): ?>
+        <option value="<?php echo $id ?>" <?php if ($id == $defaultValue) echo 'selected'?>><?php echo $title ?></option>
+    <?php endforeach ?>
+</select>

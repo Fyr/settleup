@@ -1,0 +1,152 @@
+@page {
+    margin: 1.27cm;
+    margin-top: 10.75cm;
+    margin-bottom: 0.63cm;
+    /*margin-header: 1.9cm;*/
+    /*margin-footer: 0.63cm;*/
+}
+table {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><rect x='0' y='0' width='100%' height='100%'  stroke='black' fill='white' stroke-opacity='1' style='stroke-width:0.2mm;'/></svg>");
+    /*border: 0.5pt solid #000000;*/
+    font-size: 6.5pt;
+    margin-bottom: 6pt;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+}
+tr {
+    vertical-align: middle;
+    page-break-inside: avoid;
+}
+td, th {
+    height: 0.20cm;
+    text-align: left;
+    padding: 1px 2pt;
+}
+tr.placeholder td {
+    height: 0.2cm;
+}
+
+tr.fake-table-border div {
+    height: 100%;
+    background-color: #ffffff;
+    position: relative;
+    left: -1px;
+    width: 100%;
+    padding-right: 0.6mm;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><line x1='1px' y1='0' x2='100%' y2='0' style='stroke:black; stroke-width:0.25mm;' /><line x1='100%' y1='0' x2='100%' y2='2px' style='stroke:white; stroke-width:0.5mm;' /></svg>");
+}
+tr.fake-table-border > th {
+    padding: 0 !important;
+}
+
+td.num, th.num {
+    text-align: right;
+}
+td.text-center, th.text-center, .text-center {
+    text-align: center;
+}
+td.text-left, th.text-left, .text-left, th.info-value {
+    text-align: left;
+}
+td.text-right, th.text-right, .text-right, th.info-title {
+    text-align: right;
+}
+th.info-title {
+    font-weight: bold;
+    white-space: nowrap;
+}
+td.info-title {
+    font-weight: bold;
+    text-align: right;
+}
+tr.report-title th {
+    /*background-color: rgb(242, 242, 242);*/
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><rect x='0px' y='0' width='100%' height='101%' stroke='black' fill='rgb(242, 242, 242)' stroke-opacity='1' style='stroke-width:0.2mm;' /></svg>")
+}
+tr.report-title th.bottom-line {
+    /*background-color: rgb(242, 242, 242);*/
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><rect x='0px' y='0' width='100%' height='100%' stroke='black' fill='rgb(242, 242, 242)' stroke-opacity='1' style='stroke-width:0.2mm;' /></svg>")
+}
+tr.report-title th, tr.report-title td {
+    font-size: 8pt;
+    font-weight: bold;
+    font-style: italic;
+    height: 0.79cm;
+}
+.bordered {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><rect x='0' y='0' width='100%' height='100%'  stroke='black' fill='white' stroke-opacity='1' style='stroke-width:0.2mm;' /></svg>");
+    /*border: 0.5pt solid #000000;*/
+}
+.top-line {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><line x1='0mm' y1='0mm' x2='300mm' y2='0mm' style='stroke:black; stroke-width:0.25mm;' /></svg>");
+    /*border-top: 0.5pt solid #000000;*/
+}
+.bottom-double-line {
+    border-bottom: 0.8pt double #000000;
+}
+.bottom-line {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><line x1='0mm' y1='100%' x2='300mm' y2='100%' style='stroke:black; stroke-width:0.25mm;' /></svg>");
+    /*border-bottom: 0.5pt solid #000000;*/
+}
+.bold-text, tr.subtable td {
+    font-weight: bold;
+}
+tr.subtable td, tr.subtable th {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><line x1='0mm' y1='100%' x2='300mm' y2='100%' style='stroke:black; stroke-width:0.25mm;' /><line x1='0mm' y1='0mm' x2='300mm' y2='0mm' style='stroke:black; stroke-width:0.25mm;' /></svg>");
+    /*border-top: 0.5pt solid #000000;*/
+    /*border-bottom: 0.5pt solid #000000;*/
+}
+td.big-upper-case {
+    font-size: 8pt;
+    text-transform: uppercase;
+}
+.field-name-quantity,
+.field-name-rate,
+.field-name-amount,
+.field-name-deduction_amount,
+.field-name-deduction_balance,
+.field-name-balance,
+.field-name-min_balance,
+.field-name-contribution_amount,
+.field-name-max_withdrawal_amount,
+.field-name-current_balance,
+.field-name-starting_balance,
+.field-name-adjustments,
+.field-name-percentage,
+.field-name-adjusted_balance,
+.field-name-withdrawals,
+.field-name-balance_due,
+.field-name-contributions,
+.field-name-ending_balance,
+.field-name-deductions_amount,
+.field-name-withdrawal_amount,
+.field-name-withdrawals_amount
+{
+    text-align: right;
+}
+
+pre {
+    font-size: 12px;
+    background-color: #f5f5f5;
+    border: 0.8pt solid rgba(0, 0, 0, 0.15);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><rect x='0' y='0' width='100%' height='100%'  stroke='black' fill='white' stroke-opacity='1' style='stroke-width:0.2mm;'/></svg>");
+    border-radius: 4px;
+    display: block;
+    line-height: 20px;
+    margin: 0 0 10px;
+    padding: 10px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    word-wrap: break-word;
+    color: #333333;
+    font-family: Monaco,Menlo,Consolas,"Courier New",monospace;
+}
+
+pre p {
+    white-space: pre;
+    word-break: normal;
+    word-wrap: normal;
+    margin: 0px;
+}
+

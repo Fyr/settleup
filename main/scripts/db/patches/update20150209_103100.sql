@@ -1,0 +1,1 @@
+ALTER TABLE `contractor` ADD COLUMN `rac_priority` TINYINT(1) NOT NULL DEFAULT 1;

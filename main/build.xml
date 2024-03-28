@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="P-Fleet" default="build" basedir=".">
+    <property name="source" value="./application"/>
+
+    <target name="clean"
+            unless="clean.done"
+            description="Cleanup build artifacts">
+        <delete dir="${basedir}/build/api"/>
+        <delete dir="${basedir}/build/coverage"/>
+        <delete dir="${basedir}/build/logs"/>
+        <property name="clean.done" value="true"/>
+    </target>
+
+    <target name="prepare"
+            unless="prepare.done"
+            depends="clean"
+            description="Prepare for build">
+        <mkdir dir="${basedir}/build/api"/>
+        <mkdir dir="${basedir}/build/coverage"/>
+        <mkdir dir="${basedir}/build/logs"/>
+        <property name="prepare.done" value="true"/>
+    </target>
+
+    <target name="preparePermission" description="Prepare permission for *.sh files">
+        <chmod dir="${basedir}/scripts/db" perm="+x" includes="*.sh"/>
+        <chmod dir="${basedir}/data/logs" perm="ugo+rwx"/>
+        <chmod file="${basedir}/data/**" type="both" perm="ugo+rwx"/>
+        <chmod file="${basedir}/build/**" type="both" perm="ugo+rwx"/>
+        <chmod file="${basedir}/codeception/**" type="both" perm="ugo+rwx"/>
+        <chmod file="${basedir}/scripts/db/freezeState/**" type="both" perm="ugo+rwx"/>
+        <chmod file="${basedir}/scripts/db" type="both" perm="ugo+rwx"/>
+        <chmod file="${basedir}/library/mpdf60/ttfontdata/**" type="both" perm="ugo+rwx"/>
+        <chmod file="${basedir}/library/mpdf60/tmp/**" type="both" perm="ugo+rwx"/>
+        <chmod file="${basedir}/library/mpdf60/graph_cache/**" type="both" perm="ugo+rwx"/>
+    </target>
+
+    <target name="updateDB" depends="preparePermission" description="Truncate and update main DB to up-to-date state">
+        <copy file="${basedir}/scripts/db/database.testing.ini.dist" tofile="${basedir}/scripts/db/database.ini"
+              overwrite="true"/>
+        <exec executable="bash" dir="${basedir}/scripts/db/">
+            <arg value="migrate.sh"/>
+        </exec>
+    </target>
+    <target name="updateQADB" description="Truncate and update QA DB to up-to-date state">
+        <exec executable="scripts/db/my_qa.sh"/>
+    </target>
+
+    <target name="composer" description="Installing composer dependencies">
+        <exec executable="composer" failonerror="true">
+            <arg value="install"/>
+            <arg value="--prefer-dist"/>
+            <arg value="--no-progress"/>
+            <arg value="--optimize-autoloader"/>
+        </exec>
+    </target>
+
+    <target name="phpunit" description="Run unit tests using PHPUnit and generates junit.xml and clover.xml">
+        <exec executable="phpunit" failonerror="true"/>
+    </target>
+
+    <target name="parallelTasks"
+            description="Run the update db and composer install tasks in parallel using a maximum of 3 threads.">
+        <parallel threadCount="4">
+            <sequential>
+                <!--
+                    <antcall target="pdepend"/>
+                    <antcall target="phpmd"/>
+                -->
+                <antcall target="updateDB"/>
+                <antcall target="updateQADB"/>
+                <antcall target="composer"/>
+                <antcall target="codeceptionTests"/>
+
+            </sequential>
+            <!--
+               <antcall target="phpcpd"/>
+               <antcall target="phpcs"/>
+               <antcall target="phpdoc"/>
+               <antcall target="phploc"/>
+            -->
+        </parallel>
+    </target>
+    <!--<target name="updateAuthQADB" description="Update QA DB on Auth server">-->
+    <!--<exec executable="php">-->
+    <!--<arg line="./scripts/report.php -a security/3 -p pass -e testing"/>-->
+    <!--</exec>-->
+    <!--</target>-->
+
+    <target name="pdepend" description="Generate jdepend.xml and software metrics charts using PHP_Depend">
+        <exec executable="pdepend">
+            <arg line="--jdepend-xml=${basedir}/build/logs/jdepend.xml
+              --jdepend-chart=${basedir}/build/pdepend/dependencies.svg
+              --overview-pyramid=${basedir}/build/pdepend/overview-pyramid.svg
+              ${source}"/>
+        </exec>
+    </target>
+
+    <target name="phpmd" description="Generate pmd.xml using PHPMD">
+        <exec executable="phpmd">
+            <arg line="${source}
+              xml
+              codesize,design,naming,unusedcode
+              --reportfile ${basedir}/build/logs/pmd.xml"/>
+        </exec>
+    </target>
+
+    <target name="phpcpd" description="Generate pmd-cpd.xml using PHPCPD">
+        <exec executable="phpcpd">
+            <arg line="--log-pmd ${basedir}/build/logs/pmd-cpd.xml ${source}"/>
+        </exec>
+    </target>
+
+    <target name="phploc" description="Generate phploc.csv">
+        <exec executable="phploc">
+            <arg line="--log-csv ${basedir}/build/logs/phploc.csv ${source}"/>
+        </exec>
+    </target>
+
+    <target name="phpcs"
+            unless="phpcs.done"
+            description="Find coding standard violations using PHP_CodeSniffer and print human readable output. Intended for usage on the command line before committing.">
+        <exec executable="${phpcs}" taskname="phpcs">
+            <arg value="--standard=PSR2"/>
+            <arg value="--extensions=php"/>
+            <arg value="--ignore=autoload.php"/>
+            <arg path="${basedir}/src"/>
+            <arg path="${basedir}/tests"/>
+        </exec>
+
+        <property name="phpcs.done" value="true"/>
+    </target>
+
+    <target name="phpcs-ci"
+            unless="phpcs.done"
+            depends="prepare"
+            description="Find coding standard violations using PHP_CodeSniffer and log result in XML format. Intended for usage within a continuous integration environment.">
+        <exec executable="${phpcs}" output="/dev/null" taskname="phpcs">
+            <arg value="--report=checkstyle"/>
+            <arg value="--report-file=${basedir}/build/logs/checkstyle.xml"/>
+            <arg value="--standard=PSR2"/>
+            <arg value="--extensions=php"/>
+            <arg value="--ignore=autoload.php"/>
+            <arg path="${basedir}/src"/>
+            <arg path="${basedir}/tests"/>
+        </exec>
+
+        <property name="phpcs.done" value="true"/>
+    </target>
+
+    <target name="phpdoc" description="Generate API documentation using PHPDocumentor">
+        <exec executable="phpdoc">
+            <arg line="-d ${source} -t ${basedir}/build/api"/>
+        </exec>
+    </target>
+
+    <target name="phpcb" description="Aggregate tool output with PHP_CodeBrowser">
+        <exec executable="phpcb">
+            <arg line="--log    ${basedir}/build/logs
+              --source ${source}
+              --output ${basedir}/build/code-browser"/>
+        </exec>
+    </target>
+
+    <target name="codeception-build" description="Build Codeception Tests">
+        <exec executable="php" failonerror="true">
+            <arg line="./vendor/bin/codecept build -c ./codeception.yml"/>
+        </exec>
+    </target>
+
+    <target name="codeception-run" description="Run Codeception Tests">
+        <exec executable="php" failonerror="true">
+            <arg line="./vendor/bin/codecept run acceptance -c ./codeception.yml --html --xml"/>
+        </exec>
+    </target>
+
+    <target name="codeception" description="Run Codeception Tests" depends="codeception-build,codeception-run"/>
+
+    <target name="build" depends="composer,codeception,phpcs-ci"/>
+</project>

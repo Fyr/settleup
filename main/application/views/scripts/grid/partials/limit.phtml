@@ -1,0 +1,13 @@
+<?php
+$limitsArray = $this->gridModel->getLimits();
+$entityName = $this->gridModel->getEntityName();
+$settings = json_encode($this->gridModel->getGridSettings());
+?>
+<label>
+    <span>Records:</span>
+    <select id="rec_per_page" class="rowlimit_wrapper_select">
+    <?php foreach ($limitsArray as $key => $value) : ?>
+        <option <?php if ($value == $this->gridModel->getLimit()) echo 'selected="selected"' ?> value="<?php echo $value ?>"><?php echo $value ?></option>
+    <?php endforeach ?>
+    </select>
+</label>

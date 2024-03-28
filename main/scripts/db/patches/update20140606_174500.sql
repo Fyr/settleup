@@ -1,0 +1,1 @@
+ALTER TABLE `deductions` CHANGE COLUMN `rate` `rate` DECIMAL(10,2) NULL DEFAULT NULL;

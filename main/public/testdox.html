@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <title>Test Documentation</title>
+        <style>
+            body {
+                text-rendering: optimizeLegibility;
+                font-family: Source SansSerif Pro, Arial, sans-serif;
+                font-variant-ligatures: common-ligatures;
+                font-kerning: normal;
+                margin-left: 2rem;
+                background-color: #fff;
+                color: #000;
+            }
+
+            body > ul > li {
+                font-size: larger;
+            }
+
+            h2 {
+                font-size: larger;
+                text-decoration-line: underline;
+                text-decoration-thickness: 2px;
+                margin: 0;
+                padding: 0.5rem 0;
+            }
+
+            ul {
+                list-style: none;
+                margin: 0 0 2rem;
+                padding: 0 0 0 1rem;
+                text-indent: -1rem;
+            }
+
+            .success:before {
+                color: #4e9a06;
+                content: '✓';
+                padding-right: 0.5rem;
+            }
+
+            .defect {
+                color: #a40000;
+            }
+
+            .defect:before {
+                color: #a40000;
+                content: '✗';
+                padding-right: 0.5rem;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Auth Controller</h2>
+        <ul>
+            <li class="defect">Login action empty</li>
+            <li class="defect">Login action not valid password</li>
+            <li class="defect">Logout action</li>
+        </ul>
+        <h2>Cache</h2>
+        <ul>
+            <li class="success">Get instance</li>
+            <li class="success">Save</li>
+            <li class="success">Load</li>
+            <li class="success">Clean</li>
+            <li class="success">Get instance cache not enabled</li>
+            <li class="success">Save cache not enabled</li>
+            <li class="success">Load cache not enabled</li>
+            <li class="success">Clean cache not enabled</li>
+        </ul>
+        <h2>Calculation</h2>
+        <ul>
+            <li class="defect">Settlement single payment</li>
+            <li class="defect">Settlement single deduction</li>
+            <li class="defect">Settlement no r as</li>
+            <li class="defect">Payment more deduction r a contribution</li>
+            <li class="defect">Payment more deduction r a contribution contractor bank accounts</li>
+            <li class="defect">Settlement r a withdrawals</li>
+            <li class="defect">Reserve account balance</li>
+        </ul>
+        <h2>Carrier</h2>
+        <ul>
+            <li class="defect">Carrier</li>
+            <li class="defect">Carrier get payments</li>
+            <li class="defect">Carrier get contractors</li>
+            <li class="defect">Carrier get active contractors array</li>
+            <li class="defect">Carrier get previous settlement cycle</li>
+        </ul>
+        <h2>Carrier Contractor</h2>
+        <ul>
+            <li class="defect">Carrier contractor</li>
+            <li class="defect">Get contractor data</li>
+        </ul>
+        <h2>Carriers_Index Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+            <li class="defect">List action carrier</li>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Info action</li>
+            <li class="defect">Edit action new carrier</li>
+            <li class="defect">Escrow action new escrow not valid</li>
+            <li class="defect">Escrow action new escrow</li>
+            <li class="defect">Before permissions test</li>
+            <li class="defect">Has no permissions with data set #0</li>
+            <li class="defect">Has no permissions with data set #1</li>
+            <li class="defect">Has no permissions with data set #2</li>
+            <li class="defect">Has no permissions with data set #3</li>
+            <li class="defect">Has no permissions with data set #4</li>
+            <li class="defect">Has no permissions with data set #5</li>
+            <li class="defect">Has no permissions with data set #6</li>
+            <li class="defect">Has no permissions with data set #7</li>
+            <li class="defect">Has no permissions with data set #8</li>
+            <li class="defect">Has no permissions with data set #9</li>
+            <li class="defect">Has no permissions with data set #10</li>
+        </ul>
+        <h2>Collection</h2>
+        <ul>
+            <li class="success">Filters</li>
+            <li class="defect">Variable filters</li>
+            <li class="defect">Variable filters exception</li>
+            <li class="defect">Variable filters between exception</li>
+            <li class="defect">Variable filters g t e d a t e</li>
+            <li class="defect">Variable filters l t e d a t e</li>
+            <li class="defect">Add group</li>
+        </ul>
+        <h2>Contractor</h2>
+        <ul>
+            <li class="defect">Contractor</li>
+            <li class="defect">Get deductions</li>
+            <li class="defect">Get carrier</li>
+            <li class="defect">Get current contractor</li>
+            <li class="defect">Change status</li>
+        </ul>
+        <h2>Contractor Vendor</h2>
+        <ul>
+            <li class="defect">Carrier contractor</li>
+            <li class="defect">Get contractor data</li>
+        </ul>
+        <h2>Contractors_Index Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+            <li class="defect">List action vendor user</li>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Edit action new contractor</li>
+            <li class="defect">Delete action contact info</li>
+            <li class="defect">Before permissions test</li>
+            <li class="defect">Has no permissions with data set #0</li>
+            <li class="defect">Has no permissions with data set #1</li>
+            <li class="defect">Has no permissions with data set #2</li>
+            <li class="defect">Has no permissions with data set #3</li>
+            <li class="defect">Has no permissions with data set #4</li>
+            <li class="defect">Has no permissions with data set #5</li>
+            <li class="defect">Has no permissions with data set #6</li>
+        </ul>
+        <h2>Crypt</h2>
+        <ul>
+            <li class="success">Encrypt decrypt</li>
+        </ul>
+        <h2>Crypt Advanced</h2>
+        <ul>
+            <li class="success">Encrypt decrypt</li>
+            <li class="success">Custom key encrypt decrypt</li>
+        </ul>
+        <h2>Deductions</h2>
+        <ul>
+            <li class="defect">Cycle deduction</li>
+            <li class="defect">Set priority</li>
+            <li class="defect">Get reserve account contractor</li>
+            <li class="defect">Get contractor</li>
+            <li class="defect">Get provider name</li>
+            <li class="defect">Get withdrawal amount</li>
+            <li class="defect">Get future priority</li>
+            <li class="defect">Save with priority</li>
+            <li class="defect">Get diff balance</li>
+            <li class="defect">Get provider</li>
+            <li class="defect">Get carrier collection</li>
+            <li class="defect">Get vendor collection</li>
+            <li class="defect">Get recurring strategy</li>
+            <li class="defect">Get deduction amount</li>
+            <li class="defect">Setup set priority</li>
+            <li class="defect">Setup get carrier collection</li>
+            <li class="defect">Temp check</li>
+        </ul>
+        <h2>Deductions_Deductions Controller</h2>
+        <ul>
+            <li class="defect">New action new deduction</li>
+            <li class="defect">List action</li>
+            <li class="defect">Index action</li>
+            <li class="defect">Edit action new deduction</li>
+            <li class="defect">Edit action</li>
+            <li class="defect">Edit action not valid</li>
+            <li class="defect">Delete action</li>
+            <li class="defect">Delete action with redirect back</li>
+            <li class="defect">Multiaction action with redirect back</li>
+            <li class="defect">Edit action get approved</li>
+        </ul>
+        <h2>Deductions_Setup Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Edit action new setup</li>
+            <li class="defect">Update ra collection action ajax</li>
+            <li class="defect">Update ra collection action get</li>
+            <li class="defect">Update terms action ajax</li>
+            <li class="defect">Update terms action get</li>
+            <li class="defect">Edit action new individual level template</li>
+            <li class="defect">Before permissions test</li>
+            <li class="defect">Has no permissions with data set #0</li>
+            <li class="defect">Has no permissions with data set #1</li>
+            <li class="defect">Has no permissions with data set #2</li>
+            <li class="defect">Has no permissions with data set #3</li>
+            <li class="defect">Has no permissions with data set #4</li>
+            <li class="defect">Has no permissions with data set #5</li>
+        </ul>
+        <h2>Disbursement</h2>
+        <ul>
+            <li class="defect">Disbursement</li>
+            <li class="defect">Save</li>
+            <li class="defect">Default</li>
+            <li class="defect">Get entity</li>
+            <li class="defect">Get type</li>
+            <li class="defect">Get cycle</li>
+        </ul>
+        <h2>Entity Model</h2>
+        <ul>
+            <li class="defect">Resource</li>
+            <li class="defect">Save</li>
+            <li class="success">Get options</li>
+            <li class="success">To string</li>
+            <li class="defect">Load</li>
+            <li class="success">Delete</li>
+            <li class="defect">Registration</li>
+            <li class="success">Get resource</li>
+            <li class="success">Get table name</li>
+            <li class="success">Get primary key</li>
+            <li class="success">Contact info</li>
+            <li class="defect">Detach</li>
+            <li class="defect">Array</li>
+        </ul>
+        <h2>Entity_Accounts_Bank</h2>
+        <ul>
+            <li class="defect">Bank account</li>
+            <li class="defect">Bak account history</li>
+            <li class="defect">Bank account get default values contractor</li>
+            <li class="defect">Bank account get default values vendor</li>
+            <li class="defect">Bank account get carrier collection</li>
+            <li class="defect">Bank account get vendor collection</li>
+            <li class="defect">Bank account has reserve account</li>
+            <li class="defect">Model accounts bank temp</li>
+        </ul>
+        <h2>Entity_Accounts_Reserves</h2>
+        <ul>
+            <li class="defect">Reserve account</li>
+            <li class="defect">Reserve account carrier save</li>
+            <li class="defect">Reserve account carrier load</li>
+            <li class="defect">Reserve account carrier set priority</li>
+            <li class="defect">Reserve account carrier get carrier collection</li>
+            <li class="defect">Reserve account transaction</li>
+            <li class="defect">Reserve account transaction get sender</li>
+            <li class="defect">Reserve account transaction get receiver</li>
+            <li class="defect">Reserve account transaction get provider name</li>
+            <li class="defect">Reserve account transaction get amount with sign</li>
+            <li class="defect">Reserve account transaction get amount with sign withdrawal</li>
+            <li class="defect">Reserve account vendor get vendor collection</li>
+            <li class="defect">Reserve account vendor get vendor collection user vendor</li>
+            <li class="defect">Reserve account vendor get carrier collection</li>
+            <li class="defect">Reserve account vendor get carrier user carrier</li>
+            <li class="success">Resource accounts reserve carrier</li>
+        </ul>
+        <h2>Entity_Accounts_Users</h2>
+        <ul>
+            <li class="defect">Accounts user</li>
+            <li class="defect">Account user get default values</li>
+            <li class="defect">Account user get real ip</li>
+            <li class="defect">Account user encode</li>
+            <li class="defect">Account user login null</li>
+            <li class="defect">Save with password user deleted</li>
+        </ul>
+        <h2>Entity_Collection_Accounts</h2>
+        <ul>
+            <li class="defect">Accounts collection accounts reserve</li>
+            <li class="defect">Accounts collection accounts reserve transactions</li>
+            <li class="defect">Accounts collection accounts reserve vendor</li>
+            <li class="defect">Accounts collection accounts bank</li>
+        </ul>
+        <h2>Entity_Collection_Deductions</h2>
+        <ul>
+            <li class="defect">Deductions collection deductions</li>
+            <li class="defect">Deductions collection deductions setup</li>
+            <li class="defect">Deductions collection temp</li>
+        </ul>
+        <h2>Entity_Collection_Entity</h2>
+        <ul>
+            <li class="defect">Entity collection contact info</li>
+            <li class="defect">Entity collection carrier</li>
+            <li class="defect">Entity collection contractor</li>
+            <li class="defect">Entity collection contractor vendor</li>
+            <li class="defect">Entity collection vendor</li>
+        </ul>
+        <h2>Entity_Collection_Payments</h2>
+        <ul>
+            <li class="defect">Entity collection contact info</li>
+            <li class="defect">Entity collection payments</li>
+        </ul>
+        <h2>Entity_Collection_Settlement</h2>
+        <ul>
+            <li class="defect">Entity collection settlement cycle</li>
+        </ul>
+        <h2>Entity_Collection_Transactions</h2>
+        <ul>
+            <li class="defect">Entity collection settlement rule</li>
+        </ul>
+        <h2>Error Controller</h2>
+        <ul>
+            <li class="defect">Error action</li>
+        </ul>
+        <h2>File</h2>
+        <ul>
+            <li class="success">Text file</li>
+            <li class="success">Csv file</li>
+            <li class="success">Xsl file</li>
+            <li class="success">Default file</li>
+            <li class="success">Get type</li>
+            <li class="success">Get name</li>
+            <li class="success">Get safe name</li>
+        </ul>
+        <h2>File_Index Controller</h2>
+        <ul>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Edit action</li>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>Freeze Controller</h2>
+        <ul>
+            <li class="defect">Save action</li>
+            <li class="defect">Index action</li>
+        </ul>
+        <h2>Grid</h2>
+        <ul>
+            <li class="defect">Model</li>
+            <li class="defect">Get debug string</li>
+            <li class="defect">Get limit array</li>
+            <li class="defect">Get pager for entity</li>
+            <li class="defect">Set quck edit</li>
+            <li class="defect">Get property data</li>
+            <li class="defect">Get sort data</li>
+            <li class="defect">Get filter</li>
+            <li class="defect">Hide buttons</li>
+            <li class="defect">Grid action</li>
+            <li class="defect">Grid action contractors</li>
+            <li class="defect">Grid action deductions</li>
+            <li class="defect">Grid action disbursement</li>
+            <li class="defect">Grid action payments</li>
+            <li class="defect">Grid action reserve accounts</li>
+            <li class="defect">Grid action reserve transaction</li>
+            <li class="defect">Grid action settlement deductions</li>
+            <li class="defect">Grid action settlement payments</li>
+            <li class="defect">Grid action settlement reserve transaction</li>
+            <li class="defect">Grid amount</li>
+            <li class="defect">Grid balance</li>
+            <li class="defect">Grid bank account amount limit type</li>
+            <li class="defect">Grid bank account number</li>
+            <li class="defect">Grid bank account type</li>
+            <li class="defect">Grid contractor reserve code</li>
+            <li class="defect">Grid created by carrier</li>
+            <li class="defect">Grid created by contractor</li>
+            <li class="defect">Grid deduction balance</li>
+            <li class="defect">Grid deduction balance no col</li>
+            <li class="defect">Grid disbursement id</li>
+            <li class="defect">Grid disbursement id no tax id</li>
+            <li class="defect">Grid frequency</li>
+            <li class="defect">Grid num</li>
+            <li class="defect">Grid percentage</li>
+            <li class="defect">Grid priority</li>
+            <li class="defect">Grid quantity</li>
+            <li class="defect">Grid quick edit adjusted balance</li>
+            <li class="defect">Grid quick edit amount</li>
+            <li class="defect">Grid quick edit amount less</li>
+            <li class="defect">Grid quick edit quantity</li>
+            <li class="defect">Grid quick edit rate</li>
+            <li class="defect">Grid settlement current balance</li>
+            <li class="defect">Grid settlement quick edit amount</li>
+            <li class="defect">Grid settlement quick edit amount settlement status</li>
+            <li class="defect">Grid settlement quick edit amount less</li>
+            <li class="defect">Grid settlement transaction checkbox</li>
+            <li class="defect">Grid settlement transaction checkbox settlement status</li>
+            <li class="defect">Grid text</li>
+            <li class="defect">Grid view button</li>
+            <li class="defect">Grid zero money</li>
+            <li class="defect">Only base trait</li>
+        </ul>
+        <h2>Index Controller</h2>
+        <ul>
+            <li class="defect">Index action</li>
+            <li class="defect">Searchautocomplete action</li>
+            <li class="defect">Search hint stub action</li>
+            <li class="defect">Search result stub action</li>
+            <li class="defect">Change current carrier action</li>
+            <li class="defect">Change current contractor action</li>
+            <li class="defect">Change current contractor action none</li>
+        </ul>
+        <h2>Object Model</h2>
+        <ul>
+            <li class="success">Set get data</li>
+            <li class="success">Set get id field name</li>
+            <li class="success">Set get id</li>
+            <li class="success">Add data</li>
+            <li class="success">Unset data</li>
+            <li class="success">Has set data changes</li>
+            <li class="success">To string</li>
+            <li class="success">Is empty</li>
+            <li class="success">Call get</li>
+            <li class="success">Call set</li>
+            <li class="success">Call uns</li>
+            <li class="success">Call has</li>
+            <li class="success">Call some</li>
+            <li class="defect">Set orig data</li>
+            <li class="success">Camelize</li>
+            <li class="success">Get data</li>
+            <li class="defect">Get original data</li>
+        </ul>
+        <h2>Observer</h2>
+        <ul>
+            <li class="defect">Observer change initial balance</li>
+            <li class="defect">Observer changebalanceobserver</li>
+            <li class="defect">Observer changestatusobserver active status no termination date</li>
+            <li class="defect">Observer changestatusobserver active status</li>
+            <li class="defect">Observer changestatusobserver terminated status</li>
+            <li class="defect">Observer delete entity observer</li>
+            <li class="defect">Observer delete entity observer else</li>
+            <li class="defect">Observer save deductions by priority</li>
+            <li class="defect">Observer save global deduction</li>
+            <li class="defect">Observer save global payment</li>
+            <li class="defect">Observer disbursement sender observer</li>
+        </ul>
+        <h2>Payments</h2>
+        <ul>
+            <li class="defect">Cycle payment</li>
+            <li class="defect">Get carrier</li>
+            <li class="defect">Get recurring strategy</li>
+        </ul>
+        <h2>Payments_Payments Controller</h2>
+        <ul>
+            <li class="defect">New action new payment setup</li>
+            <li class="defect">Index action</li>
+            <li class="defect">List action</li>
+            <li class="defect">Edit action method get</li>
+            <li class="defect">Delete action</li>
+            <li class="defect">Delete action with redirect back</li>
+            <li class="defect">Multiaction action with redirect back</li>
+        </ul>
+        <h2>Payments_Setup Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Edit action new setup</li>
+            <li class="defect">Edit action new individual level template</li>
+            <li class="defect">Before permissions test</li>
+            <li class="defect">Has no permissions with data set #0</li>
+            <li class="defect">Has no permissions with data set #1</li>
+            <li class="defect">Has no permissions with data set #2</li>
+            <li class="defect">Has no permissions with data set #3</li>
+            <li class="defect">Has no permissions with data set #4</li>
+            <li class="defect">Has no permissions with data set #5</li>
+            <li class="defect">Has no permissions with data set #6</li>
+            <li class="defect">Has no permissions with data set #7</li>
+        </ul>
+        <h2>Plugins</h2>
+        <ul>
+            <li class="defect">Plugin messager</li>
+        </ul>
+        <h2>Recurring</h2>
+        <ul>
+            <li class="defect">Incomplete</li>
+        </ul>
+        <h2>Reporting_Index Controller</h2>
+        <ul>
+            <li class="defect">Index action</li>
+            <li class="defect">Index action contractor settlement statement view</li>
+        </ul>
+        <h2>Reserve_Account Carrier Vendor Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Edit action new account</li>
+            <li class="defect">Edit action get</li>
+            <li class="defect">Edit action get no entity</li>
+        </ul>
+        <h2>Reserve_Account Contractor Controller</h2>
+        <ul>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">View action</li>
+            <li class="defect">List action</li>
+            <li class="defect">Edit action new account</li>
+            <li class="defect">Edit action get no id</li>
+            <li class="defect">New setup action</li>
+            <li class="defect">New zero setup action</li>
+            <li class="defect">Updateracollection action</li>
+            <li class="defect">Updateracollection get</li>
+            <li class="defect">Updaterasetup action</li>
+            <li class="defect">Updaterasetup get</li>
+            <li class="defect">Updatecarriervendor action</li>
+            <li class="defect">Updatecarriervendor get</li>
+        </ul>
+        <h2>Reserve_Index Controller</h2>
+        <ul>
+            <li class="defect">Index action</li>
+        </ul>
+        <h2>Reserve_Transactions Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+            <li class="defect">Index action</li>
+            <li class="defect">New action new transaction contribution</li>
+            <li class="defect">Edit action new transaction</li>
+            <li class="defect">Updaterasetup action get</li>
+            <li class="defect">Updaterasetup action</li>
+            <li class="defect">List action processing status cycle</li>
+        </ul>
+        <h2>Resource_Entity_Carrier</h2>
+        <ul>
+            <li class="success">Get carrier info fields</li>
+            <li class="success">Get carrier info fields for popup</li>
+        </ul>
+        <h2>Resource_Entity_Carrier Contractor</h2>
+        <ul>
+            <li class="success">Get carrier info fields</li>
+        </ul>
+        <h2>Resource_Entity_Contractor</h2>
+        <ul>
+            <li class="success">Get contractor info fields</li>
+            <li class="success">Get contractor info fields for report popup</li>
+        </ul>
+        <h2>Resource_Entity_Vendor</h2>
+        <ul>
+            <li class="success">Get contractor info fields</li>
+        </ul>
+        <h2>Settlement</h2>
+        <ul>
+            <li class="defect">Before test create model</li>
+            <li class="defect">Get payments sum</li>
+            <li class="defect">Funding for all possible</li>
+            <li class="defect">Verify</li>
+            <li class="defect">Process</li>
+            <li class="defect">Approve</li>
+            <li class="defect">Clear</li>
+            <li class="defect">Clear exception</li>
+            <li class="defect">Reject</li>
+            <li class="defect">Reject exception</li>
+        </ul>
+        <h2>Settlement Cycle</h2>
+        <ul>
+            <li class="defect">Cycle</li>
+            <li class="defect">Get settlement cycle</li>
+            <li class="defect">Get payments</li>
+            <li class="defect">Get deductions</li>
+            <li class="defect">Get disbursement</li>
+            <li class="defect">Get disbursement routing check sum</li>
+            <li class="defect">Get disbursement amount sum</li>
+            <li class="defect">Get reserve transactions</li>
+            <li class="defect">Get withdrawals</li>
+            <li class="defect">Get contributions</li>
+            <li class="defect">Get settlement contractors</li>
+            <li class="defect">Get settlement contractors total</li>
+            <li class="defect">Get total</li>
+            <li class="defect">Get result</li>
+            <li class="defect">Is fully approved</li>
+            <li class="defect">Get vendors</li>
+            <li class="defect">Get contractors array</li>
+            <li class="defect">Is first cycle</li>
+            <li class="defect">Get all cycle periods</li>
+            <li class="defect">Get cycles filtered by type</li>
+            <li class="defect">Get contractor reserve accounts</li>
+            <li class="defect">Apply recurring payments</li>
+            <li class="defect">Apply recurring deductions</li>
+            <li class="defect">Check current status exception</li>
+            <li class="defect">Delete</li>
+        </ul>
+        <h2>Settlement_Index Controller</h2>
+        <ul>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Edit action new cycle not valid</li>
+            <li class="defect">Edit action new rule</li>
+            <li class="defect">Edit action new cycle</li>
+            <li class="defect">Contractor action</li>
+            <li class="defect">Delete cycle</li>
+            <li class="defect">Before permissions test</li>
+            <li class="defect">Has no permissions with data set #0</li>
+            <li class="defect">Has no permissions with data set #1</li>
+            <li class="defect">Has no permissions with data set #2</li>
+            <li class="defect">Has no permissions with data set #3</li>
+            <li class="defect">Has no permissions with data set #4</li>
+            <li class="defect">Has no permissions with data set #5</li>
+            <li class="defect">Has no permissions with data set #6</li>
+            <li class="defect">Has no permissions with data set #7</li>
+            <li class="defect">Has no permissions with data set #8</li>
+            <li class="defect">Has no permissions with data set #9</li>
+            <li class="defect">Has no permissions with data set #10</li>
+            <li class="defect">Has no permissions with data set #11</li>
+        </ul>
+        <h2>Settlement_Rule Controller</h2>
+        <ul>
+            <li class="defect">Index action</li>
+            <li class="defect">List action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Edit action with active cycle</li>
+            <li class="defect">Edit action new rule not valid</li>
+            <li class="defect">Edit action new rule</li>
+            <li class="defect">Before permissions test</li>
+            <li class="defect">Has no permissions with data set #0</li>
+            <li class="defect">Has no permissions with data set #1</li>
+            <li class="defect">Has no permissions with data set #2</li>
+            <li class="defect">Has no permissions with data set #3</li>
+            <li class="defect">Has no permissions with data set #4</li>
+        </ul>
+        <h2>System</h2>
+        <ul>
+            <li class="success">Settlement cycle resource</li>
+            <li class="defect">Settlementget advanced fields</li>
+            <li class="defect">Resource Payments Temp</li>
+            <li class="defect">Resource Deductions Temp</li>
+            <li class="defect">Resource Accounts Reserve Contractor</li>
+            <li class="defect">Resource Entity Contact Info</li>
+            <li class="defect">Resource Entity ContractorVendor</li>
+            <li class="defect">Resource Settlement Rule</li>
+            <li class="defect">ModelSystem Daysofweek</li>
+            <li class="defect">Entity system cycle period</li>
+        </ul>
+        <h2>System_Bankaccounttypes Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Contractorstatuses Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Cycleperiods Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Cycletypes Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Index Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+            <li class="defect">Index action</li>
+        </ul>
+        <h2>System_Paymentstatuses Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Paymenttypes Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Recurringtitles Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Reservetransactiontypes Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Settlementcyclestatus Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Setuplevels Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Systemvalues Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Usercontacttypes Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+        </ul>
+        <h2>System_Userroles Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Index action</li>
+            <li class="defect">Edit action new userrole</li>
+        </ul>
+        <h2>Transactions_Disbursement Controller</h2>
+        <ul>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">List action</li>
+            <li class="defect">Edit action new disbursement</li>
+            <li class="defect">Updatebacollection get</li>
+            <li class="defect">Updatebasetup</li>
+            <li class="defect">Updatebasetup get</li>
+            <li class="defect">Before permissions test</li>
+            <li class="defect">Has no permissions with data set #0</li>
+            <li class="defect">Has no permissions with data set #1</li>
+            <li class="defect">Has no permissions with data set #2</li>
+        </ul>
+        <h2>Transactions_Index Controller</h2>
+        <ul>
+            <li class="defect">Index action</li>
+        </ul>
+        <h2>Users_Index Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Edit action new user</li>
+            <li class="defect">List not admin</li>
+            <li class="defect">Permission action</li>
+            <li class="defect">Has no permission list action</li>
+            <li class="defect">Permission action user vendor</li>
+        </ul>
+        <h2>Vendor</h2>
+        <ul>
+            <li class="defect">Vendor</li>
+            <li class="defect">Get current contractor</li>
+            <li class="defect">Has bank account</li>
+            <li class="defect">Get max priority</li>
+        </ul>
+        <h2>Vendors_Index Controller</h2>
+        <ul>
+            <li class="defect">List action</li>
+            <li class="defect">Index action</li>
+            <li class="defect">New action</li>
+            <li class="defect">Edit action new vendor</li>
+            <li class="defect">Edit action</li>
+            <li class="defect">Delete action</li>
+            <li class="defect">Edit action after delete</li>
+            <li class="defect">Before permissions test</li>
+            <li class="defect">Has no permissions with data set #0</li>
+            <li class="defect">Has no permissions with data set #1</li>
+            <li class="defect">Has no permissions with data set #2</li>
+            <li class="defect">Has no permissions with data set #3</li>
+        </ul>
+    </body>
+</html>

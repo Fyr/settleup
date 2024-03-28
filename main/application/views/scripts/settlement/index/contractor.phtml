@@ -1,0 +1,162 @@
+<?php
+    $this->headTitle()->append($this->title);
+    $cycle = $this->cycle;
+    $contractor = $this->contractor;
+    $visible = !$this->isStatusVerified;
+?>
+
+<h3>
+    <?php echo $this->title ?>
+</h3>
+<br />
+
+<?php
+    echo $this->partial(
+        'partials/settlement/settlement.phtml',
+        array('cycle' => $cycle, 'drilldown' => true)
+    );
+    $settlementAmount = $contractor['payments'] - $contractor['deductions_amount']
+        - $contractor['contribution'] + $contractor['withdrawal'];
+?>
+<h3>Settlement Summary</h3>
+<br />
+
+<table class="datagrid table table-bordered table-striped">
+    <thead>
+        <tr class="header">
+            <th>Contractor Code</th>
+            <th>Contractor</th>
+            <th>Settlement Group</th>
+            <th class="num">Compensation</th>
+            <th class="num">Deductions</th>
+            <th class="num">Contributions</th>
+            <th class="num">Withdrawals</th>
+            <th class="num">Settlement Amount</th>
+            <th class="num">Balance Due</th>
+            <th name="action">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><?php echo $contractor['code'] ?></td>
+            <td><?php echo $contractor['company'] ?></td>
+            <td><?php echo $contractor['settlement_group'] ?></td>
+            <td class="num"><?php echo $this->money($contractor['payments']) ?></td>
+            <td class="num"><?php echo $this->money(-$contractor['deductions_amount']) ?></td>
+            <td class="num"><?php echo $visible ? $this->money(-$contractor['contribution']) : '' ?></td>
+            <td class="num"><?php echo $visible ? $this->money($contractor['withdrawal']) : '' ?></td>
+            <td class="num"><strong><?php echo $visible ? $this->money($settlementAmount) : '' ?></strong></td>
+            <td class="num"><?php echo $this->money($contractor['deductions_balance']) ?></td>
+            <td class="buttons">
+            <?php if ($this->isStatementEnabled): ?>
+                <span>None</span>
+            <?php else: ?>
+                <a class="btn btn-primary statement-btn contractor-settlement-statement-report"
+                    href="<?php echo $this->url(array('controller' => 'reporting_index', 'action' => 'index')); ?>"
+                    data-contractor-id="<?php echo $contractor['id'] ?>" data-cycle-id="<?php echo $cycle->getId() ?>"
+                    data-company-name="<?php echo $contractor['company'] ?>"
+                >
+                    <i class="icon-list-alt icon-white"></i> Statement
+                </a>
+            <?php endif ?>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<h3>Year-to-Date</h3>
+<br />
+<table class="datagrid table table-bordered table-striped">
+    <thead>
+        <tr class="header">
+            <th>Power Unit</th>
+            <th class="num">Compensation</th>
+            <th class="num">Deductions</th>
+            <th class="num">Contributions</th>
+            <th class="num">Withdrawals</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach($this->dataYTD as $dataYTD) : ?>
+        <tr>
+            <td><?php echo $dataYTD['powerunit_code'] ?></td>
+            <td class="num"><?php echo $this->money($dataYTD['payments']) ?></td>
+            <td class="num"><?php echo $this->money(-$dataYTD['deductions']) ?></td>
+            <td class="num"><?php echo $this->money(-$dataYTD['contribution']) ?></td>
+            <td class="num"><?php echo $this->money($dataYTD['withdrawal']) ?></td>
+        </tr>
+    <?php endforeach ?>
+    </tbody>
+</table>
+<?php
+    if ($this->hasViewPermission) {
+        echo $this->grid()->render($this->paymentGrid);
+        echo $this->grid()->render($this->deductionGrid);
+        echo $this->grid()->render($this->transactionGrid);
+    }
+    echo $this->grid()->render($this->accountsGrid);
+?>
+
+<div id="confirm-modal" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="btn close" data-dismiss="modal">X</a>
+        <h3>Confirm <span class="confirm-type"></span> of Records</h3>
+    </div>
+    <div class="modal-body">
+        <p class="confirm-description"><span class="confirm-type"></span> these records is irreversible.</p>
+        <p>Do you want to proceed?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="" class="btn btn-danger" id="btn-confirm">Yes</a>
+        <a data-dismiss="modal" class="btn btn-success">No</a>
+    </div>
+</div>
+
+<?php
+    if ($this->hasEditPermission) {
+        echo $this->partial(
+            'popup_setup_simple.phtml',
+            array(
+                'gridTitle' => 'Select Compensation Templates',
+                'setupGrid' => $this->paymentSetupGrid,
+                'selector' => 'payment-setup',
+                'cycle' => $cycle,
+                'contractorId' => $this->contractorEntity->getEntityId(),
+                'showInvoiceDateSelector' => true
+            )
+        );
+
+        echo $this->partial(
+            'popup_setup_simple.phtml',
+            array(
+                'gridTitle' => 'Select Deduction Templates',
+                'setupGrid' => $this->deductionSetupGrid,
+                'selector' => 'deduction-setup',
+                'cycle' => $cycle,
+                'contractorId' => $this->contractorEntity->getEntityId(),
+                'showInvoiceDateSelector' => true
+            )
+        );
+
+        echo $this->partial(
+            'popup_setup_simple.phtml',
+            array(
+                'gridTitle' => 'Select Contributions',
+                'setupGrid' => $this->contributionGrid,
+                'selector' => 'contribution',
+                'cycle' => $cycle,
+                'contractorId' => $contractor['id']
+            )
+        );
+
+        echo $this->partial(
+            'popup_setup_simple.phtml',
+            array(
+                'gridTitle' => 'Select Withdrawals',
+                'setupGrid' => $this->withdrawalGrid,
+                'selector' => 'withdrawal',
+                'cycle' => $cycle,
+                'contractorId' => $contractor['id']
+            )
+        );
+    }
+?>

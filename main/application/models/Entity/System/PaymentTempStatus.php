@@ -1,0 +1,5 @@
+<?php
+
+class Application_Model_Entity_System_PaymentTempStatus extends Application_Model_Entity_System_FileTempStatus
+{
+}

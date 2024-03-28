@@ -1,0 +1,1 @@
+ALTER TABLE `disbursement_transaction` CHANGE COLUMN `tax_id` `entity_code` VARCHAR(255) NULL DEFAULT NULL;

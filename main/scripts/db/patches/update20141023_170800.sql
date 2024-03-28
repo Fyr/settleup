@@ -1,0 +1,1 @@
+ALTER TABLE `contractor` ADD COLUMN `gender_id` TINYINT NULL DEFAULT 1;

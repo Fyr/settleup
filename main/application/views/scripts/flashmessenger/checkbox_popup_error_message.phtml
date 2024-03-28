@@ -1,0 +1,15 @@
+<div class="alert alert-error alert-block">
+    <a class="close" data-dismiss="alert" href="#">×</a>
+    <h3 class="alert-heading"><?php echo $this->title; ?></h3>
+        <?php foreach ($this->messages as $namespace => $namespaceMessages): ?>
+            <br>
+            <?php if(isset($this->headerMessages[$namespace])): ?>
+                <div class="header-message">
+                    <?php echo $this->headerMessages[$namespace]; ?>
+                </div>
+            <?php endif ?>
+            <?php foreach ($namespaceMessages as $messageId => $message): ?>
+                <?php echo $message ?><br>
+            <?php endforeach ?>
+        <?php endforeach ?>
+</div>

@@ -1,0 +1,15 @@
+<?php $this->headTitle()->append($this->title); ?>
+
+<h3><?php echo $this->title;?> </h3><br />
+
+<?php echo $this->form ?>
+
+<?php if(isset($this->preventSubmit)): ?>
+    <script>
+        $(function () {
+            $('form').submit(function(e){
+                e.preventDefault();
+            });
+        });
+    </script>
+<?php endif ?>

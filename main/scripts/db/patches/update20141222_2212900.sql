@@ -1,0 +1,1 @@
+ALTER TABLE `disbursement_transaction` ADD COLUMN `disbursement_reference` VARCHAR(255) NULL DEFAULT NULL;

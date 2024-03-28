@@ -1,0 +1,69 @@
+<?php $colspan = count($this->gridData['fields']); ?>
+<table class="report-grid" topntail repeat_header="1">
+    <thead>
+        <tr class="report-title">
+            <th colspan="<?php echo $colspan ?>" class="text-center bottom-line"><?php echo $this->gridData['title'] ?></th>
+        </tr>
+        <tr class="info-row"><th colspan="<?php echo $colspan ?>"></th></tr>
+        <?php if ($this->gridData['form']['date_filter_type'] == Application_Model_Report_Reporting::DATE_RANGE): ?>
+            <tr class="info-row">
+                <th class="info-title">View By:</th>
+                <th class="info-value" colspan="<?php echo $colspan - 1?>" style="font-weight: normal">Date Range</th>
+            </tr>
+            <tr class="info-row">
+                <th class="info-title">Range:</th>
+                <th class="info-value" colspan="<?php echo $colspan - 1?>" style="font-weight: normal"><?php echo ($this->gridData['form']['range_start_date'] && $this->gridData['form']['range_end_date']) ? \DateTime::createFromFormat('m/d/Y', $this->gridData['form']['range_start_date'])->format('m/d/y') . ' - ' . \DateTime::createFromFormat('m/d/Y', $this->gridData['form']['range_end_date'])->format('m/d/y') : '' ?></th>
+            </tr>
+        <?php else: ?>
+            <tr class="info-row">
+                <th class="info-title">View By:</th>
+                <th class="info-value" colspan="<?php echo $colspan - 1?>" style="font-weight: normal">Settlement Cycle</th>
+            </tr>
+            <tr class="info-row">
+                <th class="info-title">Range:</th>
+                <th class="info-value" colspan="<?php echo $colspan - 1?>" style="font-weight: normal"><?php echo isset($this->gridData['form']['period']) ? Application_Model_Entity_Settlement_Cycle::staticLoad($this->gridData['form']['period'])->getCyclePeriodString(true) : '' ?></th>
+            </tr>
+        <?php endif ?>
+    </thead>
+    <tbody>
+    <?php $firstBlock = true ?>
+    <?php foreach($this->gridData['parts'] as $part): ?>
+        <?php if ($firstBlock): ?>
+        <tr class="info-row"><th colspan="<?php echo $colspan ?>"></th></tr>
+            <?php $firstBlock = false; ?>
+        <?php else: ?>
+         <tr class="info-row fake-table-border"><th class="top-line" colspan="<?php echo $colspan ?>"><div></div></th></tr>
+        <?php endif ?>
+        <tr class="subtable">
+            <?php foreach($this->gridData['fields'] as $name => $title): ?>
+                <th class="field-name-<?php echo $name ?>"><?php echo $title ?></th>
+            <?php endforeach ?>
+        </tr>
+        <?php foreach($part['items'] as $item): ?>
+            <tr>
+                <?php foreach($this->gridData['fields'] as $key => $title): ?>
+                    <?php $method = 'get' . Application_Model_Base_Object::uc_words($key, '') ?>
+                    <?php if (isset($this->gridData['callbacks'][$key])): ?>
+                        <?php $callback = $this->gridData['callbacks'][$key]?>
+                        <td <?php echo $callback::getInstance()->renderWrapper($item->getData(), $item->$method(), $this, array('forReport' => true)) ?>><div><?php echo $callback::getInstance()->render($item->getData(), $item->$method(), $this, array('forReport' => true)) ?></div></td>
+                    <?php else: ?>
+                        <td><?php echo $item->$method() ?></td>
+                    <?php endif ?>
+                <?php endforeach ?>
+            </tr>
+        <?php endforeach ?>
+        <tr>
+            <td colspan="<?php echo $colspan - 2?>" class="text-right  bold-text">Total:</td>
+            <td class="top-line num  bold-text"><?php echo number_format($part['total'], 2) ?></td>
+            <td></td>
+        </tr>
+        <tr class="info-row"><th colspan="<?php echo $colspan ?>"></th></tr>
+    <?php endforeach ?>
+    <tr class="info-row fake-table-border"><th class="top-line" colspan="<?php echo $colspan ?>"><div></div></th></tr>
+    <tr>
+        <td colspan="<?php echo $colspan - 2?>" class="text-right  bold-text top-line">Grand Total:</td>
+        <td class="top-line num  bold-text top-line"><?php echo number_format($this->gridData['grand_total'], 2) ?></td>
+        <td class="top-line"></td>
+    </tr>
+    </tbody>
+</table>

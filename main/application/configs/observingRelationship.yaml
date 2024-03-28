@@ -1,0 +1,2 @@
+#Entity_Entity_Contractor:
+#    - _beforeSave: Changestatusobserver

@@ -1,0 +1,1 @@
+ALTER TABLE `pfleet`.`payments` CHANGE `approved_by` `approved_by` INT( 10 ) UNSIGNED NULL DEFAULT NULL

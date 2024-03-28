@@ -1,0 +1,5 @@
+<?php
+
+class Application_Model_Grid_Transaction_ContractorWithdrawal extends Application_Model_Grid_Transaction_Contractor
+{
+}

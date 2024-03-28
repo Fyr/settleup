@@ -1,0 +1,14 @@
+<?php
+if (isset($this->grid->controllerStorage['filter']['status'])) {
+    $status = $this->grid->controllerStorage['filter']['status'];
+} else {
+    $status = '';
+}
+?>
+<span>Filter:</span>
+<select id='status' class='filterInput contractor-status-selector'>
+
+    <?php foreach($this->options as $id => $title): ?>
+        <option <?php echo $id == $status ? 'selected' : '' ?> value="<?php echo $id ?>"><?php echo $title ?></option>
+    <?php endforeach ?>
+</select>

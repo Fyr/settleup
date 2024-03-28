@@ -1,0 +1,32 @@
+    <?php
+    $keys = array_keys($this->columns);
+    $values = array_values($this->columns);
+    ?>
+    <br/>
+    <table  class="table table-bordered table-striped">
+        <tr>
+        <?php foreach($values as $key): ?>
+            <th><?php echo $key ?></th>
+        <?php endforeach;?>
+            <th>Action</th>
+        </tr>
+        <?php if( $this->entity->getCollection()->count() ):?>
+        <?php foreach($this->entity->getCollection()->setOrder('priority', Application_Model_Base_Collection::SORT_ORDER_ASC)->getItems() as  $item):?>
+            <?php $data = $item->getData(); ?>
+            <tr>
+                <?php foreach($keys as $ke):?>
+                <td>
+                    <?php echo $data[$ke] ?>
+                </td>
+                <?php endforeach; ?>
+                <td class="buttons">
+                    <?php echo $this->setButtons($this->buttons, $data[$item->getPrimaryKey()]); ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        <?php else: ?>
+        <tr>
+            <td style="text-align: center" colspan="<?php echo count($this->columns) + 1 ?>">Nothing to show</td>
+        </tr>
+        <?php endif;?>
+    </table>

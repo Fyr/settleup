@@ -1,0 +1,206 @@
+<?php $this->headTitle()->append($this->title); ?>
+
+<?php if($this->form->id->getValue()): ?>
+    <h3>Edit User Information</h3><br />
+<?php else: ?>
+    <h3>Create User</h3><br />
+<?php endif ?>
+
+<?php //if ( $this->form->entity_id->getValue() && $this->form->role_id->getValue() != Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID && $this->form->role_id->getValue() != Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID): ?>
+<!--<div class="right">-->
+<!--<a class="btn btn-success" href="--><?php //echo $this->url(array('controller' => 'users_visibility', 'action' =>'index', 'userEntityId' => $this->form->entity_id->getValue())); ?><!--"><i class="icon-plus icon-white"></i> Edit list of visibility</a></br>-->
+<!--</div>-->
+<?php //endif ?>
+<?php $user = Application_Model_Entity_Accounts_User::getCurrentUser() ?>
+<?php if (
+    ($user->isAdmin()
+     || ($user->isCarrier() &&
+        (($this->form->role_id->getValue() == Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID && $user->hasPermission(Application_Model_Entity_Entity_Permissions::PERMISSIONS_MANAGE))
+        || ($this->form->role_id->getValue() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID))))
+    && $this->form->id->getValue() != $user->getId()
+    && !in_array($this->form->role_id->getValue(), [Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID, Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID, Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID])
+): ?>
+    <div class="left bank-reserve-acc-actions">
+        <?php if ($userId = $this->form->id->getValue()): ?>
+            <a class="btn btn-primary" href="<?php echo $this->url(array('action' => 'permissions', 'controller' => 'users_index', 'id' => $userId), null, true)?>"><i class="icon-pencil icon-white"></i> Edit Permissions</a>
+        <?php else: ?>
+            <a class="btn btn-primary disabled" href="#"><i class="icon-pencil icon-white"></i> Edit Permissions</a>
+        <?php endif ?>
+    </div>
+<?php endif ?>
+
+<form  action="<?php echo $this->escape($this->form->getAction()); ?>"
+       method="<?php echo $this->escape($this->form->getMethod()); ?>"
+       name="<?php echo $this->escape($this->form->getName()) ?>"
+       class="form-horizontal<?php echo ($this->form->id->getValue()) ? ' hide-buttons': '' ?>">
+    <div class="row">
+        <div class="span7">
+            <?php echo $this->form->id; ?>
+            <?php echo $this->form->entity_id; ?>
+
+            <?php echo $this->form->name; ?>
+            <?php echo $this->form->email; ?>
+            <div class="row">
+                <div class="span">
+                    <?php echo $this->form->password; ?>
+                </div>
+                <div id="change-password" class="btn-link span1 <?php if (!$this->form->id->getValue()) echo 'nondisplay' ?>">Change</div>
+            </div>
+            <div class="row">
+                <div id="change-password-fields" class="<?php if(!$this->form->old_password->getValue() && !$this->form->new_password->getValue() && !$this->form->confirm_password->getValue()) echo 'nondisplay'?> span">
+                    <?php echo $this->form->old_password; ?>
+                    <?php echo $this->form->new_password; ?>
+                    <?php echo $this->form->confirm_password; ?>
+                </div>
+            </div>
+            <?php echo $this->form->role_id; ?>
+            <div class="wrapper <?php if (in_array($this->form->role_id->getValue(),
+                [
+                    Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID,
+                    Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID,
+                    Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID,
+                    Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID,
+                    Application_Model_Entity_System_UserRoles::GUEST_ROLE_ID,
+                ])) echo 'nondisplay'?>">
+                <?php echo $this->form->entity_id_title; ?>
+            </div>
+            <?php echo $this->form->super_admin_role; ?>
+
+            <?php $subforms = $this->form->getEntitySubForms()?>
+            <?php
+                $notDeletedEntitySubformsCount = 0;
+                foreach ($subforms as $subform) {
+                    if ($subform->deleted->getValue() != Application_Model_Entity_System_SystemValues::DELETED_STATUS) {
+                        $notDeletedEntitySubformsCount++;
+                    }
+                }
+                $disabledDelete = ($notDeletedEntitySubformsCount > 1)?'':'disabled';
+            ?>
+            <?php $disabled = '';?>
+            <?php if ((!$user->hasPermission(Application_Model_Entity_Entity_Permissions::VENDOR_USER_CREATE) && $this->form->getElement('role_id')->getValue() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID)
+                      || (!$user->hasPermission(Application_Model_Entity_Entity_Permissions::CONTRACTOR_USER_CREATE) && $this->form->getElement('role_id')->getValue() == Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID)) $disabled = 'disabled'?>
+            <div class="entity-subform-wrapper <?php if (!in_array($this->form->role_id->getValue(), array(Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID, Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID))) echo 'nondisplay' ?>">
+            <?php foreach ($subforms as $subform): ?>
+                <div class="entity-subform subform row <?php if ($subform->deleted->getValue() == Application_Model_Entity_System_SystemValues::DELETED_STATUS) echo 'nondisplay'?>" data-contact-type="entity">
+                    <div class="entity-fields span">
+                        <?php if ($subform->deleted->getValue() === '' && $subform->id->getValue() === '') {
+                            $subform->deleted->setValue(0);
+                            $subform->id->setValue(-1);
+                        }?>
+                        <?php echo $subform->id; ?>
+                        <?php echo $subform->user_id; ?>
+                        <?php echo $subform->deleted; ?>
+                        <?php echo $subform->entity_id; ?>
+                        <?php echo $subform->entity_id_title; ?>
+                    </div>
+                    <?php if (!$user->isVendor() && !$user->isContractor()): ?>
+                        <div class="span subform-buttons" >
+                            <a href="#" class="btn btn-success add <?php echo $disabled ?>"><i class="icon-plus icon-white"></i></a>
+                            <a href="#" class="btn btn-danger delete <?php echo $disabledDelete ?> <?php echo $disabled ?> <?php if (!$subform->entity_id->getValue() && count($subforms) == 1) echo 'disabled' ?>"><i class="icon-trash icon-white"></i></a>
+                        </div>
+                    <?php endif ?>
+                    <div class="span"><?php echo $subform->carrier_name ?></div>
+                </div>
+            <?php endforeach; ?>
+            </div>
+
+
+            <div class="contact <?php if (in_array($this->form->role_id->getValue(),
+                [
+                    Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID,
+                    Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID,
+                    Application_Model_Entity_System_UserRoles::GUEST_ROLE_ID,
+                ])) echo "nondisplay" ?>">
+                <?php if ($this->form->getElement('id') && $this->form->getElement('id')->getAttrib('readonly') == 'readonly') {
+                    $readonly = 'readonly="readonly"';
+                    $disabled = 'disabled';
+                } else {
+                    $readonly = '';
+                    $disabled = '';
+                }
+                ?>
+                <?php foreach (array(Application_Model_Entity_Entity_Contact_Type::TYPE_ADDRESS, Application_Model_Entity_Entity_Contact_Type::TYPE_HOME_PHONE, Application_Model_Entity_Entity_Contact_Type::TYPE_FAX, Application_Model_Entity_Entity_Contact_Type::TYPE_EMAIL) as $contactType): ?>
+                    <?php $subforms = $this->form->getContactSubForms($contactType)?>
+                    <?php foreach ($subforms as $subform): ?>
+                        <div class="subform row <?php if ($subform->deleted->getValue() == Application_Model_Entity_System_SystemValues::DELETED_STATUS) echo 'nondisplay'?>" data-contact-type="<?php echo $subform->contact_type->getValue() ?>">
+                            <div class="span4">
+                                <?php echo $subform->id; ?>
+                                <?php echo $subform->entity_id; ?>
+                                <?php echo $subform->user_id; ?>
+                                <?php echo $subform->contact_type; ?>
+                                <?php echo $subform->title; ?>
+                                <?php echo $subform->deleted; ?>
+                                <?php if ($contactType == Application_Model_Entity_Entity_Contact_Type::TYPE_ADDRESS): ?>
+                                    <?php $addressData = json_decode($subform->value->getValue(), true) ?>
+                                    <?php $subform->value->setValue($addressData['address']) ?>
+                                    <div class="address-block">
+                                        <div class="hidden address-data-holder">
+                                            <?php echo $subform->value ?>
+                                        </div>
+                                        <div class="address-fields">
+                                            <div class="control-group">
+                                                <label class="control-label optional" for="address">Address 1</label>
+                                                <div class="controls">
+                                                    <input <?php echo $readonly ?> type="text" value="<?php echo $addressData['address'] ?>" name="address">
+                                                </div>
+                                            </div>
+                                            <div class="control-group">
+                                                <label class="control-label optional" for="address2">Address 2</label>
+                                                <div class="controls">
+                                                    <input <?php echo $readonly ?> type="text" value="<?php echo (isset($addressData['address2']))?$addressData['address2']:'-' ?>" name="address2">
+                                                </div>
+                                            </div>
+                                            <div class="control-group">
+                                                <label class="control-label optional" for="city">City</label>
+                                                <div class="controls">
+                                                    <input <?php echo $readonly ?> type="text" value="<?php echo $addressData['city'] ?>"  name="city">
+                                                </div>
+                                            </div>
+                                            <div class="control-group">
+                                                <label class="control-label optional" for="state">State</label>
+                                                <div class="controls">
+                                                    <input <?php echo $readonly ?> type="text" value="<?php echo $addressData['state'] ?>" name="state">
+                                                </div>
+                                            </div>
+                                            <div class="control-group">
+                                                <label class="control-label optional" for="zip">Zip</label>
+                                                <div class="controls">
+                                                    <input <?php echo $readonly ?> type="text" value="<?php echo $addressData['zip'] ?>" name="zip">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <?php echo $subform->value; ?>
+                                <?php endif ?>
+                            </div>
+                            <div class="span2">
+                                <a href="#" class="btn btn-success add <?php echo $disabled ?>"><i class="icon-plus icon-white"></i></a>
+                                <a href="#" class="btn btn-danger delete <?php echo $disabled ?> <?php if ($this->form->getContactSubFormsCount($contactType) < 2) echo 'disabled' ?>"><i class="icon-trash icon-white"></i></a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endforeach ?>
+            </div>
+
+<!--            --><?php //echo $this->form->last_login_ip; ?>
+<!--            --><?php //echo $this->form->receive_notifications; ?>
+        </div>
+    </div>
+    <div class="form-actions">
+        <?php if (isset($this->form->submit)): ?>
+            <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+        <?php endif ?>
+        <a class="btn cancel btn-danger">Cancel</a>
+    </div>
+</form>
+
+<?php foreach($this->popupSetup as $setings): ?>
+    <?php echo $this->popupGrid($setings); ?>
+<?php endforeach; ?>
+
+<?php foreach($this->popupUserEntity as $setings): ?>
+    <?php echo $this->popupUserEntity($setings); ?>
+<?php endforeach; ?>
+
+

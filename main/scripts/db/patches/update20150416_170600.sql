@@ -1,0 +1,1 @@
+INSERT INTO `user_role` (`id`, `title`) VALUES ('5', 'Admin');

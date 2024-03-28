@@ -1,0 +1,16 @@
+<?php if (count($messages)): ?>
+<div class="messages">
+    <?php foreach ($messages as $namespace => $namespaceMessages): ?>
+        <?php if(isset($headerMessages[$namespace])): ?>
+            <div class="header-message">
+                <?php echo $headerMessages[$namespace]; ?>
+            </div>
+        <?php endif ?>
+        <?php foreach ($namespaceMessages as $messageId => $message): ?>
+            <div class="message">
+                <?php echo $message ?>
+            </div>
+        <?php endforeach ?>
+    <?php endforeach ?>
+</div>
+<?php endif ?>

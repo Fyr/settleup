@@ -1,0 +1,2 @@
+UPDATE `payment_setup` SET `biweekly_start_day` = '2015-01-01' WHERE `biweekly_start_day` IS NULL AND `billing_cycle_id` = 2;
+UPDATE `deduction_setup` SET `biweekly_start_day` = '2015-01-01' WHERE `biweekly_start_day` IS NULL AND `billing_cycle_id` = 2;

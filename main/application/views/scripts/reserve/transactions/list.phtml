@@ -1,0 +1,34 @@
+<?php $title = 'Reserve Transactions' ?>
+<?php $this->headTitle()->append($title) ?>
+    <h3><?php echo $title ?></h3>
+<?php echo $this->grid() ?>
+
+<?php if (isset($this->contributionGrid) && isset($this->contractorGrid) && isset($this->contractorWithdrawalGrid) && isset($this->withdrawalGrid)): ?>
+<?php echo $this->partial(
+    'popup_setup.phtml',
+    array(
+        'gridTitle' => 'Select Reserve Contributions and Contractors',
+        'tabTitle' => 'Contributions',
+        'selector' => 'contribution',
+        'type' => Application_Model_Entity_System_ReserveTransactionTypes::CONTRIBUTION,
+        'grids' => array(),
+        'cyclePeriods' => $this->activeCyclePeriods,
+        'setupGrid' => $this->contributionGrid,
+        'contractorGrid' => $this->contractorGrid
+    )
+) ?>
+
+<?php echo $this->partial(
+    'popup_setup.phtml',
+    array(
+        'gridTitle' => 'Select Reserve Withdrawals and Contractors',
+        'tabTitle' => 'Withdrawals',
+        'type' => Application_Model_Entity_System_ReserveTransactionTypes::WITHDRAWAL,
+        'selector' => 'withdrawal',
+        'grids' => array(),
+        'cyclePeriods' => $this->activeCyclePeriods,
+        'setupGrid' => $this->withdrawalGrid,
+        'contractorGrid' => $this->contractorWithdrawalGrid
+    )
+) ?>
+<?php endif ?>

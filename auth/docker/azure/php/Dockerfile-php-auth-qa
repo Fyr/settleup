@@ -1,0 +1,60 @@
+FROM php:8.2-fpm
+
+# set up system components
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    unzip \
+    libicu-dev \
+    libzip-dev \
+    libpng-dev \
+    libmcrypt-dev \
+    libbz2-dev \
+    default-mysql-client \
+    nginx
+
+# set up php plugins
+RUN docker-php-ext-install mysqli pdo_mysql \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-configure gettext \
+    && docker-php-ext-install bz2 intl gd gettext zip
+
+RUN pecl list | grep mcrypt || (pecl install mcrypt && docker-php-ext-enable mcrypt)
+
+# PHP customizations
+COPY ./docker/php/conf.d/limits.ini /usr/local/etc/php/conf.d/limits.ini
+
+# set up composer
+RUN curl -sS https://getcomposer.org/installer | php
+RUN mv composer.phar /usr/local/bin/composer
+RUN chmod 0755 /usr/local/bin/composer
+
+# Copy data
+COPY . /var/www/html
+
+# change working directory
+WORKDIR /var/www/html
+
+# rebuild Composer packages
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer install
+
+# update permissions
+RUN chmod -R 0777 ./storage
+
+#
+RUN mv .env.azure .env
+RUN chmod +x /var/www/html/docker/azure/php/entrypoint.sh
+
+###NGINX
+COPY ./docker/azure/php/default.conf /etc/nginx/sites-available/default
+
+COPY ./docker/azure/php/sshd_config /etc/ssh/
+# Start and enable SSH
+RUN apt-get install -y openssh-server \
+    && echo "root:Docker!" | chpasswd \
+    && mkdir /run/sshd \
+    && chmod 0755 /run/
+    
+EXPOSE 80 443 2222
+
+ENTRYPOINT ["/var/www/html/docker/azure/php/entrypoint.sh"]

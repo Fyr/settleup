@@ -1,0 +1,58 @@
+<?php
+$keys = array_keys($this->columns);
+$values = array_values($this->columns);
+?>
+<table  class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <?php foreach ($this->columns as $columnCollection): ?>
+            <?php foreach($columnCollection as $key => $title): ?>
+                <th name="<?php echo $key ?>"><?php echo $title ?></th>
+            <?php endforeach;?>
+        <?php endforeach ?>
+        <th name="status">Importing Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php if( $this->collection->count() ):?>
+        <?php foreach ($this->collection as  $contractorCollections):?>
+            <?php foreach ($contractorCollections as $row): ?>
+            <tr>
+                <?php $error = '' ?>
+                <?php foreach (array('contractor', 'contractor_vendor') as $part): ?>
+                    <?php $entity = $row[$part] ?>
+                    <?php if (is_string($entity)): ?>
+                        <td><?php echo $entity ?></td><td></td><td></td><td></td>
+                        <?php continue ?>
+                    <?php endif ?>
+                    <?php $error .= ($entity->getStatus() == Application_Model_Entity_System_PaymentTempStatus::CONST_STATUS_NOT_VALID)? $entity->getError(): '' ?>
+                    <?php foreach($this->columns[$part] as $key => $title): ?>
+                        <?php $method = 'get' . Application_Model_Base_Object::uc_words($key, '') ?>
+                        <?php if (isset($this->gridData['callbacks'][$key])): ?>
+                            <?php $callback = $this->gridData['callbacks'][$key]?>
+                            <td <?php echo $callback::getInstance()->renderWrapper($entity->getData(), $entity->$method(), $this) ?>><div><?php echo $callback::getInstance()->render($entity->getData(), $entity->$method(), $this) ?></div></td>
+                        <?php else: ?>
+                            <td><?php echo $entity->$method() ?></td>
+                        <?php endif ?>
+                    <?php endforeach ?>
+                <?php endforeach ?>
+                <td>
+                    <?php if ($error): ?>
+                        <span class="label label-important show-errors" data-content="<?php echo $error ?>" rel="popover" href="#" data-original-title="Errors:">Not Valid</span>
+                    <?php else: ?>
+                        <span class="label label-success">Valid</span>
+                    <?php endif ?>
+                </td>
+            </tr>
+            <?php endforeach ?>
+        <?php endforeach ?>
+    <?php endif ?>
+    </tbody>
+</table>
+
+<div class="right">
+<?php if ($this->isValid): ?>
+    <a id="approve" class="btn btn btn-info" href="<?php echo $this->url(array('action' => 'approve', 'id' => $this->id)) ?>" ><i class="icon-ok icon-white"></i> Approve</a>
+<?php endif ?>
+    <a id="cancel" class="btn cancel btn-danger" href="<?php echo $this->url(array('action' => 'edit', 'fileType' => Zend_Controller_Front::getInstance()->getRequest()->getParam('file_type'))) ?>" > Cancel</a>
+</div>

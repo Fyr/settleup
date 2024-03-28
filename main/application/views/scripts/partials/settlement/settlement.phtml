@@ -1,0 +1,66 @@
+<?php $cycle = $this->cycle ?>
+<?php $user = Application_Model_Entity_Accounts_User::getCurrentUser(); ?>
+<table class="datagrid table table-bordered  additional-cycle-grid">
+    <thead>
+    <tr class="header">
+        <th>ID</th>
+        <th>Settlement Cycle</th>
+        <th>Period Start Date</th>
+        <th>Period Close Date</th>
+        <th>Processing Date</th>
+        <th>Disbursement Date</th>
+        <th>Cycle Status</th>
+        <th name="action">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <?php if (!$cycle->getId()): ?>
+            <td class="placeholder" colspan="8" style="text-align: center">Cycle not exist!</td>
+        <?php else: ?>
+            <td><?php echo $cycle->getId() ?></td>
+            <td><?php echo $cycle->getCyclePeriod()->getTitle() ?></td>
+            <td><?php echo $this->date($cycle->getCycleStartDate()) ?></td>
+            <td><?php echo $this->date($cycle->getCycleCloseDate()) ?></td>
+            <td><?php echo $this->date($cycle->getProcessingDate()) ?></td>
+            <td><?php echo $this->date($cycle->getDisbursementDate()) ?></td>
+
+            <td><?php echo ($cycle->getStatus()->getTitle() == 'Approved') ? 'Closed' : $cycle->getStatus()->getTitle() ?></td>
+            <td class="buttons">
+                <div>
+                    <?php if (isset($this->drilldown) && $this->drilldown): ?>
+                        <?php echo $this->setButtons(array('settlementHome'), $cycle->getId()) ?>
+                    <?php else : ?>
+                        <?php $buttons = array(); ?>
+                        <?php if ($cycle->getStatusId() == Application_Model_Entity_System_SettlementCycleStatus::NOT_VERIFIED_STATUS_ID): ?>
+                            <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_VERIFY)) $buttons[] = 'verify' ?>
+                            <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_EDIT)) $buttons[] = 'edit' ?>
+                        <?php elseif ($cycle->getStatusId() == Application_Model_Entity_System_SettlementCycleStatus::VERIFIED_STATUS_ID): ?>
+                            <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_PROCESS)) $buttons[] = 'process' ?>
+                            <?php if (isset($this->disableDelete) && $this->disableDelete): ?>
+                                <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_DELETE)) $buttons[] = 'delete-disabled' ?>
+                            <?php else : ?>
+                                <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_DELETE)) $buttons[] = 'delete' ?>
+                            <?php endif ?>
+                        <?php elseif ($cycle->getStatusId() == Application_Model_Entity_System_SettlementCycleStatus::PROCESSED_STATUS_ID): ?>
+                            <?php if (isset($this->disableApprove) && $this->disableApprove) : ?>
+                                <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_APPROVE)) $buttons[] = 'approve-disabled' ?>
+                            <?php else : ?>
+                                <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_APPROVE)) $buttons[] = 'approve' ?>
+                            <?php endif ?>
+                            <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_REJECT)) $buttons[] = 'reject' ?>
+                        <?php elseif ($cycle->getStatusId() == Application_Model_Entity_System_SettlementCycleStatus::APPROVED_STATUS_ID): ?>
+                            <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_EXPORT)) $buttons[] = 'export' ?>
+                        <?php endif ?>
+                        <?php if (!empty($buttons)): ?>
+                            <?php echo $this->setButtons($buttons, $cycle->getId()); ?>
+                        <?php else : ?>
+                            None
+                        <?php endif ?>
+                    <?php endif ?>
+                </div>
+            </td>
+        <?php endif ?>
+    </tr>
+    </tbody>
+</table>

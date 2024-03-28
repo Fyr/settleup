@@ -1,0 +1,34 @@
+server {
+   charset utf-8;
+   client_max_body_size 128M;
+   sendfile on;
+
+   listen 80;
+   server_name _;
+
+   root        /var/www/html/public;
+   index       index.php index.html;
+
+   location / {
+       try_files $uri $uri/ /index.php$is_args$args;
+   }
+
+   location ~ [^/]\.php(/|$) {
+       fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+           if (!-f $document_root$fastcgi_script_name) {
+               return 404;
+           }
+       include fastcgi_params;
+       fastcgi_param SERVER_NAME $http_host;
+       fastcgi_param SCRIPT_URL $request_uri;
+       fastcgi_param SCRIPT_URI $request_uri;
+       fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+       fastcgi_pass 172.17.0.6:9000;
+       #fastcgi_pass ${SETTLEMENT_AUTH_HOST}:9000;
+       fastcgi_param APPLICATION_ENV development;
+       ## TUNE buffers to avoid error ##
+       fastcgi_buffers 16 32k;
+       fastcgi_buffer_size 64k;
+       fastcgi_busy_buffers_size 64k;
+   }
+}

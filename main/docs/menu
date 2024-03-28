@@ -1,0 +1,73 @@
+authentication system
+    login
+    registration
+    log out
+file storage
+    new   -> edit
+    index -> list
+    list
+    edit
+settlements
+compensations
+    compensations setup:
+    compensations
+        new   -> edit
+        index -> list
+        list
+        edit
+deductions
+    deductions setup:
+    deductions
+        new   -> edit
+        index -> list
+        list
+        edit
+reserve
+    reserve transactions:
+    reserve account carrier:
+    reserve account contractor:
+    reserve account vendor
+        new   -> edit
+        index -> list
+        list
+        edit
+carriers
+    new   -> edit
+    index -> list
+    list
+    edit
+contractors
+    new   -> edit
+    index -> list
+    list
+    edit
+vendors
+    new   -> edit
+    index -> list
+    list
+    edit
+reporting
+account
+users
+    new   -> edit
+    index -> list
+    list
+    edit
+system
+    user roles:
+    user contact types:
+    setup levels:
+    cycle periods:
+    cycle types:
+    compensation statuses:
+    compensation types:
+    reserve transaction types:
+    contractor statuses
+        new   -> edit
+        index -> list
+        list
+        edit
+
+legend:
+-> = forward
+:  = inherit the menu structure from the below item

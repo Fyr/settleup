@@ -1,0 +1,31 @@
+<h3>Set New Interest Rate</h3><br />
+<form action="<?php echo $this->escape($this->form->getAction()); ?>"
+      method="<?php echo $this->escape($this->form->getMethod()); ?>"
+      name="<?php echo $this->escape($this->form->getName()); ?>"
+      class="form-horizontal<?php echo ($this->form->id->getValue()) ? ' hide-buttons' : ''; ?>"
+>
+    <?php echo $this->form->rate; ?>
+    <div class="form-actions">
+        <?php if (isset($this->form->submit)) { ?>
+            <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+        <?php } ?>
+        <a class="btn cancel btn-danger" <?php echo $this->cancelUrl; ?>>Cancel</a>
+    </div>
+    <?php echo $this->form->id; ?>
+</form>
+
+
+<div id="confirm-modal" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="btn close" data-dismiss="modal">X</a>
+        <h3>Confirm <span class="confirm-type"></span> of Records</h3>
+    </div>
+    <div class="modal-body">
+        <p class="confirm-description"><span class="confirm-type"></span> these records is irreversible.</p>
+        <p>Do you want to proceed?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="" class="btn btn-danger" id="btn-confirm">Yes</a>
+        <a data-dismiss="modal" class="btn btn-success">No</a>
+    </div>
+</div>

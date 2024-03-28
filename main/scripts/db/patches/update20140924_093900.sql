@@ -1,0 +1,52 @@
+DROP TABLE IF EXISTS `user_permissions`;
+
+CREATE TABLE `user_permissions` (
+  `id` INT(10) unsigned NOT NULL AUTO_INCREMENT,
+  `entity_id` INT(10) UNSIGNED NOT NULL,
+  `settlement_edit` TINYINT(1) NOT NULL DEFAULT 1,
+  `settlement_verify` TINYINT(1) NOT NULL DEFAULT 1,
+  `settlement_process` TINYINT(1) NOT NULL DEFAULT 1,
+  `settlement_delete` TINYINT(1) NOT NULL DEFAULT 1,
+  `settlement_approve` TINYINT(1) NOT NULL DEFAULT 1,
+  `settlement_data_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `settlement_data_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `settlement_rule_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `settlement_rule_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `settlement_escrow_account_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `reserve_account_carrier_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `reserve_account_carrier_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `reserve_account_vendor_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `reserve_account_vendor_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `bank_account_contractor_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `bank_account_contractor_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `bank_account_vendor_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `bank_account_vendor_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `bank_account_carrier_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `bank_account_carrier_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `disbursement_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `disbursement_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `disbursement_approve` TINYINT(1) NOT NULL DEFAULT 1,
+  `vendor_deduction_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `vendor_deduction_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `reporting_ach_check` TINYINT(1) NOT NULL DEFAULT 1,
+  `reporting_deduction_remittance_file` TINYINT(1) NOT NULL DEFAULT 1,
+  `reporting_settlement_reconciliation` TINYINT(1) NOT NULL DEFAULT 1,
+  `reporting_general` TINYINT(1) NOT NULL DEFAULT 1,
+  `contractor_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `contractor_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `vendor_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `vendor_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `carrier_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `carrier_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `template_view` TINYINT(1) NOT NULL DEFAULT 1,
+  `template_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  `uploading` TINYINT(1) NOT NULL DEFAULT 1,
+  `contractor_vendor_auth_manage` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  UNIQUE `fk_user_permissions_entity_id` (`entity_id`),
+  CONSTRAINT `fk_user_permissions_entity_id` FOREIGN KEY (`entity_id`) REFERENCES `entity` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+INSERT INTO `user_permissions` (`entity_id`)
+  SELECT DISTINCT `entity_id`
+  FROM `carrier`;

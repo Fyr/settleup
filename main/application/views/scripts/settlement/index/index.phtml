@@ -1,0 +1,144 @@
+<?php echo $this->partial('freeze/freeze_notify.phtml') ?>
+<?php echo $this->message ?>
+<?php $this->headTitle()->append($this->title); ?>
+<h3><?php echo $this->title; ?></h3>
+
+<?php $cycle = $this->cycle; ?>
+
+<?php if ($this->showCreateNewCycleButton): ?>
+    <div class="right">
+        <a class="btn btn-success" href="<?php echo $this->url(array('action' => 'new')); ?>">
+            <i class="icon-plus icon-white"></i> Create New</a>
+    </div>
+<?php else : ?>
+
+    <?php echo $this->partial('partials/filter.phtml', array(
+        'cyclePeriods' => $this->cyclePeriods,
+        'cycle' => $cycle,
+        'cycleFilterType' => $this->cycleFilterType,
+        'cycleFilterYear' => $this->cycleFilterYear,
+            'divisions' => $this->carrierCollection,
+            'carrier' => $this->division,
+        'limit' => $this->limit
+    ));
+
+
+    echo $this->partial(
+        'partials/settlement/settlement.phtml', array(
+        'cycle' => $cycle,
+        'disableApprove' => isset($this->disableApprove),
+        'disableDelete' => isset($this->disableDelete),
+    ));
+
+    if ($cycle->getStatusId() != Application_Model_Entity_System_SettlementCycleStatus::NOT_VERIFIED_STATUS_ID && $cycle->getId()) {
+        echo $this->partial(
+            'partials/settlement/contractors.phtml', array(
+            'contractors' => $this->cycleContractors,
+            'totals' => $this->cycleContractorsTotal,
+            'status' => $cycle->getStatusId(),
+            'search' => $this->search
+        ));
+    }
+
+    if ($this->paginator) {
+//        echo $this->partial(
+//            'partials/settlement/paginator.phtml', array(
+//            'pageCount' => $this->pageCount,
+//            'previous' => $this->previous,
+//            'pagesInRange' => $this->pagesInRange,
+//            'current' => $this->current,
+//            'next' => $this->next
+//        ));
+        echo $this->paginationControl(
+            $this->paginator,
+            'Sliding', 'partials/settlement/pagination.phtml'
+        );
+    }
+
+    echo $this->partial('partials/settlement/confirm.phtml', [
+        'id' => 'confirm-settlement-process',
+        'title' => 'Process Current Settlement',
+        'text' => 'After processing the current settlement statement, you will not be able to make adjustments to reserve accounts.',
+        'reverseButtonsColor' => true,
+    ]);
+
+    echo $this->partial('partials/settlement/confirm.phtml', [
+        'id' => 'confirm-settlement-reject',
+        'title' => 'Reject Current Settlement',
+        'text' => 'Rejecting the current settlement will delete all reserve account transactions and deduction adjusted balances.'
+    ]);
+
+    echo $this->partial('partials/settlement/confirm.phtml', [
+        'id' => 'confirm-settlement-approve',
+        'title' => 'Approve Current Settlement',
+        'text' => 'Approving the current settlement is irreversible.',
+        'reverseButtonsColor' => true,
+    ]);
+
+    echo $this->partial('partials/settlement/confirm.phtml', [
+        'id' => 'confirm-settlement-export',
+        'title' => 'Export Current Settlement',
+        'text' => 'You are going to export data from the settlement cycle to Hub.',
+        'reverseButtonsColor' => true,
+    ]);
+
+    ?>
+
+<?php endif ?>
+
+<div id="confirm-modal" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="btn close" data-dismiss="modal">X</a>
+        <h3>Confirm <span class="confirm-type"></span> of Records</h3>
+    </div>
+    <div class="modal-body">
+        <p class="confirm-description"><span class="confirm-type"></span> these records is irreversible.</p>
+        <p>Do you want to proceed?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="" class="btn btn-danger" id="btn-confirm">Yes</a>
+        <a data-dismiss="modal" class="btn btn-success">No</a>
+    </div>
+</div>
+<?php if ($this->showWarningTooltip): ?>
+    <script>
+        $(function () {
+            $('.process-btn').popover({
+                title:"Warning!",
+                content:"Previous cycle is not approved!",
+                placement: 'left'
+            }).click(function(e){
+                e.preventDefault();
+            });
+            $('.process-btn').removeAttr('data-toggle');
+        });
+    </script>
+<?php endif ?>
+
+<?php if ($this->disableDelete): ?>
+    <script>
+        $(function () {
+            isDeletePopoverVisible = false;
+            $('body').on('click', ':not(.popover.in)', function(e){
+                if ($('.popover.in').length && isDeletePopoverVisible) {
+                    $('.additional-cycle-grid .delete-cycle').popover('hide');
+                    isDeletePopoverVisible = false;
+                }
+            });
+
+            $('.additional-cycle-grid .delete-cycle').popover({
+                title:"Warning!",
+                content:"Next cycle is verified!",
+                placement: 'left',
+            }).click(function(e){
+                $('.additional-cycle-grid .delete-cycle').popover('show');
+                e.preventDefault();
+                e.stopPropagation();
+                isDeletePopoverVisible = true;
+            });
+
+            $('.additional-cycle-grid .delete-cycle').removeAttr('data-toggle');
+        });
+    </script>
+<?php endif ?>
+

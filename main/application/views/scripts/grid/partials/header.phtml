@@ -1,0 +1,37 @@
+<?php $header = $this->gridModel->getHeader();
+$checkboxField = (isset($header['checkboxField'])) ? $header['checkboxField'] : 'id';
+if ($checkboxField === 'false') $checkboxField = false; ?>
+<?php if ($checkboxField) { ?>
+    <th width="14px" class="checkAllField"><input class="checkAll" type="checkbox"></th>
+<?php } ?>
+<?php
+if (isset($header['sortable'])) {
+    $sortable = (bool)$header['sortable'];
+} else {
+    $sortable = true;
+}
+
+if (!array_key_exists("dragrows", $header)) {
+    $header['dragrows'] = false;
+} else {
+    $header['dragrows'] = $header['dragrows'] == 'true' ? true : false;
+}
+?>
+<?php foreach ($header['header'] as $key => $value) { ?>
+    <?php $sorting = '';
+    if (!$header['dragrows'] && $sortable) {
+        $sorting = 'class="sorting';
+        if (is_array($header['sort']) && array_key_exists($key, $header['sort'])) {
+            $sorting .= " " . strtolower($header['sort'][$key]);
+        }
+        $sorting .= '" ';
+    }
+
+    ?>
+    <th <?php echo isset($header['disabledSort'][$key]) ? '' : $sorting ?> name="<?php echo $key ?>"><?php echo $value ?> <?php echo isset($header['disabledSort'][$key]) ? '' : '<span class="arrow"></span>' ?></th>
+<?php } ?>
+<?php if (isset($header['service']['header'])) { ?>
+    <?php foreach ($header['service']['header'] as $key => $value) { ?>
+        <th name="<?php echo $key ?>"><?php echo $value ?><span class="arrow"></span></th>
+    <?php } ?>
+<?php } ?>

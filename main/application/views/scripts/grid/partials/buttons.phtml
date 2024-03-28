@@ -1,0 +1,42 @@
+<div style="padding-bottom: 9px; display: inline-block">    
+    <?php if ($this->buttons) { ?>
+        <?php foreach ($this->buttons as $key => $button) { ?>
+            <?php if (!array_key_exists("style", $button)) $button['style'] = ""; ?>
+            <?php if (!array_key_exists("confirm-type", $button)) $button['confirm-type'] = false; ?>
+            <?php if (!array_key_exists("action-type", $button)) $button['action-type'] = false; ?>
+            <?php if (!array_key_exists("data-confirm-description-title", $button)) $button["data-confirm-description-title"] = false; ?>
+            <?php if (!array_key_exists("confirm-message", $button)) $button['confirm-message'] = false; ?>
+            <?php if (!array_key_exists("delete-second-message", $button)) $button['delete-second-message'] = false; ?>
+            <?php if (!array_key_exists("data-toggle", $button)) $button['data-toggle'] = false; ?>
+            <?php if (!array_key_exists("data-target", $button)) $button['data-target'] = false; ?>
+            <a class=" btn <?php echo $button['button_class'] ?>"
+                href="<?php echo $button['url'] ?>"
+                <?php if($button['action-type']) {
+                    echo 'action-type='.$button['action-type'].' ';
+                } ?>
+                <?php if($button['confirm-type']) {
+                    echo 'confirm-type='.$button['confirm-type'].' ';
+                } ?>
+                <?php if($button['data-confirm-description-title']) {
+                    echo 'data-confirm-description-title='.$button['data-confirm-description-title'].' ';
+                } ?>
+                <?php if($button['confirm-message']) {
+                    echo 'confirm-message="'.$button['confirm-message'].'" ';
+                } ?>
+                <?php if($button['delete-second-message']) {
+                    echo 'delete-second-message='.$button['delete-second-message'].' ';
+                } ?>
+                <?php if($button['data-toggle']) {
+                    echo 'data-toggle='.$button['data-toggle'].' ';
+                } ?>
+                <?php if($button['data-target']) {
+                    echo 'data-target='.$button['data-target'].' ';
+                } ?>
+                style="<?php echo $button['style'] ?>"
+                >
+                <i class="<?php echo $button['icon_class'] ?> icon-white"></i>
+                <?php echo $button['caption'] ?>
+            </a>
+        <?php } ?>
+    <?php } ?>
+</div>

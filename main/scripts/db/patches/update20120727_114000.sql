@@ -1,0 +1,2 @@
+INSERT INTO `pfleet`.`users` (`id`, `role_id`, `email`, `name`, `password`, `last_login_ip`, `last_selected_carrier`) VALUES
+(NULL, 1, 'phpunittest@pfleet.loc', 'phpunittest', '74cbea5364321be7a0e15e5b2ce1d14d', '127.0.0.1', 4);

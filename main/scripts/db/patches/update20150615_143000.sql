@@ -1,0 +1,1 @@
+ALTER TABLE user_permissions ADD COLUMN `disbursement_reissue` tinyint(1) NOT NULL DEFAULT '1' AFTER `disbursement_approve`;

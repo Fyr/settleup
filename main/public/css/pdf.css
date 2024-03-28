@@ -1,0 +1,184 @@
+@font-face {
+    font-family: MICR;
+    src: url(micrenc.ttf);
+}
+table.datagrid.table.table-bordered.table-striped.report-grid {
+    width: 11in !important;
+    color: #000000 !important;
+    font-size: 9px !important;
+}
+.collapse-body {
+    height: auto !important;
+    display: block !important;
+    margin-top: -20px;
+}
+.collapse-heading table, .collapse-heading th {
+    border: none !important;
+    background-color: white !important;
+}
+.collapse-heading .btn {
+    display: none !important;
+}
+.money-cell, .report-total, .num {
+    text-align: right !important;
+}
+.report-grid-wrapper {
+    min-width: 700px !important;
+}
+table.report-grid th {
+    border-bottom: 1px solid #000000 !important;
+    border-left: none;
+    border-top: none;
+}
+table.report-grid tr {
+    height: 25px !important;
+}
+table.report-grid .top-line {
+    border-top: 1px solid #000000 !important;
+}
+table.report-grid .bottom-double-line {
+    border-bottom: 3px double #000000 !important;
+}
+table.report-grid {
+    border: 1px solid #000000 !important;
+}
+.report-grid td {
+    border: none !important;
+}
+
+.datagrid thead tr th {
+    white-space: nowrap;
+}
+
+.datagrid [name=quantity],
+.datagrid [name=min_balance],
+.datagrid [name=contribution_amount],
+.datagrid [name=max_withdrawal_amount],
+.datagrid [name=current_balance],
+.datagrid [name=adjustments],
+.datagrid [name=rate],
+.datagrid [name=amount],
+.datagrid [name=percentage],
+.datagrid [name=balance],
+.datagrid [name=adjusted_balance],
+.datagrid [name=withdrawals],
+.datagrid [name=balance_due],
+.datagrid [name=contributions],
+.datagrid [name=ending_balance],
+.datagrid [name=deductions_amount],
+.datagrid [name=deduction_amount],
+.datagrid [name=withdrawal_amount],
+.datagrid [field-name=quantity] input,
+.datagrid [field-name=priority] input,
+.datagrid [field-name=rate] input,
+.datagrid [field-name=amount] input,
+.datagrid [field-name=adjusted_balance] input {
+    text-align: right;
+}
+span.pull-left {
+    float: left !important;
+}
+.num {
+    white-space: nowrap;
+}
+.datagrid.table.report-grid thead th {
+    padding: 8px 4px !important;
+}
+.datagrid.table td, .datagrid.table th {
+    padding: 0 4px;
+    vertical-align: top !important;
+    background-color: #ffffff;
+}
+
+.report-grid-wrapper {
+    min-width: 700px !important;
+    max-height: 700px !important;
+    width: 95% !important;
+    overflow: auto !important;
+}
+.report-grid.table-striped tbody tr:nth-child(2n+1) td, .report-grid.table-striped tbody tr:nth-child(2n+1) th {
+    background-color: #ffffff !important;
+}
+table.report-grid th, table.report-grid tr:last-child th.info-title, table.report-grid tr:last-child th.info-value  {
+    border-bottom: 1px solid #333333 !important;
+    border-left: none !important;
+    border-top: none !important;
+}
+table.report-grid th.info-title, table.report-grid th.info-value {
+    border-bottom: none !important;
+}
+table.report-grid th.info-title {
+    text-align: right !important;
+}
+table.report-grid.datagrid th.info-value {
+    font-weight: normal !important;
+}
+table.report-grid.datagrid tr.info-row {
+    height: 20px !important;
+}
+.datagrid.table.report-grid thead tr.info-row th {
+    padding: 4px !important;
+}
+table.report-grid .top-line {
+    border-top: 1px solid #333333 !important;
+}
+table.report-grid .bottom-double-line {
+    border-bottom: 3px double #333333 !important;
+}
+.datagrid.table-bordered.table.report-grid {
+    border: 1px solid #333333 !important;
+}
+.report-grid td {
+    border: none !important;
+}
+.datagrid.table.report-grid thead th {
+    padding: 8px 4px !important;
+}
+.print-report {
+    margin-bottom: 10px !important;
+}
+.nondisplay-important {
+    display: none !important;
+}
+.datagrid.table.table-bordered.table-striped.report-grid.multiple-grid {
+    margin-bottom: 0px !important;
+}
+.datagrid.table.table-bordered.table-striped.report-grid.multiple-grid {
+    border-bottom: none !important;
+}
+.datagrid.table.report-grid .report-subtitle2 {
+    font-style: italic !important;
+    height: 40px !important;
+    font-size: 14px !important;
+    vertical-align: middle !important;
+}
+.datagrid.table.report-grid .report-title {
+    font-size: 15px !important;
+}
+.report-grid.datagrid tr {
+    height: auto !important;
+}
+.datagrid.table.report-grid .bold-text {
+    font-weight: bold !important;
+}
+.datagrid.table.report-grid .report-subtitle-gray {
+    background-color: #dddddd !important;
+}
+.datagrid.table.report-grid .bordered {
+    border-top: 1px solid #333333 !important;
+    border-bottom: 1px solid #333333 !important;
+}
+.datagrid.table.report-grid .report-subtitle {
+    font-size: 14px !important;
+    padding-bottom: 5px !important;
+    padding-top: 0 !important;
+    vertical-align: middle !important;
+}
+
+.report-grid.table-striped tbody tr:nth-child(2n+1) td, .report-grid.table-striped tbody tr:nth-child(2n+1) th {
+    background-color: #ffffff !important
+}
+
+.datagrid.table.report-grid .bold-text {
+    font-weight: bold !important;
+}

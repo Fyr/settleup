@@ -1,0 +1,101 @@
+<div class="right">
+    <a id="add" class="btn btn-success" href="#popup_checkbox_modal" data-toggle="modal"><i class="icon-plus icon-white"></i> Add to entities</a>
+</div>
+<br/>
+<?php $title = ''; ?>
+<?php foreach ($this->entities as $entity): ?>
+    <?php if ( $entity instanceof Application_Model_Entity_Entity_Contractor ): ?>
+        <?php $title = 'Contractors' ?>
+    <?php elseif ( $entity instanceof Application_Model_Entity_Entity_Vendor ): ?>
+        <?php $title = 'Vendors' ?>
+    <?php elseif ( $entity instanceof Application_Model_Entity_Entity_Carrier): ?>
+        <?php $title = 'Carriers' ?>
+    <?php endif ?>
+    <?php $keys = array_keys($entity->getResource()->getInfoFields()) ?>
+    <?php $values = array_values($entity->getResource()->getInfoFields()) ?>
+    <?php $items = $entity->getCollection()->addVisibilityFilter($this->userEntityId)->getItems() ?>
+    <?php $itemsCount = $entity->getCollection()->addVisibilityFilter($this->userEntityId)->count(); ?>
+    <div class="collapsible">
+        <div class="collapse-heading">
+            <table  class="table table-bordered table-striped">
+                <tr>
+                    <th width="15" data-toggle="collapse" data-target="#collapse<?php echo $title ?>" class="aCenter"><div class="btn" data-toggle="button"><i class="icon-plus-sign icon-black"></i></div></th>
+                    <th></thead><h4><?php echo $title ?>: <?php echo $itemsCount; ?></h4></th>
+                </tr>
+            </table>
+        </div>
+        <div id="collapse<?php echo $title ?>" class="collapse in hide collapse-body">
+            <table  class="table table-bordered table-striped">
+                <?php if ( $itemsCount ):?>
+                <thead>
+                <tr>
+                    <?php foreach($values as $key): ?>
+                    <th><?php echo $key ?></th>
+                    <?php endforeach;?>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($items as $item) :?>
+                        <?php $data = $item->getData(); ?>
+                        <tr class="hidden"></tr>
+                        <tr>
+                            <?php foreach($keys as $ke):?>
+                            <td>
+                                <?php echo $data[$ke] ?>
+                            </td>
+                            <?php endforeach; ?>
+                            <td style="width: 100px; text-align: center;">
+                                <a class="btn btn-mini btn-danger confirm-delete" target-url="<?php echo $this->url(array('action' =>'delete', 'userEntityId' => $this->userEntityId, 'participantId' => $data['entity_id'])) ?>"><i class="icon-trash icon-white"></i> Delete</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+                <?php else: ?>
+                    <tr>
+                        <td style="text-align: center" colspan="<?php echo count($this->columns) + 1 ?>">Nothing to show</td>
+                    </tr>
+                <?php endif ?>
+            </table>
+        </div>
+    </div>
+<?php endforeach ?>
+<script type="text/javascript">
+    $(function () {
+        $(".collapse").collapse();
+        $(document).ready(function () {
+            $(".collapse").removeClass("hide");
+        });
+        $(".collapse").on("show", function(){
+            $(this).prev(".collapse-heading").contents().find("i").removeClass("icon-plus-sign").addClass("icon-minus-sign");
+        });
+        $(".collapse").on("hide", function(){
+            $(this).prev(".collapse-heading").contents().find("i").removeClass("icon-minus-sign").addClass("icon-plus-sign");
+        })
+    });
+</script>
+<div id="confirm-delete-modal" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="btn close" data-dismiss="modal">X</a>
+        <h3>Confirm <span class="confirm-type"></span> of Records</h3>
+    </div>
+    <div class="modal-body">
+        <p class="confirm-description"><span class="confirm-type"></span> these records is irreversible.</p>
+        <p>Do you want to proceed?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="" class="btn btn-danger">Yes</a>
+        <a data-dismiss="modal" class="btn btn-success">No</a>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('.confirm-delete').bind('click', function(e) {
+            e.preventDefault();
+            var targetUrl = $(this).attr('target-url');
+            $('#confirm-modal .confirm-type').html($(this).attr('confirm-type'));
+            $('#confirm-delete-modal').find('.btn-danger').attr('href', targetUrl);
+            $('#confirm-delete-modal').modal('show');
+        });
+    });
+</script>

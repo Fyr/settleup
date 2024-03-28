@@ -1,0 +1,1 @@
+ALTER TABLE `payment_setup` CHANGE COLUMN `quantity` `quantity` INT(11) NULL DEFAULT NULL;

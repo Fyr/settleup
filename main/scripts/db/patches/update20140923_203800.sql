@@ -1,0 +1,1 @@
+DELETE FROM `reserve_account` WHERE `description` IS NULL AND `account_name` IS NULL;

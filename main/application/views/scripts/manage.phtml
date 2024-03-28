@@ -1,0 +1,11 @@
+<?php $this->headTitle()->append($this->title); ?>
+<h3><?php echo $this->title; ?></h3>
+
+<?php echo $this->partial(
+    'grid.phtml',
+    array(
+        'collection' => $this->entity->getCollection(),
+        'columns'    => $this->entity->getResource()->getInfoFields(),
+        'buttons'    => array('delete','edit'),
+        'sortable'   => false,
+    )); ?>

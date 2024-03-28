@@ -1,0 +1,2 @@
+UPDATE payment_setup set first_start_day = 1, second_start_day = 2 WHERE  billing_cycle_id = 6 AND (first_start_day is NULL OR second_start_day is null);
+UPDATE deduction_setup set first_start_day = 1, second_start_day = 2 WHERE  billing_cycle_id = 6 AND (first_start_day is NULL OR second_start_day is null);

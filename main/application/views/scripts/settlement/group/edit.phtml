@@ -1,0 +1,27 @@
+<?php $this->headTitle()->append($this->title); ?>
+
+<h3><?php echo ($this->form->id->getValue())? 'Edit' : 'Create' ?> <?php echo $this->title ?></h3>
+<br/>
+<div class="row">
+
+<form  action="<?php echo $this->escape($this->form->getAction()); ?>"
+       method="<?php echo $this->escape($this->form->getMethod()); ?>"
+       name="<?php echo $this->escape($this->form->getName()) ?>"
+       class="form-horizontal">
+    <div class="span6">
+    <fieldset>
+        <?php echo ($this->form->id->getValue()) ? $this->form->id : ''; ?>
+        <?php echo $this->form->code; ?>
+        <?php echo $this->form->name; ?>
+        <?php echo $this->form->division_id; ?>
+        <div class="form-actions">
+            <?php if (isset($this->form->submit)): ?>
+                <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+            <?php endif ?>
+            <a class="btn cancel btn-danger">Cancel</a>
+        </div>
+    </fieldset>
+        <div>
+</form>
+
+</div>

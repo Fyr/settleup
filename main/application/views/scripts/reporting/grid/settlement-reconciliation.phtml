@@ -1,0 +1,249 @@
+<?php if(($this->gridData['payment-grid']['items']) || ($this->gridData['deduction-grid']['items']) || ($this->gridData['transaction-grid']['items'])):?>
+<?php $carrierAddress = $this->gridData['info']['carrier']->getAddress() ?>
+<?php $multipleCarrierAddress = (count($carrierAddress) > 1) ?>
+<table class="report-grid" topntail repeat_header="1">
+    <thead>
+        <tr class="report-title">
+            <th colspan="4" class="text-center bottom-line">Settlement Reconciliation</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="info-row"><td colspan="4"></td></tr>
+        <tr class="info-row">
+            <td class="info-title" width="15%">Division:</td>
+            <td class="info-value" width="20%"><?php echo $this->gridData['info']['carrier']->getName() ?></td>
+            <td class="info-title" width="15%">Period Start Date:</td>
+            <td class="info-value"><?php echo $this->gridData['info']['cycle']->getCycleStartDate() ?></td>
+        </tr>
+        <tr class="info-row">
+            <td class="info-title">Address:</td>
+            <td class="info-value">
+                <?php foreach($carrierAddress as $address): ?>
+                    <?php echo $address['address'] . (($multipleCarrierAddress)? ' / ': '')?>
+                <?php endforeach ?>
+            </td>
+            <td class="info-title">Period Close Date:</td>
+            <td class="info-value"><?php echo $this->gridData['info']['cycle']->getCycleCloseDate() ?></td>
+        </tr>
+        <tr class="info-row">
+            <td class="info-title">City, State, Zip:</td>
+            <td class="info-value">
+                <?php foreach($carrierAddress as $itemNumber => $address): ?>
+                    <?php echo $address['city'] . ', ' . $address['state'] . ' ' . $address['zip'] . (($multipleCarrierAddress && $itemNumber != count($carrierAddress) - 1)? ' / ': '') ?>
+                <?php endforeach ?>
+            </td>
+            <td class="info-title">Disbursement Date:</td>
+            <td class="info-value"><?php echo $this->gridData['info']['cycle']->getDisbursementDate() ?></td>
+        </tr>
+<!--        <tr class="info-row"><td colspan="4"></td></tr>-->
+<!--        <tr class="info-row"><td colspan="4"></td></tr>-->
+<!--        <tr class="info-row"><td colspan="4"></td></tr>-->
+<!--        <tr class="info-row"><td colspan="4"></td></tr>-->
+<!--        <tr class="info-row"><td colspan="4"></td></tr>-->
+<!--        <tr class="info-row"><td colspan="4"></td></tr>-->
+<!--        <tr class="info-row"><td colspan="4"></td></tr>-->
+<!--        <tr class="info-row"><td colspan="4"></td></tr>-->
+<!--        <tr class="info-row">-->
+<!--            <td></td>-->
+<!--            <td colspan="3" class="text-left big-upper-case">--><?php //echo $contractor['info']['contractor']->getFirstName() . ' ' . $contractor['info']['contractor']->getLastName() ?><!--</td>-->
+<!--        </tr>-->
+<!--        <tr class="info-row">-->
+<!--            <td></td>-->
+<!--            <td colspan="3" class="text-left big-upper-case">--><?php //echo $contractor['info']['contractor']->getCompanyName() ?><!--</td>-->
+<!--        </tr>-->
+<!--        <tr class="info-row">-->
+<!--            <td></td>-->
+<!--            <td colspan="3" class="text-left big-upper-case">-->
+<!--                --><?php //foreach($contractorAddress as $itemNumber => $address): ?>
+<!--                    --><?php //echo (isset($address['address'])) ? $address['address'] . (($multipleContractorAddress && $itemNumber != count($contractorAddress) - 1)? ' / ': '') : '-'?>
+<!--                --><?php //endforeach ?>
+<!--            </td>-->
+<!--        </tr>-->
+<!--        <tr class="info-row">-->
+<!--            <td></td>-->
+<!--            <td colspan="3" class="text-left big-upper-case">-->
+<!--                --><?php //foreach($contractorAddress as $itemNumber => $address): ?>
+<!--                    --><?php //echo (isset($address['city']))? $address['city'] . ', ' . $address['state'] . ' ' . $address['zip'] . (($multipleContractorAddress && $itemNumber != count($contractorAddress) - 1)? ' / ': ''): '-' ?>
+<!--                --><?php //endforeach ?>
+<!--            </td>-->
+<!--        </tr>-->
+    </tbody>
+    <tfoot><tr class="info-row"><td colspan="4"></td></tr></tfoot>
+</table>
+        <!--   END Title     -->
+<table class="report-grid" topntail repeat_header="1">
+    <tbody>
+<!--   Compensation     -->
+        <tr class="report-title">
+            <td colspan="8" class="text-left">Compensations</td>
+        </tr>
+        <tr class="subtable">
+            <?php $fieldNumber = 0 ?>
+            <?php foreach($this->gridData['payment-grid']['fields'] as $name => $options): ?>
+                <td class="field-name-<?php echo $name ?>" <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"' ?>><?php echo $options['title'] ?></td>
+            <?php endforeach ?>
+        </tr>
+        <?php if(!count($this->gridData['payment-grid']['items'])): ?>
+            <tr><td colspan="8" class="text-center"></td></tr>
+        <?php else: ?>
+        <?php foreach($this->gridData['payment-grid']['items'] as $payment): ?>
+            <tr>
+                <?php foreach($this->gridData['payment-grid']['fields'] as $key => $options): ?>
+                    <?php $method = 'get' . Application_Model_Base_Object::uc_words($key, '') ?>
+                    <?php if (isset($this->gridData['payment-grid']['callbacks'][$key])): ?>
+                        <?php $callback = $this->gridData['payment-grid']['callbacks'][$key]?>
+                    <td <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"' ?> <?php echo $callback::getInstance()->renderWrapper($payment->getData(), $payment->$method(), $this) ?>><div><?php echo $callback::getInstance()->render($payment->getData(), $payment->$method(), $this) ?></div></td>
+                    <?php else: ?>
+                    <td <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"' ?> ><?php echo $payment->$method() ?></td>
+                    <?php endif ?>
+                <?php endforeach ?>
+            </tr>
+        <?php endforeach ?>
+        <?php endif ?>
+        <tr>
+            <td colspan="6" class="text-right bold-text">Total Compensations:</td>
+            <td class="top-line num bold-text"><?php echo number_format($this->gridData['payment-grid']['total_quantity'], 1) ?></td>
+            <td class="top-line num bold-text"><?php echo '$' . number_format($this->gridData['payment-grid']['total_amount'], 2) ?></td>
+        </tr>
+        <tr class="info-row"><td colspan="8"></td></tr>
+
+        <!--   Deductions     -->
+
+        <tr class="report-title">
+            <td colspan="8" class="text-left">Deductions</td>
+        </tr>
+        <tr class="subtable">
+            <?php foreach($this->gridData['deduction-grid']['fields'] as $name => $options): ?>
+                <td class="field-name-<?php echo $name ?>" <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"' ?>><?php echo $options['title'] ?></td>
+            <?php endforeach ?>
+        </tr>
+        <?php if(!count($this->gridData['deduction-grid']['items'])): ?>
+            <tr><td colspan="8" class="text-center"></td></tr>
+        <?php else: ?>
+            <?php foreach($this->gridData['deduction-grid']['items'] as $deduction): ?>
+                <tr>
+                    <?php foreach($this->gridData['deduction-grid']['fields'] as $key => $options): ?>
+                        <?php $method = 'get' . Application_Model_Base_Object::uc_words($key, '') ?>
+                        <?php if (isset($this->gridData['deduction-grid']['callbacks'][$key])): ?>
+                            <?php $callback = $this->gridData['deduction-grid']['callbacks'][$key]?>
+                            <td <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"' ?> <?php echo $callback::getInstance()->renderWrapper($deduction->getData(), $deduction->$method(), $this) ?>><div><?php echo $callback::getInstance()->render($deduction->getData(), $deduction->$method(), $this) ?></div></td>
+                        <?php else: ?>
+                            <td <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"' ?> ><?php echo $deduction->$method() ?></td>
+                        <?php endif ?>
+                    <?php endforeach ?>
+                </tr>
+            <?php endforeach ?>
+        <?php endif ?>
+        <tr>
+            <td colspan="4" class="text-right bold-text">Total Deductions:</td>
+            <td class="top-line num bold-text"><?php echo number_format($this->gridData['deduction-grid']['total_quantity'], 1) ?></td>
+            <td class="top-line num bold-text">$<?php echo number_format($this->gridData['deduction-grid']['total_amount'], 2) ?></td>
+            <td class="top-line num bold-text">$<?php echo number_format($this->gridData['deduction-grid']['total_deduction_balance'], 2) ?></td>
+            <td class="top-line num bold-text">$<?php echo number_format($this->gridData['deduction-grid']['total_deduction_amount'], 2) ?></td>
+        </tr>
+        <tr class="info-row"><td colspan="8"></td></tr>
+
+<!--   Reserve Transactions     -->
+        <tr class="report-title">
+            <td colspan="8" class="text-left">Reserve Transactions</td>
+        </tr>
+        <tr class="subtable">
+            <?php foreach($this->gridData['transaction-grid']['fields'] as $name => $options): ?>
+                <td class="field-name-<?php echo $name ?>" <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"' ?>><?php echo $options['title'] ?></td>
+            <?php endforeach ?>
+        </tr>
+        <?php if(!count($this->gridData['transaction-grid']['items'])): ?>
+            <tr><td colspan="8" class="text-center"></td></tr>
+        <?php else: ?>
+            <?php foreach($this->gridData['transaction-grid']['items'] as $account): ?>
+                <tr>
+                    <?php foreach($this->gridData['transaction-grid']['fields'] as $key => $options): ?>
+                        <?php $method = 'get' . Application_Model_Base_Object::uc_words($key, '') ?>
+                        <?php if (isset($this->gridData['transaction-grid']['callbacks'][$key])): ?>
+                            <?php $callback = $this->gridData['transaction-grid']['callbacks'][$key]?>
+                            <td <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"' ?> <?php echo $callback::getInstance()->renderWrapper($account->getData(), $account->$method(), $this) ?>><div><?php echo $callback::getInstance()->render($account->getData(), $account->$method(), $this) ?></div></td>
+                        <?php else: ?>
+                            <td <?php if (isset($options['colspan'])) echo 'colspan="' . $options['colspan'] . '"' ?> ><?php echo $account->$method() ?></td>
+                        <?php endif ?>
+                    <?php endforeach ?>
+                </tr>
+            <?php endforeach ?>
+        <?php endif ?>
+        <tr>
+            <td colspan="4" class="text-right bold-text">Total:</td>
+            <td class="top-line num bold-text">$<?php echo number_format($this->gridData['transaction-grid']['total_starting_balance'], 2) ?></td>
+            <td class="top-line num bold-text">$<?php echo number_format($this->gridData['transaction-grid']['total_withdrawals'], 2) ?></td>
+            <td class="top-line num bold-text">$<?php echo number_format($this->gridData['transaction-grid']['total_contributions'], 2) ?></td>
+            <td class="top-line num bold-text">$<?php echo number_format($this->gridData['transaction-grid']['total_ending_balance'], 2) ?></td>
+        </tr>
+        <tr class="info-row"><td colspan="8"></td></tr>
+        <tr>
+            <td class="text-right" colspan="7">Total Compensations:</td>
+            <td class="num"><?php echo '$' . number_format($this->gridData['totals']['contractor']['payments'], 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right" colspan="7">Total Deductions:</td>
+            <td class="num"><?php echo '$' . number_format($this->gridData['totals']['contractor']['deductions'], 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right" colspan="7">Total Contributions:</td>
+            <td class="num"><?php echo '$' . number_format($this->gridData['totals']['contractor']['contributions'], 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right" colspan="7">Total Withdrawals:</td>
+            <td class="num"><?php echo '$' . number_format($this->gridData['totals']['contractor']['withdrawals'], 2) ?></td>
+        </tr>
+        <tr class="info-row"><td colspan="8"></td></tr>
+        <tr>
+            <td class="text-right bold-text" colspan="7">Total Contractor Settlement:</td>
+            <td class="num top-line bold-text"><?php echo '$' . number_format($this->gridData['totals']['contractor']['total'], 2) ?></td>
+        </tr>
+        <tr class="info-row"><td colspan="8"></td></tr>
+        <tr>
+            <td class="text-right" colspan="7">Total Deductions:</td>
+            <td class="num"><?php echo '$' . number_format($this->gridData['totals']['vendor']['deductions'], 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right" colspan="7">Total Contributions:</td>
+            <td class="num"><?php echo '$' . number_format($this->gridData['totals']['vendor']['contributions'], 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right" colspan="7">Total Withdrawals:</td>
+            <td class="num"><?php echo '$' . number_format($this->gridData['totals']['vendor']['withdrawals'], 2) ?></td>
+        </tr>
+        <tr class="info-row"><td colspan="8"></td></tr>
+        <tr>
+            <td class="text-right bold-text" colspan="7">Total Vendor Disbursement:</td>
+            <td class="num top-line bold-text"><?php echo '$' . number_format($this->gridData['totals']['vendor']['total'], 2) ?></td>
+        </tr>
+        <tr class="info-row"><td colspan="8"></td></tr>
+        <tr>
+            <td class="text-right" colspan="7">Total Contractor Settlement:</td>
+            <td class="num"><?php echo '$' . number_format($this->gridData['totals']['grand']['contractor'], 2) ?></td>
+        </tr>
+        <tr>
+            <td class="text-right" colspan="7">Total Vendor Disbursement:</td>
+            <td class="num"><?php echo '$' . number_format($this->gridData['totals']['grand']['vendor'], 2) ?></td>
+        </tr>
+        <tr class="info-row"><td colspan="8"></td></tr>
+        <tr>
+            <td class="text-right bold-text" colspan="7">Grand Total Disbursement:</td>
+            <td class="num top-line bold-text"><?php echo '$' . number_format($this->gridData['totals']['grand']['total'], 2) ?></td>
+        </tr>
+    </tbody>
+    <tfoot><tr class="info-row"><td colspan="8" class="bottom-line"></td></tr></tfoot>
+</table>
+<?php else: ?>
+<table class="report-grid" repeat_header="1">
+    <thead>
+        <tr class="report-title">
+            <th class="text-center">Settlement Reconciliation</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="text-center">None!</td>
+        </tr>
+    </tbody>
+</table>
+<?php endif ?>

@@ -1,0 +1,9 @@
+<?php $this->headTitle()->append($this->title); ?>
+
+<?php if ($this->form->id->getValue()): ?>
+    <h3><?php echo $this->title . ' - edit #'.  $this->form->id->getValue();?> </h3><br />
+<?php else: ?>
+    <h3><?php echo $this->title . ' - new';?> </h3><br />
+<?php endif; ?>
+
+<?php echo $this->form; ?>

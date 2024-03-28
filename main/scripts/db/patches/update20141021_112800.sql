@@ -1,0 +1,1 @@
+ UPDATE `entity_contact_type` SET `title` = 'Phone' WHERE `id` =5;

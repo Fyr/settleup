@@ -1,0 +1,12 @@
+<?php
+
+?>
+<tr class="totals">
+    <td colspan="6">Total</td>
+    <?php if ($this->cycle->getStatusId() == Application_Model_Entity_System_SettlementCycleStatus::PROCESSED_STATUS_ID || $this->cycle->getStatusId() == Application_Model_Entity_System_SettlementCycleStatus::APPROVED_STATUS_ID) : ?>
+        <td class="num"><?php echo $this->money($this->contractor['cur_bal']) ?></td>
+    <?php else : ?>
+        <td class="num"></td>
+    <?php endif ?>
+    <td></td>
+</tr>

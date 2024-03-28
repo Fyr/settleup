@@ -1,0 +1,10 @@
+<?php $title = 'Divisions' ?>
+<?php $this->headTitle()->append($title) ?>
+<h3><?php echo $title ?></h3>
+<?php if (isset($this->errorMessage)): ?>
+    <div class="alert alert-block alert-error">
+        <h3 class="alert-heading">Warning!</h3>
+        <?php echo $this->errorMessage ?>
+    </div>
+<?php endif ?>
+<?php echo $this->grid() ?>

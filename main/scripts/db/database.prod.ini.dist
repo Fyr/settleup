@@ -1,0 +1,8 @@
+[database]
+db_user=pfleet
+db_pass=Pl4v4nm3x
+db_host=pfleetrds.c5hi2cym9e8e.us-west-2.rds.amazonaws.com
+db_name=pfleet_prod
+db_port=3306
+patches=patches/
+procedures=procedures.sql

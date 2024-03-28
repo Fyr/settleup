@@ -1,0 +1,141 @@
+@page {
+    margin: 1.27cm;
+    margin-top: 1.75cm;
+    margin-bottom: 0.63cm;
+    /*margin-header: 1.9cm;*/
+    /*margin-footer: 0.63cm;*/
+}
+table {
+    border: 0.5pt solid #000000;
+    font-size: 6.5pt;
+    margin-bottom: 6pt;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+}
+tr {
+    vertical-align: middle;
+    page-break-inside: avoid;
+}
+td, th {
+    height: 0.20cm;
+    text-align: left;
+    padding: 0.01cm 2pt;
+    /*background-color: #0F0;*/
+}
+tr.placeholder td {
+    height: 0.2cm;
+}
+tr.fake-table-border div {
+    /*background-color: #f00;*/
+    background-color: #fff;
+    height: 100%;
+    margin-left: -1px;
+    padding: 1px 2px 1px 0;
+    position: relative;
+    width: 100%;
+}
+tr.fake-table-border > th {
+    padding: 0 !important;
+}
+
+td.num, th.num {
+    text-align: right;
+}
+td.text-center, th.text-center, .text-center {
+    text-align: center;
+}
+td.text-left, th.text-left, .text-left, th.info-value {
+    text-align: left;
+}
+td.text-right, th.text-right, .text-right, th.info-title {
+    text-align: right;
+}
+th.info-title {
+    font-weight: bold;
+    white-space: nowrap;
+}
+td.info-title {
+    font-weight: bold;
+    text-align: right;
+}
+tr.report-title th {
+    background-color: rgb(242, 242, 242);
+}
+tr.report-title th, tr.report-title td {
+    font-size: 8pt;
+    font-weight: bold;
+    font-style: italic;
+    height: 0.79cm;
+}
+.bordered {
+    border: 0.5pt solid #000000;
+}
+.top-line {
+    border-top: 0.5pt solid #000000;
+}
+.bottom-double-line {
+    border-bottom: 0.75pt double #000000;
+}
+.bottom-line {
+    border-bottom: 0.5pt solid #000000;
+}
+.bold-text, tr.subtable td {
+    font-weight: bold;
+}
+tr.subtable td, tr.subtable th {
+    border-top: 0.5pt solid #000000;
+    border-bottom: 0.5pt solid #000000;
+}
+td.big-upper-case {
+    font-size: 8pt;
+    text-transform: uppercase;
+}
+.field-name-quantity,
+.field-name-rate,
+.field-name-amount,
+.field-name-deduction_amount,
+.field-name-deduction_balance,
+.field-name-balance,
+.field-name-min_balance,
+.field-name-contribution_amount,
+.field-name-max_withdrawal_amount,
+.field-name-current_balance,
+.field-name-starting_balance,
+.field-name-adjustments,
+.field-name-percentage,
+.field-name-adjusted_balance,
+.field-name-withdrawals,
+.field-name-balance_due,
+.field-name-contributions,
+.field-name-ending_balance,
+.field-name-deductions_amount,
+.field-name-withdrawal_amount,
+.field-name-withdrawals_amount
+{
+    text-align: right;
+}
+
+pre {
+    font-size: 12px;
+    background-color: #f5f5f5;
+    border: 0.5pt solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    display: block;
+    line-height: 20px;
+    margin: 0 0 10px;
+    padding: 10px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    word-wrap: break-word;
+    color: #333333;
+    font-family: Monaco,Menlo,Consolas,"Courier New",monospace;
+}
+
+pre p {
+    white-space: pre;
+    word-break: normal;
+    word-wrap: normal;
+    margin: 0px;
+}
+

@@ -1,0 +1,91 @@
+<?php $this->headTitle()->append($this->title) ?>
+<h3><?php echo $this->title ?></h3>
+<div class="row">
+    <form class="form-horizontal hide-buttons"  name="<?php echo $this->escape($this->form->getName())?>" action="<?php echo $this->escape($this->form->getAction()) ?>" method="<?php echo $this->escape($this->form->getMethod()) ?>">
+        <div class="span6">
+            <fieldset>
+                <?php echo $this->form->provider_id_title ?>
+                <?php echo $this->form->deduction_code ?>
+                <?php if ($this->form->contractor_name->getValue()): ?>
+                    <?php echo $this->form->contractor_name ?>
+                <?php endif ?>
+                <?php echo $this->form->description ?>
+                <?php echo $this->form->category ?>
+                <?php echo $this->form->department ?>
+                <?php echo $this->form->gl_code ?>
+                <?php echo $this->form->disbursement_code ?>
+                <div class="form-actions">
+                    <?php if (isset($this->form->submit)): ?>
+                        <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+                    <?php endif ?>
+                    <a class="btn cancel btn-danger">Cancel</a>
+                </div>
+            </fieldset>
+        </div>
+        <div class="span6">
+            <fieldset>
+<!--                --><?php //echo $this->form->terms ?>
+                <?php echo $this->form->quantity ?>
+                <?php echo $this->form->rate ?>
+                <?php echo $this->form->recurring ?>
+                <?php echo $this->form->change_cycle_rule_fields; ?>
+                <div id="change-cycle-rule-fields" class="<?php if (!$this->form->recurring->getValue() && !$this->form->first_start_day->getErrors() && !$this->form->second_start_day->getErrors() && !$this->form->week_day->getErrors()) echo 'nondisplay' ?>">
+                    <?php echo $this->form->billing_cycle_id ?>
+                    <div id="semi-monthly-fields" class="<?php if (!in_array((int)$this->form->billing_cycle_id->getValue(), array(Application_Model_Entity_System_CyclePeriod::MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::SEMY_MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::MONTHLY_SEMI_MONTHLY_ID)) && !$this->form->first_start_day->getErrors() && !$this->form->second_start_day->getErrors()) echo 'nondisplay'?>">
+                        <?php echo $this->form->first_start_day ?>
+                        <div id="second_start_day_wrapper" class="<?php if (!in_array((int)$this->form->billing_cycle_id->getValue(), array(Application_Model_Entity_System_CyclePeriod::SEMY_MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::MONTHLY_SEMI_MONTHLY_ID)) && !$this->form->second_start_day->getErrors()) echo 'nondisplay'?>">
+                            <?php echo $this->form->second_start_day ?>
+                        </div>
+                    </div>
+                    <div id="week_offset_wrapper" class="<?php if ($this->form->billing_cycle_id->getValue() != Application_Model_Entity_System_CyclePeriod::BIWEEKLY_PERIOD_ID  && !$this->form->biweekly_start_day->getErrors())  echo 'nondisplay'?>">
+                        <?php echo $this->form->biweekly_start_day ?>
+                        <?php echo $this->form->start_date ?>
+                    </div>
+                    <div id="week_day_wrapper" class="<?php if (in_array((int)$this->form->billing_cycle_id->getValue(), array(Application_Model_Entity_System_CyclePeriod::BIWEEKLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::SEMY_MONTHLY_PERIOD_ID, Application_Model_Entity_System_CyclePeriod::MONTHLY_SEMI_MONTHLY_ID)) && !$this->form->week_day->getErrors()) echo 'nondisplay' ?>">
+                        <?php echo $this->form->week_day ?>
+                        <div id="second_week_day_wrapper" class="<?php if ($this->form->billing_cycle_id->getValue() != Application_Model_Entity_System_CyclePeriod::SEMI_WEEKLY_PERIOD_ID && !$this->form->second_week_day->getErrors()) echo 'nondisplay'?>">
+                            <?php echo $this->form->second_week_day ?>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <?php echo $this->form->eligible ?>
+                <?php echo $this->form->reserve_account_receiver_title ?>
+                <?php echo $this->form->provider_id ?>
+                <?php echo $this->form->id ?>
+                <?php echo $this->form->reserve_account_receiver ?>
+                <?php echo $this->form->level_id ?>
+                <?php echo $this->form->contractor_id ?>
+            </fieldset>
+        </div>
+    </form>
+</div>
+<script>
+    getRAUrl = '<?php echo $this->url(array('action' =>'updateracollection')); ?>';
+    getProviderSetupUrl = '<?php echo $this->url(array('action' =>'updateterms')); ?>';
+
+    /*-------Hides or shows reserve account field in accordance with a marked eligible option-------------------------*/
+
+    if ($('#eligible').attr('checked') == null) {
+        $('#reserve_account_receiver_title').parent().parent().css('display', 'none');
+    }
+
+    $(function () {
+        $('#eligible').bind('click', function () {
+            return changeEligible();
+        });
+    });
+
+    function changeEligible() {
+        if ($('#eligible').attr('checked') == 'checked') {
+            $('#reserve_account_receiver_title').parent().parent().show('blind');
+        } else {
+            $('#reserve_account_receiver_title').parent().parent().hide('blind');
+        }
+    }
+
+</script>
+
+<?php foreach ($this->popupSetup as $settings): ?>
+<?php echo $this->popupGrid($settings); ?>
+<?php endforeach; ?>

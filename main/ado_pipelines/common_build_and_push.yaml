@@ -1,0 +1,134 @@
+trigger:
+- none
+
+parameters:
+- name: buildNginx
+  type: boolean
+  default: false
+- name: environments
+  displayName: Environment
+  type: string
+  default: dev
+  values:
+    - Development
+    - QA
+    - Staging
+    # - Production
+
+variables:
+  - group: settlement
+  - name: stage
+    ${{ if eq( parameters['environments'], 'Development') }}:
+      value: "dev"
+    ${{ if eq( parameters['environments'], 'Qa' ) }}:
+      value: "qa"
+    ${{ if eq( parameters['environments'], 'Staging' ) }}:
+      value: "stg"
+    # ${{ if eq( parameters['environments'], 'Production' ) }}:
+    #   value: "prod"
+
+
+pool:
+  name: SettleUP
+
+stages:
+- stage: 'BuildPush'
+  displayName: 'Build and push Settlement docker image to registry'
+  jobs: 
+  - job: 'BuildAndPush'
+    displayName: 'Build and push Settlement docker image to registry'
+
+    steps:
+      - bash: |
+          export REGISTRY_PASSWORD=$(REGISTRY_PASSWORD)
+          docker login -u commonSettlementAcr -p $REGISTRY_PASSWORD commonsettlementacr.azurecr.io
+          echo "Branch Name: $BUILD_SOURCEBRANCHNAME" >> public/version.txt
+          echo "Build Number: $BUILD_BUILDNUMBER" >> public/version.txt
+          date=$(date '+%Y-%m-%d-%H-%M')
+          git_hash=$(git rev-parse --short HEAD)
+          tag=$date-$git_hash
+          echo "$tag" >> public/version.txt
+          echo "##vso[task.setvariable variable=tag;isOutput=true]$tag"
+        name: tagGenerating
+        displayName: 'Docker login'
+
+      - bash: |
+          docker buildx build --progress=plain --cache-from commonsettlementacr.azurecr.io/main/settleup-main-web:latest --tag settleup-main-web --file docker/azure/nginx/Dockerfile .
+          docker tag settleup-main-web commonsettlementacr.azurecr.io/main/settleup-main-web:latest
+          docker tag settleup-main-web commonsettlementacr.azurecr.io/main/settleup-main-web:$(tagGenerating.tag)
+          docker push commonsettlementacr.azurecr.io/main/settleup-main-web:latest
+          docker push commonsettlementacr.azurecr.io/main/settleup-main-web:$(tagGenerating.tag)
+        condition: eq('${{ parameters.buildNginx }}', true)
+        displayName: 'Build and Push Main Nginx Docker Image'
+
+      - bash: |
+          docker buildx build --progress=plain --cache-from commonsettlementacr.azurecr.io/main/settleup-main-php:latest --tag settleup-main-php --file docker/azure/php/Dockerfile .
+          docker tag settleup-main-php commonsettlementacr.azurecr.io/main/settleup-main-php:latest
+          docker tag settleup-main-php commonsettlementacr.azurecr.io/main/settleup-main-php:$(tagGenerating.tag)
+          docker push commonsettlementacr.azurecr.io/main/settleup-main-php:latest
+          docker push commonsettlementacr.azurecr.io/main/settleup-main-php:$(tagGenerating.tag)
+        displayName: 'Build and Push Main PHP Docker Image'
+
+
+- stage: 'RestartMainApp${{ parameters.environments }}'
+  dependsOn: BuildPush
+  variables:
+    tag: $[ stageDependencies.BuildPush.BuildAndPush.outputs['tagGenerating.tag'] ]
+    #stageDependencies.{stageName}.{jobName}.outputs['{stepName}.{variableName}'] 
+  displayName: 'Restart Main Application and check that is up and runningon on ${{ parameters.environments }}'
+  jobs: 
+    - deployment: RestartMainApp${{ parameters.environments }}
+      displayName: 'Restart Main Application and check that is up and running on ${{ parameters.environments }}'
+      environment: ${{ parameters.environments }}
+      workspace:
+        clean: all
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - checkout: self
+    
+              # - bash: |
+              #     echo $(tag)
+              #   displayName: 'troubleshoot'
+
+              - task: AzureWebAppContainer@1
+                displayName: Deploy Main WEB
+                inputs:
+                  azureSubscription: 'nikasc'
+                  appName: 'settlement-main-web-${{variables.stage}}-app'
+                  containers: 'commonsettlementacr.azurecr.io/main/settleup-main-web:$(tag)'
+                  #containers: 'commonsettlementacr.azurecr.io/main/settleup-main-web:latest'
+                condition: eq('${{ parameters.buildNginx }}', true)
+
+              - task: AzureWebAppContainer@1
+                displayName: Deploy Main PHP
+                inputs:
+                  azureSubscription: 'nikasc'
+                  appName: 'settlement-main-php-${{variables.stage}}-app'
+                  containers: 'commonsettlementacr.azurecr.io/main/settleup-main-php:$(tag)'
+                  #containers: 'commonsettlementacr.azurecr.io/main/settleup-main-web:latest'
+
+              - task: AzureKeyVault@2
+                inputs:
+                  azureSubscription: 'nikasc'
+                  KeyVaultName: 'settlement${{variables.stage}}kv'
+                  SecretsFilter: '*'
+                  RunAsPreJob: false
+                displayName: Get Secrets from Keyvault
+
+              - bash: |
+                  echo "Start Execution"
+                  cd scripts/db
+                  cat > database.ini << EOL
+                  [database]
+                  db_user=$(settlement-mysql-admin-login)
+                  db_pass=$(settlement-mysql-main-pass)
+                  db_host=$(settlement-mysql-main-db-name)
+                  db_name=settlement
+                  db_port=3306
+                  patches=patches/
+                  procedures=procedures.sql
+                  EOL
+                  ./migrate.sh
+                displayName: 'SettleUP Database Migrations'

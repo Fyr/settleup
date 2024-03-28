@@ -1,0 +1,13 @@
+<?php if (is_array($this->data)): ?>
+<tr class="totals not-sortable-item">
+    <?php if (!$this->gridData['hideCheckbox']) : ?>
+        <td></td>
+    <?php endif ?>
+    <td colspan="11">Total</td>
+    <td class="num"><?php echo $this->money($this->data['totals']) ?></td>
+    <td class="num"><?php echo $this->money($this->data['totals_balance']) ?></td>
+    <td class="num"><?php echo $this->money($this->data['totals_adjusted_balance']) ?></td>
+    <td class="num"><?php echo $this->money($this->data['totals_deduction_amount']) ?></td>
+    <td></td>
+</tr>
+<?php endif ?>

@@ -1,0 +1,1 @@
+ALTER TABLE `pfleet`.`settlement_cycle` ADD COLUMN `first_start_day` INT(11) NULL DEFAULT NULL  AFTER `status_id` , ADD COLUMN `second_start_day` INT(11) NULL DEFAULT NULL  AFTER `first_start_day` ;

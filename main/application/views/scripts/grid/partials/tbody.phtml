@@ -1,0 +1,117 @@
+<?php
+$header = $this->gridModel->getHeader();
+$massaction = $this->gridModel->getMassaction();
+$paginator = $this->gridModel->getPaginator();
+$entity = $this->gridModel->getEntityName();
+$customFilters = $this->gridModel->getCustomFilters();
+$rowData = $this->gridModel->getRowData();
+$fields = $header['header'];
+$checkboxField = (isset($header['checkboxField'])) ? $header['checkboxField'] : 'id';
+if ($checkboxField === 'false') $checkboxField = false;
+if (isset($header['service'])) {
+    $action = $header['service']['header'];
+}
+?>
+<?php if ($paginator->count()) {
+    foreach ($paginator as $data) {
+        ?>
+        <?php
+            if (isset($header['priorityFilterField'])) {
+                $str = 'data-filter="';
+                if (is_array($header['priorityFilterField'])) {
+                    foreach ($header['priorityFilterField'] as $field) {
+                        $str .= $data[$field] . '-';
+                    }
+                    $str = substr($str, 0, strlen($str) - 1);
+                } else {
+                    $str .= $data[$header['priorityFilterField']];
+                }
+                $str .= '"';
+            }
+        ?>
+        <tr
+            <?php if (isset($header['titleField'])) echo 'data-title="' . $data[$header['titleField']] . '"' ?>
+            <?php if (isset($header['idField'])) echo 'data-value="' . $data[$header['idField']] . '"' ?>
+            <?php if (isset($rowData)) {
+                $dataAttrs = ' ';
+                foreach ($rowData as $dataFieldName => $dataAttrName) {
+                    $dataAttrs .= 'data-' . $dataAttrName . '="' . (isset($data[$dataFieldName])?$data[$dataFieldName]:'') . '" ';
+                }
+                echo $dataAttrs;
+            }?>
+            <?php if (isset($header['priorityFilterField'])) echo $str?>
+            >
+            <!-- if massaction enabled - start -->
+            <?php if ($checkboxField) { ?>
+                <td class="checkboxField">
+                    <?php if (isset($header['callbacks']['checkbox'])): ?>
+                    <?php echo $header['callbacks']['checkbox']::getInstance()->render($data, $data[$checkboxField], $this); ?>
+                    <?php else: ?>
+                        <input
+                            type="checkbox" <?php if (isset($header['titleField'])) echo 'data-title="' . $data[$header['titleField']] . '"' ?>
+                            data-id="<?php echo $data[$checkboxField] ?>" value="<?php echo $data[$checkboxField] ?>"
+                            class="checkbox idField"
+                        >
+                    <?php endif ?>
+                </td>
+            <?php } ?>
+            <!-- if massaction enabled - end -->
+            <?php reset($fields); ?>
+            <?php if (isset($header['service'])): ?>
+                <?php $bindeOnValue = $data[$header['service']['bindOn']] ?>
+            <?php endif ?>
+            <?php foreach ($fields as $key => $value) { ?>
+                <?php if (isset($header['callbacks'][$key])) { ?>
+                    <td <?php echo $header['callbacks'][$key]::getInstance()->renderWrapper($data, $data[$key], $this) ?>>
+                        <div><?php echo $header['callbacks'][$key]::getInstance()->render($data, $data[$key], $this) ?></div>
+                    </td>
+                <?php } else { ?>
+                    <td>
+                        <div><?php echo (isset($data[$key]) && $data[$key] !== '') ? $data[$key] : '-' ?></div>
+                    </td>
+                <?php } ?>
+            <?php } ?>
+            <?php if (isset($header['callbacks']['action'])): ?>
+                <td <?php echo $header['callbacks']['action']::getInstance()->renderWrapper($data, $data[$key], $this) ?>><?php echo $header['callbacks']['action']::getInstance()->render($data, $data[$key], $this) ?></td>
+            <?php endif; ?>
+        </tr>
+    <?php } ?>
+    <?php if (isset($header['totals'])) : ?>
+        <?php if ($this->gridModel->currentControllerName == 'settlement_index') : ?>
+            <?php echo $this->partial($header['totals']['template'], $header['totals']['data']) ?>
+        <?php else : ?>
+            <?php echo $this->partial($header['totals']['template'], array('data' => $this->gridModel->getTotals(), 'gridData' => (isset($header['totals']['data'])) ? $header['totals']['data'] : array() )) ?>
+        <?php endif ?>
+    <?php endif ?>
+<?php
+} else {
+    ($checkboxField) ? $colspan = 2 : $colspan = 1;
+    ?>
+    <tr class="not_sortable">
+        <td style="text-align: center" colspan="<?php echo count($fields) + $colspan ?>">Nothing to show</td>
+    </tr>
+<?php } ?>
+
+<div id="confirm-modal" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="btn close" data-dismiss="modal">X</a>
+        <h3>Confirm <span class="confirm-type"></span> of Records</h3>
+    </div>
+    <div class="modal-body">
+        <p class="confirm-description"><span class="confirm-type"></span> these records is irreversible.</p>
+        <p>Do you want to proceed?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="" class="btn btn-danger" id="btn-confirm">Yes</a>
+        <a data-dismiss="modal" class="btn btn-success">No</a>
+    </div>
+</div>
+
+<!-- if drag rows activated-->
+<?php
+if (!array_key_exists("dragrows", $header)) {
+    $header['dragrows'] = false;
+} else {
+    $header['dragrows'] = $header['dragrows'] == 'true' ? true : false;
+}
+?>

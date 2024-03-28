@@ -1,0 +1,17 @@
+require("./jquery.min.js");
+require("script-loader!./jquery.mask.min");
+require("./jquery-ui.min");
+require("./jquery.validate");
+require("./bootstrap");
+//require("jquery.maskedinput");
+require("./jquery.printElement");
+require("js-cookie");
+require("./main");
+require("./grid");
+require("./hide-buttons");
+require("./jquery.pfleetPopup");
+require("./sortable");
+require("./quick-edit");
+require("./popup-user-entity");
+require("./jquery.preventDoubleSubmission");
+require("./../css/main.scss");
