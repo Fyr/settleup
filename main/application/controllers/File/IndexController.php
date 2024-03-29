@@ -59,7 +59,7 @@ class File_IndexController extends Zend_Controller_Action
                         [
                             'type' => 'T_ERROR',
                             'title' => 'Warning!',
-                            'message' => 'Invalid file content. No contractors found.',
+                            'message' => 'Invalid file content. No data found.',
                         ]
                     );
                 } else {

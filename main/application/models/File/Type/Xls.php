@@ -27,6 +27,9 @@ class Application_Model_File_Type_Xls extends Application_Model_File_Base
         //        $objReader->setReadDataOnly(false);
         $this->objWorksheet = $objPHPExcel->getActiveSheet();
         $highestRow = $this->objWorksheet->getHighestRow();
+        if ($highestRow < 2) {
+            return false;
+        }
         if ($this->getFileType() == FileStorageType::CONST_PAYMENTS_FILE_TYPE) {
             $columns = static::getPaymentFields();
 
@@ -63,9 +66,6 @@ class Application_Model_File_Type_Xls extends Application_Model_File_Base
             }
         }
         if ($this->getFileType() == FileStorageType::CONST_CONTRACTOR_FILE_TYPE) {
-            if ($highestRow < 2) {
-                return false;
-            }
             $contractorColumns = static::getContractorFields();
             $contactColumns = static::getContactFields();
             $contractorVendorColumns = static::getVendorFields();
