@@ -41,7 +41,7 @@
             <td class="info-title">Period Close Date:</td>
             <td class="info-value"><?php echo $contractor['info']['cycle']->getCycleCloseDate() ?></td>
             <td class="info-title">Settlement Group:</td>
-            <td class="info-value"><?php echo $contractorInfo->getSettlementGroup() ?></td>
+            <td class="info-value"><?php echo $contractor['info']['raw']['settlement_group'] ?></td>
         </tr>
         <tr class="info-row">
             <td class="info-title">Contractor Code</td>
