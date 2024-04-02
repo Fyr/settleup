@@ -70,6 +70,7 @@ class Application_Model_Report_Statement extends Application_Model_Report_Report
             $data = [
                 'info' => [
                     'contractor' => $contractor,
+                    'raw' => $contractorsWithSettlements[$contractorId],
                     'carrier' => $carrier,
                     'cycle' => $cycle,
                 ],
