@@ -30,9 +30,22 @@ class Application_Model_File_Type_Xls extends Application_Model_File_Base
         if ($highestRow < 2) {
             return false;
         }
+
+        $columns = match ($this->getFileType()) {
+            FileStorageType::CONST_PAYMENTS_FILE_TYPE => static::getPaymentFields(),
+            FileStorageType::CONST_DEDUCTIONS_FILE_TYPE => static::getDeductionFields(),
+            FileStorageType::CONST_POWERUNIT_FILE_TYPE => static::getPowerunitFields(),
+            FileStorageType::CONST_VENDOR_FILE_TYPE => static::getUploadVendorFields(),
+            FileStorageType::CONST_CONTRACTOR_FILE_TYPE => static::getContractorFields(),
+            FileStorageType::CONST_CONTRACTOR_RA_FILE_TYPE => static::getContractorRAFields(),
+            default => false,
+        };
+        if (!$columns) {
+            return false;
+        }
+        $dateFields = $this->extractDateFields($columns);
+
         if ($this->getFileType() == FileStorageType::CONST_CONTRACTOR_FILE_TYPE) {
-            $contractorColumns = static::getContractorFields();
-            $dateFields = $this->extractDateFields($contractorColumns);
             $contactColumns = static::getContactFields();
             $contractorVendorColumns = static::getVendorFields();
             $contractorTempId = null;
@@ -40,7 +53,7 @@ class Application_Model_File_Type_Xls extends Application_Model_File_Base
             for ($row = 2; $row <= $highestRow; $row++) {
                 $contractorXlsId = ((string) $this->objWorksheet->getCell('A' . $row)->getValue());
                 if ($contractorXlsId != '#' || ($contractorXlsId == '#' && is_null($contractorTempId))) {
-                    $tempContractor = $this->saveTempEntity($row, $contractorColumns, $dateFields);
+                    $tempContractor = $this->saveTempEntity($row, $columns, $dateFields);
                     // array('expires', 'dob', 'start_date', 'termination_date', 'rehire_date')
                     if ($tempContractor) {
                         $contractorTempId = $tempContractor->getId();
@@ -116,24 +129,16 @@ class Application_Model_File_Type_Xls extends Application_Model_File_Base
             }
             return true;
         }
-        $columns = match ($this->getFileType()) {
-            FileStorageType::CONST_PAYMENTS_FILE_TYPE => static::getPaymentFields(),
-            FileStorageType::CONST_DEDUCTIONS_FILE_TYPE => static::getDeductionFields(),
-            FileStorageType::CONST_POWERUNIT_FILE_TYPE => static::getPowerunitFields(),
-            FileStorageType::CONST_VENDOR_FILE_TYPE => static::getUploadVendorFields(),
-            FileStorageType::CONST_CONTRACTOR_RA_FILE_TYPE => static::getContractorRAFields(),
-            default => false,
-        };
-        if (!$columns) {
-            return false;
-        }
-        $dateFields = $this->extractDateFields($columns);
 
+        //if no any rows with valid data found - reject by default
+        $result = false;
         for ($row = 2; $row <= $highestRow; $row++) {
-            $this->saveTempEntity($row, $columns, $dateFields);
+            if ($this->saveTempEntity($row, $columns, $dateFields)) {
+                $result = true;
+            }
         }
 
-        return true;
+        return $result;
     }
 
     public function getExportFile($idOrFilters = null)
@@ -507,14 +512,9 @@ class Application_Model_File_Type_Xls extends Application_Model_File_Base
 
     public function extractDateFields($fields)
     {
-        $dateFields = [];
-        foreach ($fields as $field => $options) {
-            if (isset($options['isDateField']) && $options['isDateField']) {
-                $dateFields[] = $field;
-            }
-        }
-
-        return $dateFields;
+        return array_filter($fields, function ($v) {
+            return isset($v['isDateField']) && $v['isDateField'];
+        });
     }
 
     public function extractExcelTitles($fields)
