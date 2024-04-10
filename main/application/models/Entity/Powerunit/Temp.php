@@ -312,7 +312,7 @@ class Application_Model_Entity_Powerunit_Temp extends Application_Model_Base_Tem
             return $currentDivisionIdFromCache;
         }
         $user = User::getCurrentUser();
-        $currentDivisionId = $user->getEntity()->getCurrentCarrier()->getEntityId();
+        $currentDivisionId = $user->getEntity()->getEntityId();
         Application_Model_Cache::save('currentDivisionId', $currentDivisionId);
 
         return $currentDivisionId;
@@ -385,7 +385,10 @@ class Application_Model_Entity_Powerunit_Temp extends Application_Model_Base_Tem
         if ((int)$idOrFilters && !is_array($idOrFilters)) {
             $collection = [$entity->load($idOrFilters)];
         } else {
-            $collection = $entity->getCollection()->addCarrierFilter()->addContractorFilter()->addNonDeletedFilter();
+            $collection = $entity
+                ->getCollection()
+                ->addDivisionFilter()
+                ->addNonDeletedFilter();
             $this->applyFilters($collection, $idOrFilters);
         }
 

@@ -6,11 +6,15 @@ use Application_Model_Entity_Entity_Permissions as Permissions;
 
 class Application_Model_Grid_Entity_Contractor extends Application_Model_Grid
 {
+    protected $rewriteColumns = [
+        'code' => 'contractor.code',
+    ];
+
     public function __construct()
     {
         $contractorEntity = new Contractor();
 
-        if (User::getCurrentUser()->isVendor()) {
+        if (User::getCurrentUser()->isOnboarding()) {
             $actionCallback = 'Application_Model_Grid_Callback_ViewButton';
             $button = null;
             $additionalFilters = [];
@@ -68,7 +72,7 @@ class Application_Model_Grid_Entity_Contractor extends Application_Model_Grid
             'additionalFilters' => $additionalFilters,
         ];
 
-        if (User::getCurrentUser()->isVendor()) {
+        if (User::getCurrentUser()->isOnboarding()) {
             $header['header'] = $contractorEntity->getResource()->getInfoFieldsForListActionVendor();
         }
         /*        if (!User::getCurrentUser()->hasPermission(Permissions::SETTLEMENT_DATA_MANAGE)) {

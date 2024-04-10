@@ -16,6 +16,11 @@ use Application_Model_Grid_Callback_Taxable as TaxableCallback;
 
 class Application_Model_Grid_Payment_Payment extends Application_Model_Grid
 {
+    protected $rewriteColumns = [
+        'powerunit.code' => 'powerunit.powerunit_code',
+        'contractor.code' => 'contractor.contractor_code',
+    ];
+
     public function __construct()
     {
         $user = User::getCurrentUser();

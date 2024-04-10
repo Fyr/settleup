@@ -1,9 +1,10 @@
 <?php
 
 use Application_Model_Entity_Accounts_User as User;
+use Application_Model_Entity_Entity_Carrier as Division;
 use Application_Model_Entity_Entity_ContractorVendor as ContractorVendor;
 use Application_Model_Entity_System_ContractorStatus as ContractorStatus;
-use Application_Model_Entity_System_ReserveTransactionTypes as ReserveTransactionTypes;
+
 use Application_Model_Entity_System_SystemValues as SystemValues;
 use Application_Model_Entity_System_VendorStatus as VendorStatus;
 
@@ -42,51 +43,6 @@ class Application_Model_Entity_Entity_Contractor extends Application_Model_Entit
         return $deductionsModel->getCollection();
     }
 
-    /**
-     * @param $settlementCycle Application_Model_Entity_Settlement_Cycle
-     * @param $paymentSum float
-     * @return $this
-     */
-    public function updateReserveAccount($settlementCycle, $paymentSum)
-    {
-        $reserveAccountContractorModel = new Application_Model_Entity_Accounts_Reserve_Contractor();
-
-        $reserveAccounts = $reserveAccountContractorModel->getCollection()->addFilter(
-            'contractor_entity_id',
-            $this->getEntityId()
-        )->addActiveVendorFilter($this)->addNonDeletedFilter()->addFilter(
-            'reserve_account.current_balance',
-            'reserve_account.min_balance',
-            '<',
-            false
-        )->setOrder('priority', 'ASC')->getItems();
-
-        foreach ($reserveAccounts as $reserveAccount) {
-            $reserveTransactionModel = (new Application_Model_Entity_Accounts_Reserve_Transaction())
-                ->setReserveAccountContractor($reserveAccount->getReserveAccountContractorId())
-                ->setReserveAccountVendor($reserveAccount->getVendorReserveAccountId())
-                ->setContractorId($this->getEntityId())
-                ->setSettlementCycleId($settlementCycle->getId())
-                ->setDescription($reserveAccount->getDescription())
-                ->setCreatedDatetime((new DateTime())->format('Y-m-d'))
-                ->setType(ReserveTransactionTypes::CONTRIBUTION)
-                ->setAmount(
-                    min(
-                        (float) $reserveAccount->getContributionAmount(),
-                        (float) $reserveAccount->getMinBalance() - (float) $reserveAccount->getCurrentBalance(),
-                        $paymentSum
-                    )
-                )
-                ->setCreatedBy(User::SYSTEM_USER);
-            $paymentSum -= $reserveTransactionModel->getAmount();
-            if ($reserveTransactionModel->getAmount()) {
-                $reserveTransactionModel->save();
-            }
-        }
-
-        return $this;
-    }
-
     //TODO Replace the hardcode by real method
     public function getCarrier()
     {
@@ -114,7 +70,7 @@ class Application_Model_Entity_Entity_Contractor extends Application_Model_Entit
      */
     public function getCurrentCarrier()
     {
-        $carrierEntity = new Application_Model_Entity_Entity_Carrier();
+        $carrierEntity = new Division();
 
         if ($this->getCarrierId()) {
             $carrierEntity->load($this->getCarrierId(), 'entity_id');
@@ -210,8 +166,8 @@ class Application_Model_Entity_Entity_Contractor extends Application_Model_Entit
             $result = $stmt->execute();
         }
 
-        $racCollection = (new Application_Model_Entity_Accounts_Reserve_Contractor())->getCollection()->addFilter(
-            'contractor_entity_id',
+        $racCollection = (new Application_Model_Entity_Accounts_Reserve_Powerunit())->getCollection()->addFilter(
+            'entity_id',
             $this->getEntityId()
         );
         foreach ($racCollection as $rac) {
@@ -314,8 +270,7 @@ class Application_Model_Entity_Entity_Contractor extends Application_Model_Entit
 
     public function createIndividualTemplates()
     {
-        $this->getCarrier()->createPaymentTemplates();
-        $this->getCarrier()->createDeductionTemplates();
+        (new Division())->createIndividualTemplatesByDivisionIds([$this->getCarrierId()]);
     }
 
     public function getVendorStatus($vendorEntityId)
@@ -356,7 +311,7 @@ class Application_Model_Entity_Entity_Contractor extends Application_Model_Entit
 
                 $userModel = new User();
                 $userModel->setData([
-                    'role_id' => Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID,
+                    'role_id' => Application_Model_Entity_System_UserRoles::SPECIALIST_ROLE_ID,
                     'email' => $email,
                     'name' => implode(' ', [$this->getFirstName(), $this->getLastName()]),
                     'password' => $password,
@@ -423,9 +378,9 @@ class Application_Model_Entity_Entity_Contractor extends Application_Model_Entit
 
     public function getContactEmails($checkCarrier = true)
     {
-        $carrier = Application_Model_Entity_Entity_Carrier::staticLoad($this->getId());
-        if ($checkCarrier && $carrier->getId() && $carrier->getCreateContractorType(
-        ) == Application_Model_Entity_Entity_Carrier::MANUALLY_CREATE_CONTRACTOR_USER) {
+        $carrier = Division::staticLoad($this->getId());
+        if ($checkCarrier && $carrier->getId()
+            && $carrier->getCreateContractorType() == Division::MANUALLY_CREATE_CONTRACTOR_USER) {
             return [];
         }
         /**
@@ -450,7 +405,7 @@ class Application_Model_Entity_Entity_Contractor extends Application_Model_Entit
                 foreach ($users as $user) {
                     $email = $user->getEmail();
                     if (($key = array_search($email, $emails)) > -1) {
-                        if ($user->isContractor()) {
+                        if ($user->isSpecialist()) {
                             $entities = (new Application_Model_Entity_Accounts_UserEntity())->getCollection(
                             )->addFilter('user_id', $user->getId())->addFilter(
                                 'entity_id',
@@ -493,12 +448,12 @@ class Application_Model_Entity_Entity_Contractor extends Application_Model_Entit
                     $email = $user->getEmail();
                     if ($user->getAssociatedCarrierId() == $this->getCarrierId()
                         && $user->getEntityId() != $this->getEntityId()
-                        && $user->isContractor()
+                        && $user->isSpecialist()
 //                        && Application_Model_Entity_Accounts_User::getCurrentUser()->getId() != $user->getId()
                     ) {
                         $user->addData([
                             'entity_id' => $this->getEntityId(),
-                            'role_id' => Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID
+                            'role_id' => Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID
                         ])->save();
                     }
                     if (($key = array_search($email, $emails)) > -1) {
@@ -649,5 +604,24 @@ class Application_Model_Entity_Entity_Contractor extends Application_Model_Entit
         $contractor = $db->fetchRow($select);
 
         return $contractor ?: null;
+    }
+
+    /**
+     * return previous settlement cycle for current contractor
+     * @param $currentCycle Application_Model_Entity_Settlement_Cycle
+     * @return Application_Model_Entity_Settlement_Cycle
+     */
+    public function getPreviousCycle($currentCycle)
+    {
+        // replace using parent_cycle_id from cycle object
+        $cycle = new Application_Model_Entity_Settlement_Cycle();
+        $collection = $cycle->getCollection()
+            ->addFilter('carrier_id', $this->getCarrier()->getEntityId())
+            ->addFilter('settlement_group_id', $this->getSettlementGroupId())
+            ->addFilter('cycle_close_date', $currentCycle->getCycleStartDate(), '<')
+            ->setOrder('cycle_close_date')
+        ;
+
+        return $collection->getFirstItem();
     }
 }

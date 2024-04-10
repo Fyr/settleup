@@ -1,0 +1,12 @@
+<?php if ($this->user->hasPermission(Application_Model_Entity_Entity_Permissions::CARRIER_VIEW)): ?>
+    <li class="text-right"><a href="<?php echo $this->url(array('controller' => 'users_index', 'action' => 'edit', 'id' => $this->user->getId(), 'redirect' => 'true'), null, true); ?>">User Info</a></li>
+<?php endif ?>
+<?php if ($this->user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_RULE_VIEW)): ?>
+    <li class="text-right"><a href="<?php echo $this->url(array('controller' => 'settlement_rule', 'action' => 'edit', 'redirect' => 'true'), null, true); ?>">Settlement Info</a></li>
+<?php endif ?>
+<?php if ($this->user->hasPermission(Application_Model_Entity_Entity_Permissions::CARRIER_VIEW)): ?>
+    <li class="text-right"><a href="<?php echo $this->url(array('controller' => 'carriers_index', 'action' => 'info', 'redirect' => 'true'), null, true); ?>">Division Info</a></li>
+<?php endif ?>
+<?php if ($this->user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_ESCROW_ACCOUNT_VIEW)): ?>
+    <li class="text-right"><a href="<?php echo $this->url(array('controller' => 'carriers_index', 'action' => 'escrow', 'redirect' => 'true'), null, true); ?>">Escrow Account</a></li>
+<?php endif ?>

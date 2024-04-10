@@ -34,7 +34,7 @@ class Application_Model_Entity_Collection_Entity_CarrierContractor extends Appli
     //    public function addCarrierFilter()
     //    {
     //        $carrierEntity = Application_Model_Entity_Accounts_User::
-    //            getCurrentUser()->getEntity()->getCurrentCarrier();
+    //            getCurrentUser()->getEntity();
     //        $this->addFilter('carrier_id', $carrierEntity->getEntityId());
     //
     //        return $this;

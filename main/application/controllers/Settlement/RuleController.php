@@ -24,7 +24,7 @@ class Settlement_RuleController extends Zend_Controller_Action
 
     public function indexAction()
     {
-        if (!User::getCurrentUser()->isAdmin()) {
+        if (!User::getCurrentUser()->isAdminOrSuperAdmin()) {
             $this->_redirect('/');
         }
         $this->view->gridModel = new Application_Model_Grid_Settlement_Rules();

@@ -18,7 +18,7 @@ class Application_Form_Settlement_Cycle extends Application_Form_Base
 
         $settlementCloseDate = new Zend_Form_Element_Text('cycle_close_date');
         $settlementCloseDate->setLabel('Period Close Date')->addValidator('DateDatetime')->setRequired(true);
-        if (!Application_Model_Entity_Accounts_User::getCurrentUser()->isAdmin()) {
+        if (!Application_Model_Entity_Accounts_User::getCurrentUser()->isAdminOrSuperAdmin()) {
             $settlementCloseDate->setAttrib('readonly', 'readonly');
         }
 
@@ -130,7 +130,7 @@ class Application_Form_Settlement_Cycle extends Application_Form_Base
         if ($this->cycle_period_id->getValue() != Application_Model_Entity_System_CyclePeriod::SEMY_MONTHLY_PERIOD_ID) {
             $this->first_start_day->setAttrib('readonly', 'readonly');
             $this->second_start_day->setAttrib('readonly', 'readonly');
-            if (!Application_Model_Entity_Accounts_User::getCurrentUser()->isAdmin()) {
+            if (!Application_Model_Entity_Accounts_User::getCurrentUser()->isAdminOrSuperAdmin()) {
                 $this->cycle_start_date->setAttrib('readonly', 'readonly');
             }
         }

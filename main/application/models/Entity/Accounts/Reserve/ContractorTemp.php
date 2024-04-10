@@ -1,6 +1,6 @@
 <?php
 
-use Application_Model_Entity_Accounts_Reserve_Vendor as VendorRA;
+// use Application_Model_Entity_Accounts_Reserve_Vendor as VendorRA;
 use Application_Model_Entity_Entity_Contractor as Contractor;
 use Application_Model_Entity_Entity_Vendor as Vendor;
 use Application_Model_Entity_System_FileTempStatus as FileTempStatus;
@@ -18,11 +18,11 @@ class Application_Model_Entity_Accounts_Reserve_ContractorTemp extends Applicati
         if (!$this->getVendor()->getId()) {
             $error .= 'Vendor not found (invalid Vendor ID)<br>';
         }
-        if (!$this->getVendorRA()->getId()) {
-            $error .= 'Vendor Reserve Account code not found<br>';
-        } else {
-            $this->setReserveAccountVendorId($this->vendorRA->getId());
-        }
+        // if (!$this->getVendorRA()->getId()) {
+        //     $error .= 'Vendor Reserve Account code not found<br>';
+        // } else {
+        //     $this->setReserveAccountVendorId($this->vendorRA->getId());
+        // }
         if (!$this->getContractor()->getId()) {
             $error .= 'Contractor not found (invalid Contractor ID)<br>';
         } else {
@@ -55,7 +55,7 @@ class Application_Model_Entity_Accounts_Reserve_ContractorTemp extends Applicati
 
     public function getControllerName()
     {
-        return 'reserve_accountcontractor';
+        return 'reserve_accountpowerunit';
     }
 
     public function getVendor()
@@ -76,22 +76,23 @@ class Application_Model_Entity_Accounts_Reserve_ContractorTemp extends Applicati
 
     public function getVendorRA()
     {
-        if (!isset($this->vendorRA)) {
-            $entity = new VendorRA();
-            $collection = $entity->getCollection();
-            $collection->addFilter(
-                'entity_id',
-                $this->vendor->getEntityId()
-            )
-                ->addFilter(
-                    'vendor_reserve_code',
-                    $this->getVendorReserveCode()
-                );
+        return null;
+        // if (!isset($this->vendorRA)) {
+        //     $entity = new VendorRA();
+        //     $collection = $entity->getCollection();
+        //     $collection->addFilter(
+        //         'entity_id',
+        //         $this->vendor->getEntityId()
+        //     )
+        //         ->addFilter(
+        //             'vendor_reserve_code',
+        //             $this->getVendorReserveCode()
+        //         );
 
-            $this->vendorRA = $collection->getFirstItem();
-        }
+        //     $this->vendorRA = $collection->getFirstItem();
+        // }
 
-        return $this->vendorRA;
+        // return $this->vendorRA;
     }
 
     public function getContractor()

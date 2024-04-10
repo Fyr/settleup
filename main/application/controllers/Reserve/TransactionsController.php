@@ -26,37 +26,44 @@ class Reserve_TransactionsController extends Zend_Controller_Action
     public function newAction()
     {
         if (!User::getCurrentUser()->hasPermission(Permissions::SETTLEMENT_DATA_MANAGE) || User::getCurrentUser(
-        )->isVendor()) {
+        )->isOnboarding()) {
             $this->_helper->redirector('index', 'settlement_index');
         }
         if ($this->getRequest()->isXmlHttpRequest() || $this->_getParam('fromPopup', 'false') == 'true') {
             $reserveAccountIdArray = $this->getRequest()->getParam('selectedSetup');
-            $contractorIdArray = $this->getRequest()->getParam('selectedContractors');
             $cycleId = $this->getrequest()->getParam('selectedCycle');
             $type = $this->getRequest()->getParam('type', 1);
             $reserveAccount = new ReserveAccount();
 
+            // walk through a list of reserve accounts
             foreach ($reserveAccountIdArray as $accountId) {
+                // load reserve account by ID
                 $reserveAccount->load($accountId);
-                foreach ($contractorIdArray as $contractorId) {
-                    if (!$this->_entity->create($reserveAccount, $contractorId, $cycleId, $type, 0, true)) {
-                        $this->addMessage(
-                            [(new Contractor())->load($contractorId, 'entity_id')->getCompanyName()],
-                            'account-' . $accountId
-                        );
-                    }
+
+                // pull power unit and validate result
+                if (!$powerUnit = $reserveAccount->getPowerUnit()) {
+                    $this->addMessage('Unable to create a transaction for RA ID = ' . $accountId . ' due to 
+                    missing Power Unit information');
+                    continue;
                 }
-                if ($this->hasMessages('account-' . $accountId)) {
-                    $this->setHeaderMessage(
-                        [$reserveAccount->getDescription(), $reserveAccount->getAccountName()],
-                        'account-' . $accountId
-                    );
+
+                // pull contractor and validate result
+                if (!$contractor = $powerUnit->getContractor()) {
+                    $this->addMessage('Unable to create a transaction for RA ID = ' . $accountId . ' due to 
+                    missing Contractor information');
+                    continue;
+                }
+
+                // create new transactions and keep track of results
+                if (!$this->_entity->create($reserveAccount, $contractor->getEntityId(), $cycleId, $type, 0, true)) {
+                    $this->addMessage('Unable to create a transaction for RA ID = ' . $accountId);
                 }
             }
 
             $this->_entity->reorderImportedPriority($cycleId);
 
             if ($this->hasMessages()) {
+                $this->setHeaderMessage('Unable to create some transactions');
                 $this->_helper->FlashMessenger(
                     [
                         'type' => 'T_CHECKBOX_POPUP_ERROR',
@@ -95,10 +102,10 @@ class Reserve_TransactionsController extends Zend_Controller_Action
         }
         $this->view->gridModel = new Application_Model_Grid_Transaction_Transaction();
         if ($user->hasPermission(Permissions::SETTLEMENT_DATA_MANAGE)) {
-            $this->view->contributionGrid = new Application_Model_Grid_Transaction_Contribution();
-            $this->view->withdrawalGrid = new Application_Model_Grid_Transaction_Withdrawal();
-            $this->view->contractorGrid = new Application_Model_Grid_Transaction_Contractor();
-            $this->view->contractorWithdrawalGrid = new Application_Model_Grid_Transaction_ContractorWithdrawal();
+            // we need to set of RA because we can contribute to both types, but withdraw only from maintenance type
+            $this->view->powerUnitsGrid = new Application_Model_Grid_Transaction_Powerunit();
+            $this->view->allRAGrid = new Application_Model_Grid_Transaction_ReserveAccount();
+            $this->view->maintenanceRAGrid = new Application_Model_Grid_Transaction_ReserveAccountMaintenance();
         }
 
         $cycleEntity = new Cycle();
@@ -145,7 +152,7 @@ class Reserve_TransactionsController extends Zend_Controller_Action
 
         if ($this->getRequest()->isPost()) {
             if (!User::getCurrentUser()->hasPermission(Permissions::SETTLEMENT_DATA_MANAGE) || User::getCurrentUser(
-            )->isVendor()) {
+            )->isOnboarding()) {
                 $this->_helper->redirector('index', 'settlement_index');
             }
             $post = $this->getRequest()->getPost();
@@ -171,6 +178,7 @@ class Reserve_TransactionsController extends Zend_Controller_Action
                         $this->_entity->setDescription($this->_form->description->getValue());
                         $this->_entity->setReference($this->_form->reference->getValue());
                         $this->_entity->setAmount($this->_form->amount->getValue());
+                        $this->_entity->setAdjustedBalance($this->_form->adjusted_balance->getValue());
                         $deductionId = $this->_form->deduction_id->getValue();
                         if ($deductionId !== '0') {
                             $this->_entity->setDeductionId($deductionId);
@@ -270,10 +278,10 @@ class Reserve_TransactionsController extends Zend_Controller_Action
                 'reserve_account_contractor' => [
                     'gridTitle' => 'Select reserve contractor',
                     'destFieldName' => 'reserve_account_contractor',
-                    'idField' => 'reserve_account_id',
+                    'idField' => 'id',
                     'titleField' => 'account_name',
                     'collections' => [
-                        (new Application_Model_Entity_Accounts_Reserve_Contractor())->getCollection(
+                        (new Application_Model_Entity_Accounts_Reserve_Powerunit())->getCollection(
                             // )->setOrder(
                             //     'priority',
                             //     Application_Model_Base_Collection::SORT_ORDER_ASC
@@ -298,11 +306,12 @@ class Reserve_TransactionsController extends Zend_Controller_Action
     {
         if ($this->getRequest()->isXmlHttpRequest()) {
             $raContractorId = $this->_getParam('raId');
-            $reserveAccountEntity = new Application_Model_Entity_Accounts_Reserve_Contractor();
+            $reserveAccountEntity = new Application_Model_Entity_Accounts_Reserve_Powerunit();
 
-            return $this->_helper->json->sendJson(
-                $reserveAccountEntity->load($raContractorId, 'reserve_account_id')->setDefaultValues()->getSetupData()
-            );
+            $data = $reserveAccountEntity->load($raContractorId, 'id')->setDefaultValues()->getSetupData();
+            $data['reserve_account_contractor_title'] = $reserveAccountEntity->getCode();
+
+            return $this->_helper->json->sendJson($data);
         } else {
             $this->_helper->redirector('index');
         }

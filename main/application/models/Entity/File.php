@@ -2,6 +2,7 @@
 
 use Application_Model_Entity_Accounts_User as User;
 use Application_Model_Entity_Deductions_Deduction as Deduction;
+use Application_Model_Entity_Entity_Carrier as Division;
 use Application_Model_Entity_Payments_Payment as Payment;
 use Application_Model_Entity_System_FileTempStatus as FileTempStatus;
 use Application_Service_Azure_ContainerFolders as ContainerFolders;
@@ -20,7 +21,7 @@ class Application_Model_Entity_File extends Application_Model_Base_Entity
     {
         if ($this->getUploadedBy() == null) {
             $this->setUploadedBy(
-                User::getCurrentUser()->getEntity()->getCurrentCarrier()->getEntityId()
+                User::getCurrentUser()->getEntity()->getEntityId()
             );
         }
         if (!$this->getLocationType()) {
@@ -59,7 +60,7 @@ class Application_Model_Entity_File extends Application_Model_Base_Entity
             Application_Model_Entity_System_FileStorageType::CONST_CONTRACTOR_FILE_TYPE => new Application_Model_Entity_Entity_ContractorTemp(),
             Application_Model_Entity_System_FileStorageType::CONST_POWERUNIT_FILE_TYPE => new Application_Model_Entity_Powerunit_Temp(),
             Application_Model_Entity_System_FileStorageType::CONST_VENDOR_FILE_TYPE => new Application_Model_Entity_Vendor_Temp(),
-            Application_Model_Entity_System_FileStorageType::CONST_CONTRACTOR_RA_FILE_TYPE => new Application_Model_Entity_Accounts_Reserve_ContractorTemp(),
+            // Application_Model_Entity_System_FileStorageType::CONST_CONTRACTOR_RA_FILE_TYPE => new Application_Model_Entity_Accounts_Reserve_ContractorTemp(),
             default => false,
         };
     }
@@ -86,28 +87,32 @@ class Application_Model_Entity_File extends Application_Model_Base_Entity
         }
         if ($this->getFileType() == Application_Model_Entity_System_FileStorageType::CONST_CONTRACTOR_FILE_TYPE) {
             $isValid = true;
-            foreach ($this->getContractorGridCollection() as $contractorCollections) {
-                $contractorTemp = array_shift($contractorCollections['contractor']);
-                unset($contractorCollections['contractor']);
+            $divisionIds = [];
+            $contractorCollections = $this->getContractorGridCollection();
+            foreach ($contractorCollections as $contractorCollection) {
+                $contractorTemp = array_shift($contractorCollection['contractor']);
+                unset($contractorCollection['contractor']);
+                /** @var Application_Model_Entity_Entity_Contractor $contractor */
                 $contractor = $contractorTemp->approve()->getParentEntity();
-                foreach ($contractorCollections as $partCollection) {
+                foreach ($contractorCollection as $partCollection) {
                     foreach ($partCollection as $entity) {
                         $entity->setContractorEntity($contractor);
                         $entity->approve($contractor->getEntityId());
                     }
                 }
-                $contractor->createIndividualTemplates();
+                $divisionIds[] = $contractor->getCarrierId();
                 $contractor->createNewUser();
                 if ($contractor->hasMessages()) {
                     $this->addMessages($contractor->getMessages()['default']);
                 }
             }
+            (new Division())->createIndividualTemplatesByDivisionIds(array_unique($divisionIds));
         } elseif ($this->getFileType() == Application_Model_Entity_System_FileStorageType::CONST_POWERUNIT_FILE_TYPE) {
             $entity = new Application_Model_Entity_Powerunit_Temp();
-            $collection = $entity->getCollection()->addFilter(
-                $entity->getResource()->getTableName() . '.source_id',
-                $this->getId()
-            );
+            $collection = $entity
+                ->getCollection()
+                ->addFilter($entity->getResource()->getTableName() . '.source_id', $this->getId())
+                ->getItems();
             $isValid = true;
             $divisionIds = [];
 
@@ -130,8 +135,7 @@ class Application_Model_Entity_File extends Application_Model_Base_Entity
                 $parent->save();
                 $divisionIds[] = $model->getCarrierId();
             }
-            $divisionIds = array_unique($divisionIds);
-            $entity->getResource()->getParentEntity()->createIndividualTemplatesByDivisionIds($divisionIds);
+            (new Division())->createIndividualTemplatesByDivisionIds(array_unique($divisionIds));
         } elseif ($this->getFileType() == Application_Model_Entity_System_FileStorageType::CONST_VENDOR_FILE_TYPE) {
             $entity = new Application_Model_Entity_Vendor_Temp();
             $collection = $entity->getCollection()->addFilter(
@@ -154,29 +158,29 @@ class Application_Model_Entity_File extends Application_Model_Base_Entity
                 $parent->unsSourceId();
                 $parent->save();
             }
-        } elseif ($this->getFileType() == Application_Model_Entity_System_FileStorageType::CONST_CONTRACTOR_RA_FILE_TYPE) {
-            $entity = new Application_Model_Entity_Accounts_Reserve_ContractorTemp();
-            $collection = $entity->getCollection()->addFilter(
-                $entity->getResource()->getTableName() . '.source_id',
-                $this->getId()
-            );
-            $isValid = true;
-            foreach ($collection as $model) {
-                if (FileTempStatus::CONST_STATUS_NOT_VALID === (int) $model->getStatusId()) {
-                    $model->save();
-                    $isValid = false;
-                    continue;
-                }
-                $parent = $entity->getResource()->getParentEntity();
-                $parent->setData($model->getData());
-                //$parent->setContractorDataByCode();
-                $parent->unsId();
-                $parent->unsError();
-                $parent->unsStatusId();
-                $parent->unsSourceId();
-                //$parent->getDefaultValues();
-                $parent->save();
-            }
+            // } elseif ($this->getFileType() == Application_Model_Entity_System_FileStorageType::CONST_CONTRACTOR_RA_FILE_TYPE) {
+            //     $entity = new Application_Model_Entity_Accounts_Reserve_ContractorTemp();
+            //     $collection = $entity->getCollection()->addFilter(
+            //         $entity->getResource()->getTableName() . '.source_id',
+            //         $this->getId()
+            //     );
+            //     $isValid = true;
+            //     foreach ($collection as $model) {
+            //         if (FileTempStatus::CONST_STATUS_NOT_VALID === (int) $model->getStatusId()) {
+            //             $model->save();
+            //             $isValid = false;
+            //             continue;
+            //         }
+            //         $parent = $entity->getResource()->getParentEntity();
+            //         $parent->setData($model->getData());
+            //         //$parent->setContractorDataByCode();
+            //         $parent->unsId();
+            //         $parent->unsError();
+            //         $parent->unsStatusId();
+            //         $parent->unsSourceId();
+            //         //$parent->getDefaultValues();
+            //         $parent->save();
+            //     }
         } else {
             if (!$cycleId) {
                 return false;
@@ -218,7 +222,7 @@ class Application_Model_Entity_File extends Application_Model_Base_Entity
                     }
                 }
                 if ($parent instanceof Deduction) {
-                    if ($parent->isVendorApproved()) {
+                    if ($parent->isOnboardingApproved()) {
                         if (
                             $parent->getRecurring() && !isset(
                                 $recurringTemplates[$parent->getSetupId()]

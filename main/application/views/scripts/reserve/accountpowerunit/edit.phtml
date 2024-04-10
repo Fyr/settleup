@@ -1,0 +1,85 @@
+<?php $this->headTitle()->append($this->title); ?>
+
+<?php if ($this->form->id->getValue()): ?>
+<h3>Edit <?php echo $this->title;?></h3>
+<?php else: ?>
+<h3>Create <?php echo $this->title;?></h3>
+<?php endif; ?>
+
+<?php if ($this->showDeleteButton && !$this->form->readonly) : ?>
+    <div class="left bank-reserve-acc-actions">
+        <a class="btn btn-danger confirm pull-right" confirm-type="Deletion" data-confirm-description-title="Deleting" href="<?php echo $this->url(array('action' => 'delete', 'controller' => 'reserve_accountpowerunit', 'id' => $this->form->id->getValue()), null, true)?>"><i class="icon-trash icon-white"></i> Delete</a>
+    </div>
+<?php endif ?>
+
+<form  action="<?php echo $this->escape($this->form->getAction()); ?>"
+       method="<?php echo $this->escape($this->form->getMethod()); ?>"
+       name="<?php echo $this->escape($this->form->getName()) ?>"
+       class="form-horizontal<?php echo ($this->form->id->getValue()) ? ' hide-buttons': '' ?>">
+    <fieldset>
+        <div class="row">
+            <?php echo $this->form->id; ?>
+            <?php echo $this->form->entity_id; ?>
+            <?php // echo $this->form->reserve_account_vendor_id ?>
+            <?php // echo $this->form->reserve_account_id; ?>
+            <?php // echo $this->form->vendor_id; ?>
+            <?php echo $this->form->priority; ?>
+
+            <div class="span6">
+                <?php echo $this->form->account_name; ?>
+                <?php echo $this->form->code; ?>
+                <?php echo $this->form->powerunit_id; ?>
+                <?php // echo $this->form->entity_id_title; ?>
+                <?php // echo $this->form->vendor_id_title; ?>
+                <?php // echo $this->form->reserve_account_vendor_id_title ?>
+                <?php // echo $this->form->vendor_reserve_code; ?>
+                <?php echo $this->form->description; ?>
+                <?php echo $this->form->account_type; ?>
+                <?php if (!$this->form->id->getValue()): ?>
+                    <?php echo $this->form->start_date; ?>
+                <?php endif ?>
+                <div class="form-actions">
+                    <?php if (isset($this->form->submit)): ?>
+                        <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
+                    <?php endif ?>
+                    <a class="btn cancel btn-danger">Cancel</a>
+                </div>
+            </div>
+            <div class="span5">
+                <?php echo $this->form->min_balance; ?>
+                <?php echo $this->form->contribution_amount; ?>
+                <?php echo $this->form->initial_balance; ?>
+                <?php echo $this->form->current_balance; ?>
+                <?php if ($this->form->id->getValue()): ?>
+                    <?php echo $this->form->accumulated_interest; ?>
+                <?php endif ?>
+                <?php // echo $this->form->allow_negative; ?>
+            </div>
+        </div>
+    </fieldset>
+</form>
+<?php // foreach($this->popupSetup as $grid): ?>
+    <?php // echo $this->popupGrid($grid); ?>
+<?php // endforeach; ?>
+
+<script type="text/javascript" >
+    updateCarrierVendorUrl = '<?php echo $this->url(array("controller" => "reserve_accountpowerunit", "action" => "updatecarriervendor"))?>';
+    getRAUrl = '<?php echo $this->url(array('action' =>'updateracollection')); ?>';
+    getRASetupUrl = '<?php echo $this->url(array('action' =>'updaterasetup')); ?>';
+    setupFields = '<?php echo $this->setupFields ?>'
+    raAccountTypes = <?php echo json_encode($this->raAccountTypes)?>;
+</script>
+<div id="confirm-modal" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="btn close" data-dismiss="modal">X</a>
+        <h3>Confirm <span class="confirm-type"></span> of Records</h3>
+    </div>
+    <div class="modal-body">
+        <p class="confirm-description"><span class="confirm-type"></span> these records is irreversible.</p>
+        <p>Do you want to proceed?</p>
+    </div>
+    <div class="modal-footer">
+        <a href="" class="btn btn-danger" id="btn-confirm">Yes</a>
+        <a data-dismiss="modal" class="btn btn-success">No</a>
+    </div>
+</div>

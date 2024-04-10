@@ -459,7 +459,7 @@ class Application_Model_File_Type_Xls extends Application_Model_File_Base
             FileStorageType::CONST_POWERUNIT_FILE_TYPE => new Application_Model_Entity_Powerunit_Temp(),
             FileStorageType::CONST_POWERUNIT_TEMP_FILE_TYPE => new Application_Model_Entity_Powerunit_Temp(),
             FileStorageType::CONST_VENDOR_FILE_TYPE => new Application_Model_Entity_Vendor_Temp(),
-            FileStorageType::CONST_CONTRACTOR_RA_FILE_TYPE => new Application_Model_Entity_Accounts_Reserve_ContractorTemp(),
+            // FileStorageType::CONST_CONTRACTOR_RA_FILE_TYPE => new Application_Model_Entity_Accounts_Reserve_ContractorTemp(),
             default => $tempEntity,
         };
 

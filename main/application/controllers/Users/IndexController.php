@@ -8,49 +8,43 @@ class Users_IndexController extends Zend_Controller_Action
 {
     use Application_Plugin_RedirectToIndex;
 
-    /** @var Application_Model_Entity_Accounts_User */
-    protected $_entity;
-    protected $_form;
+    protected User $_entity;
+    protected Application_Form_Account_User $_form;
     protected $_title = 'Users';
 
-    public function init()
+    public function init(): void
     {
         $this->_entity = new User();
         $this->_form = new Application_Form_Account_User();
     }
 
-    public function indexAction()
+    public function indexAction(): void
     {
-        $this->_forward('list');
+        $this->forward('list');
     }
 
-    public function newAction()
+    public function newAction(): void
     {
         $this->forward('edit');
     }
 
-    public function editAction()
+    public function editAction(): void
     {
         $this->view->title = $this->_title;
         $this->view->form = $this->_form;
+        $currentUser = User::getCurrentUser();
 
         if ($this->getRequest()->isPost()) {
             $post = $this->getRequest()->getPost();
 
             $this->_form->populate($post);
-            if ($this->_form->role_id->getValue() == UserRoles::SUPER_ADMIN_ROLE_ID
-                || $this->_form->role_id->getValue() == UserRoles::MODERATOR_ROLE_ID
-                || $this->_form->role_id->getValue() == UserRoles::GUEST_ROLE_ID) {
-                $this->_form->entity_id_title->setRequired(false);
-            }
             $this->_form->appendSubforms($post['contacts']);
             $isRequired = false;
-            if (in_array(
-                $this->_form->role_id->getValue(),
-                [UserRoles::VENDOR_ROLE_ID, UserRoles::CONTRACTOR_ROLE_ID]
-            )) {
-                $this->_form->entity_id_title->setRequired(false);
-                $this->_form->entity_id->setRequired(false);
+            if (in_array($this->_form->role_id->getValue(), [
+                UserRoles::MANAGER_ROLE_ID,
+                UserRoles::SPECIALIST_ROLE_ID,
+                UserRoles::ONBOARDING_ROLE_ID,
+            ])) {
                 $isRequired = true;
             }
             $this->_form->appendEntities($post['entities'], $isRequired);
@@ -64,7 +58,7 @@ class Users_IndexController extends Zend_Controller_Action
                 $isNewUser = true;
                 if ($id = $data['id']) {
                     $this->_entity->load($id);
-                    if (!User::getCurrentUser()->isAdmin()) {
+                    if (!$currentUser->isAdminOrSuperAdmin()) {
                         if (!$this->_entity->checkPermissions()) {
                             $this->_helper->redirector('index');
                         }
@@ -82,7 +76,7 @@ class Users_IndexController extends Zend_Controller_Action
                             $this->_form->old_password->addError('Incorrect password!');
                             $this->_form->populate($post);
                             $this->_form->configure();
-                            $this->view->popupSetup = $this->getPopups();
+                            $this->view->popupUserEntity = $this->getUserEntityPopup();
 
                             return;
                         } else {
@@ -98,12 +92,12 @@ class Users_IndexController extends Zend_Controller_Action
                     $this->_entity->setNewPassword($data['new_password']);
                 }
 
-                if ($this->_form->role_id->getValue() != UserRoles::SUPER_ADMIN_ROLE_ID
-                    && $this->_form->role_id->getValue() != UserRoles::MODERATOR_ROLE_ID
-                    && $this->_form->role_id->getValue() != UserRoles::GUEST_ROLE_ID) {
-                    if ($this->_form->role_id->getValue() != UserRoles::CARRIER_ROLE_ID) {
-                        $this->_form->saveEntities($this->_entity);
-                    }
+                if (in_array($this->_form->role_id->getValue(), [
+                    UserRoles::MANAGER_ROLE_ID,
+                    UserRoles::SPECIALIST_ROLE_ID,
+                    UserRoles::ONBOARDING_ROLE_ID,
+                ])) {
+                    $this->_form->saveEntities($this->_entity);
                     $this->_form->saveSubforms($this->_entity->getId(), 'user_id');
                     if ($isNewUser) {
                         $this->_entity->updateRestData();
@@ -113,9 +107,7 @@ class Users_IndexController extends Zend_Controller_Action
                 if (!$isNewUser) {
                     $this->_entity->updateRestData();
                     if ($this->_getParam('redirect')) {
-                        if (User::getCurrentUser()->isContractor()) {
-                            $this->redirect('/reporting_index');
-                        } elseif (User::getCurrentUser()->isAdmin()) {
+                        if ($currentUser->isAdminOrSuperAdmin()) {
                             $this->redirect('/users_index');
                         } else {
                             $this->redirect('/settlement_index');
@@ -133,12 +125,11 @@ class Users_IndexController extends Zend_Controller_Action
                 }
             } else {
                 $this->_form->populate($post);
-                if (in_array(
-                    $this->_form->role_id->getValue(),
-                    [UserRoles::VENDOR_ROLE_ID, UserRoles::CONTRACTOR_ROLE_ID]
-                )) {
-                    $this->_form->entity_id_title->setRequired(true);
-                    $this->_form->entity_id->setRequired(true);
+                if (in_array($this->_form->role_id->getValue(), [
+                    UserRoles::MANAGER_ROLE_ID,
+                    UserRoles::SPECIALIST_ROLE_ID,
+                    UserRoles::ONBOARDING_ROLE_ID,
+                ])) {
                     foreach ($this->_form->getSubForms() as $name => $subform) {
                         if (preg_match('/^entity-subform-\S*/', (string) $name)) {
                             $subform->entity_id_title->setRequired(false);
@@ -154,25 +145,28 @@ class Users_IndexController extends Zend_Controller_Action
                     $this->_helper->redirector('index');
                 }
             }
-            $this->_form->appendEntities($this->_entity->getEntities());
+            $isReadonly = true;
+            if ($currentUser->isSuperAdmin()) {
+                $isReadonly = false;
+            }
+            $this->_form->appendEntities($this->_entity->getEntities(), true, $isReadonly);
             $this->_form->appendSubforms($this->_entity->getAllContacts());
         }
         $this->_form->configure();
-        $this->view->popupSetup = $this->getPopups();
         $this->view->popupUserEntity = $this->getUserEntityPopup();
     }
 
-    public function listAction()
+    public function listAction(): void
     {
         $user = User::getCurrentUser();
-        if ($user->isAdmin() || ($user->isCarrier() && $user->hasPermission(Permissions::PERMISSIONS_MANAGE))) {
+        if ($user->isAdminOrSuperAdmin() || $user->isManager()) {
             $this->view->gridModel = new Application_Model_Grid_Entity_User();
         } else {
             $this->redirect('/');
         }
     }
 
-    public function deleteAction()
+    public function deleteAction(): void
     {
         $id = (int)$this->getRequest()->getParam('id');
         $this->_entity->load($id);
@@ -182,7 +176,7 @@ class Users_IndexController extends Zend_Controller_Action
         $this->_helper->redirector('index');
     }
 
-    public function multiactionAction()
+    public function multiactionAction(): void
     {
         $ids = explode(',', (string) $this->_getParam('ids'));
         foreach ($ids as $id) {
@@ -194,7 +188,7 @@ class Users_IndexController extends Zend_Controller_Action
         $this->_helper->redirector('index');
     }
 
-    public function addselecteditemsAction()
+    public function addselecteditemsAction(): void
     {
         if ($this->getRequest()->isXmlHttpRequest()) {
             $contractorsId = $this->getRequest()->getParam('selectedItemsId');
@@ -203,80 +197,33 @@ class Users_IndexController extends Zend_Controller_Action
         }
     }
 
-    public function getPopups()
+    public function getUserEntityPopup(): array
     {
         $user = User::getCurrentUser();
-        // TODO review and simplify difficult condition
-        if (!$this->_form->id->getValue() || $user->isAdmin() || ($user->isCarrier() && !$this->_form->id->getValue(
-        ) && ($user->hasPermission(
-            Permissions::VENDOR_USER_CREATE
-        ) || $user->hasPermission(Permissions::CONTRACTOR_USER_CREATE)))) {
-            $popups = [
-                'entity' => [
-                    'filterable' => true,
-                    'gridTitle' => 'Select entity',
-                    'destFieldName' => 'entity_id',
-                    'idField' => 'entity_id',
-                    'collections' => [
-                        'Division' => new Application_Model_Grid_User_Carrier(),
-                    ],
-                    'showClearButton' => false,
-                ],
-            ];
-            if ($user->isCarrier()) {
-                unset($popups['entity']['collections']['Division']);
-            }
-
-            return $popups;
-        } else {
-            return [];
-        }
-    }
-
-    public function getUserEntityPopup()
-    {
-        $user = User::getCurrentUser();
-        if (!$this->_form->id->getValue() || $user->isAdmin() || ($user->isCarrier() && ($user->hasPermission(
-            Permissions::VENDOR_USER_CREATE
-        ) || $user->hasPermission(Permissions::CONTRACTOR_USER_CREATE)))) {
-            $vendor = new Application_Model_Grid_User_EntityVendor();
-            //            $vendor->setData('row_data', array('carrier_id' => 'carrier-id', 'carrier_name' => 'carrier-name'));
-            //            $vendor->setHeader($header);
-            $contractor = new Application_Model_Grid_User_EntityContractor();
-            //            $contractor->setData('row_data', array('carrier_id' => 'carrier-id', 'carrier_name' => 'carrier-name'));
-            $popups = [
+        if ($user->isSuperAdmin()) {
+            return [
                 'entity' => [
                     'filterable' => true,
                     'gridTitle' => 'Select Entity',
                     'destFieldName' => 'multiple_entity_id',
                     'idField' => 'entity_id',
                     'collections' => [
-                        'Vendor' => $vendor,
-                        'Contractor' => $contractor,
+                        'Division' => new Application_Model_Grid_User_Carrier(),
                     ],
                 ],
             ];
-            if ($user->isCarrier()) {
-                if (!$user->hasPermission(Permissions::VENDOR_USER_CREATE)) {
-                    unset($popups['entity']['collections']['Vendor']);
-                } elseif (!$user->hasPermission(Permissions::CONTRACTOR_USER_CREATE)) {
-                    unset($popups['entity']['collections']['Contractor']);
-                }
-            }
-
-            return $popups;
-        } else {
-            return [];
         }
+
+        return [];
     }
 
     public function permissionsAction()
     {
         $user = User::getCurrentUser();
         $id = $this->_getParam('id', 0);
-        if (($user->isAdmin() || ($user->isCarrier() && $user->hasPermission(
-            Permissions::PERMISSIONS_MANAGE
-        ))) && $id != $user->getId()) {
+        if (($user->isAdminOrSuperAdmin()
+                || ($user->isManager() && $user->hasPermission(Permissions::PERMISSIONS_MANAGE)))
+            && $id != $user->getId()) {
             $entity = new Permissions();
 
             $entity->load($id, 'user_id');
@@ -289,12 +236,15 @@ class Users_IndexController extends Zend_Controller_Action
                 $this->_redirect('/settlement_index');
             }
 
-            if ($this->_entity->isCarrier()) {
-                $this->view->form = $form = new Application_Form_Entity_CarrierPermissions();
-                $this->view->title = "Carrier Permissions";
-            } elseif ($this->_entity->isVendor()) {
-                $this->view->form = $form = new Application_Form_Entity_VendorPermissions();
-                $this->view->title = "Vendor Permissions";
+            if ($this->_entity->isManager()) {
+                $this->view->form = $form = new Application_Form_Entity_ManagerPermissions();
+                $this->view->title = "Manager Permissions";
+            } elseif ($this->_entity->isSpecialist()) {
+                $this->view->form = $form = new Application_Form_Entity_SpecialistPermissions();
+                $this->view->title = "Settlements Specialist Permissions";
+            } elseif ($this->_entity->isOnboarding()) {
+                $this->view->form = $form = new Application_Form_Entity_OnboardingPermissions();
+                $this->view->title = "Settlements Onboarding Specialist Permissions";
             } else {
                 $this->_redirect('/settlement_index');
             }
@@ -302,7 +252,7 @@ class Users_IndexController extends Zend_Controller_Action
             if ($this->getRequest()->isPost()) {
                 $post = $this->getRequest()->getPost();
                 $form->populate($post);
-                if ($user->isCarrier()) {
+                if ($user->isManager()) {
                     if (isset($post['permissions_manage'])) {
                         unset($post['permissions_manage']);
                     }

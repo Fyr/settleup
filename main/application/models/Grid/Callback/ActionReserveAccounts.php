@@ -6,7 +6,7 @@ class Application_Model_Grid_Callback_ActionReserveAccounts
 
     public function body()
     {
-        return '<a class="btn btn-primary" href="/reserve_accountcontractor/edit/id/' . $this->row['id'] . '"><i class="icon-search icon-white"></i>&nbsp;View</a>';
+        return '<a class="btn btn-primary" href="/reserve_accountpowerunit/edit/id/' . $this->row['id'] . '"><i class="icon-search icon-white"></i>&nbsp;View</a>';
     }
 
     public function wrapper()

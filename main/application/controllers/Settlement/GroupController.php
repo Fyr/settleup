@@ -23,7 +23,7 @@ class Settlement_GroupController extends Zend_Controller_Action
 
     public function indexAction(): void
     {
-        if (!User::getCurrentUser()->isAdmin()) {
+        if (!User::getCurrentUser()->hasPermission(Permissions::SETTLEMENT_GROUP_VIEW)) {
             $this->_redirect('/');
         }
         $this->view->gridModel = new Application_Model_Grid_Settlement_Group();

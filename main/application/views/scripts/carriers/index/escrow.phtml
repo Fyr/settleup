@@ -15,7 +15,7 @@
 <?php echo $this->form->holder_state; ?>
 <?php echo $this->form->holder_zip; ?>
 <?php echo $this->form->next_check_number; ?>
-<?php if ($user->isAdmin()) : ?>
+<?php if ($user->isAdminOrSuperAdmin()) : ?>
     <div class="form-actions">
         <input type="submit" name="submit" id="submit" value="Save" class="btn btn-primary">
         <a class="btn cancel btn-danger">Cancel</a>

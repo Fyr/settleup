@@ -61,7 +61,7 @@ class Application_Model_Entity_Accounts_Reserve extends Application_Model_Base_E
     public function getVendorAccount()
     {
         $type = $this->getAccountType();
-        if ($type == Application_Model_Entity_Entity_Type::TYPE_VENDOR || $type == Application_Model_Entity_Entity_Type::TYPE_CARRIER) {
+        if ($type == Application_Model_Entity_Entity_Type::TYPE_VENDOR || $type == Application_Model_Entity_Entity_Type::TYPE_DIVISION) {
             $vendorAccountEntity = new Application_Model_Entity_Accounts_Reserve_Vendor();
             $vendorAccountEntity->load($this->getId(), 'reserve_account_id');
 
@@ -73,10 +73,10 @@ class Application_Model_Entity_Accounts_Reserve extends Application_Model_Base_E
 
     public function getReserveAccountContractor($contractor)
     {
-        $reserveAccountContractorEntity = new Application_Model_Entity_Accounts_Reserve_Contractor();
+        $reserveAccountContractorEntity = new Application_Model_Entity_Accounts_Reserve_Powerunit();
 
         $reserveAccountContractor = $reserveAccountContractorEntity->getCollection()->addFilter(
-            'contractor_entity_id',
+            'entity_id',
             $contractor
         )->addFilter('vendor_reserve_account_id', $this->getId())->addNonDeletedFilter()->setOrder(
             'priority',
@@ -161,5 +161,17 @@ class Application_Model_Entity_Accounts_Reserve extends Application_Model_Base_E
                 }
             }
         }
+    }
+
+    public function getPowerUnit(): ?Application_Model_Entity_Powerunit_Powerunit
+    {
+        $powerUnit = new Application_Model_Entity_Powerunit_Powerunit();
+        $powerUnit->load($this->getPowerunitId());
+
+        if ($powerUnit->getId()) {
+            return $powerUnit;
+        }
+
+        return null;
     }
 }

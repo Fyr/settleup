@@ -6,22 +6,22 @@ class Application_Model_Entity_Collection_Accounts_Reserve_Vendor extends Applic
     {
         parent::_beforeLoad();
 
-        $this->addFieldsForSelect(
-            new Application_Model_Entity_Accounts_Reserve_Vendor(),
-            'reserve_account_id',
-            new Application_Model_Entity_Accounts_Reserve(),
-            'id',
-            [
-                'priority',
-                'entity_id',
-                'account_name',
-                'description',
-                'contribution_amount',
-                'current_balance',
-                'min_balance',
-                'deleted',
-            ]
-        );
+        // $this->addFieldsForSelect(
+        //     new Application_Model_Entity_Accounts_Reserve_Vendor(),
+        //     'reserve_account_id',
+        //     new Application_Model_Entity_Accounts_Reserve(),
+        //     'id',
+        //     [
+        //         'priority',
+        //         'entity_id',
+        //         'account_name',
+        //         'description',
+        //         'contribution_amount',
+        //         'current_balance',
+        //         'min_balance',
+        //         'deleted',
+        //     ]
+        // );
 
         $this->addFieldsForSelect(
             new Application_Model_Entity_Accounts_Reserve(),
@@ -43,17 +43,17 @@ class Application_Model_Entity_Collection_Accounts_Reserve_Vendor extends Applic
     {
         $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
 
-        if (!$userEntity->isAdmin()) {
-            if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID) {
+        if (!$userEntity->isAdminOrSuperAdmin()) {
+            if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID) {
                 $entityId = Application_Model_Entity_Entity::getCurrentEntity()->getId();
             } else {
-                $entityId = $userEntity->getEntity()->getCurrentCarrier()->getEntityId();
+                $entityId = $userEntity->getEntity()->getEntityId();
             }
 
             $reserveAccountEntity = new Application_Model_Entity_Accounts_Reserve();
             $reserveAccountCollection = $reserveAccountEntity->getCollection();
 
-            if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID) {
+            if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID) {
                 $reserveAccountCollection->addFilter('entity_id', $entityId);
             } else {
                 $userVisibilityEntity = new Application_Model_Entity_Accounts_UsersVisibility();
@@ -93,8 +93,9 @@ class Application_Model_Entity_Collection_Accounts_Reserve_Vendor extends Applic
         );
     }
 
-    public function addCarrierVendorFilter($checkCarrierPermission = false, $ignoreIsVendor = false)
+    public function addCarrierVendorFilter($checkCarrierPermission = false, $ignoreisOnboarding = false)
     {
+        //TODO will be change in SUP-1170
         if ($checkCarrierPermission) {
             $reserveAccountVendorView = Application_Model_Entity_Accounts_User::getCurrentUser()->hasPermission(
                 Application_Model_Entity_Entity_Permissions::RESERVE_ACCOUNT_VENDOR_VIEW
@@ -106,7 +107,7 @@ class Application_Model_Entity_Collection_Accounts_Reserve_Vendor extends Applic
             $reserveAccountVendorView = $reserveAccountCarrierView = true;
         }
         $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($userEntity->isVendor() && !$ignoreIsVendor) {
+        if ($userEntity->isOnboarding() && !$ignoreisOnboarding) {
             $this->addFilter('entity_id', $userEntity->getEntity()->getEntityId(), '=');
         } else {
             $vendorIds = [];

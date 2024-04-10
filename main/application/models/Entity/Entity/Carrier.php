@@ -16,7 +16,7 @@ class Application_Model_Entity_Entity_Carrier extends Application_Model_Entity_E
     use Application_Model_ContactTrait;
     use Application_Plugin_Messager;
 
-    protected $_entityType = Application_Model_Entity_Entity_Type::TYPE_CARRIER;
+    protected $_entityType = Application_Model_Entity_Entity_Type::TYPE_DIVISION;
     //TODO replace this property after refactoring
     protected $_titleColumn = 'name';
     protected $rule;
@@ -42,25 +42,17 @@ class Application_Model_Entity_Entity_Carrier extends Application_Model_Entity_E
      *
      * @return Application_Model_Entity_Collection_Entity_contractor
      */
-    public function getContractors()
+    public function getContractors($settlementGroupId)
     {
-        $contractorsModel = new Application_Model_Entity_Entity_Contractor();
-
-        $contractorsCollections = $contractorsModel->getCollection()->addFilter(
-            'carrier_id',
-            $this->getEntityId()
-        )->getField('entity_id');
-        if ($contractorsCollections == []) {
-            $contractors = $contractorsModel->getCollection()->getEmptyCollection();
-        } else {
-            $contractors = $contractorsModel->getCollection()->addFilter(
-                'entity_id',
-                $contractorsCollections,
-                'IN'
-            );
+        $contractorsCollections = (new Application_Model_Entity_Entity_Contractor())->getCollection()
+            ->addFilter('carrier_id', $this->getEntityId())
+            ->addFilter('settlement_group_id', $settlementGroupId)
+        ;
+        if ($contractorsCollections->count()) {
+            return $contractorsCollections->getItems();
         }
 
-        return $contractors;
+        return [];
     }
 
     /**
@@ -254,46 +246,40 @@ class Application_Model_Entity_Entity_Carrier extends Application_Model_Entity_E
     public function checkPermissions(): bool
     {
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($user->isAdmin()) {
-            return true;
-        } elseif ($user->isCarrier() && $user->getEntityId() == $this->getEntityId()) {
+        if ($user->isAdminOrSuperAdmin() || $user->isManager()) {
             return true;
         }
 
         return false;
     }
 
-    /**
-     * create individual templates for all carrier master templates
-     *
-     * @return $this
-     */
-    public function createPaymentTemplates()
+    public function createPaymentTemplates(): self
     {
-        $paymentSetup = new PaymentSetup();
-        $collection = $paymentSetup->getCollection()->addCarrierFilter($this->getEntityId())->addMasterFilter(
-        )->addNonDeletedFilter();
+        $templates = (new PaymentSetup())
+            ->getCollection()
+            ->addCarrierFilter($this->getEntityId())
+            ->addMasterFilter()
+            ->addNonDeletedFilter()
+            ->getItems();
         /** @var PaymentSetup $template */
-        foreach ($collection->getItems() as $template) {
+        foreach ($templates as $template) {
+            $this->getLogger()->info('Create Individual Compensation Template for SetupId: ' . $template->getId());
             $template->createIndividualTemplates();
         }
 
         return $this;
     }
 
-    /**
-     * create individual templates for all carrier master templates
-     *
-     * @return $this
-     */
-    public function createDeductionTemplates()
+    public function createDeductionTemplates(): self
     {
-        $collection = (new DeductionSetup())
+        $templates = (new DeductionSetup())
             ->getCollection()
             ->addMasterFilter()
-            ->addNonDeletedFilter();
+            ->addProviderIdFilter($this->getEntityId())
+            ->addNonDeletedFilter()
+            ->getItems();
         /** @var DeductionSetup $template */
-        foreach ($collection->getItems() as $template) {
+        foreach ($templates as $template) {
             $this->getLogger()->info('Create Individual Deduction Template for SetupId: ' . $template->getId());
             $template->createIndividualTemplates();
         }
@@ -345,5 +331,21 @@ class Application_Model_Entity_Entity_Carrier extends Application_Model_Entity_E
         }
 
         return $result;
+    }
+
+    public function createIndividualTemplatesByDivisionIds(array $divisionIds): void
+    {
+        foreach ($divisionIds as $divisionId) {
+            $divisionEntity = new self();
+            $divisionEntity->load($divisionId, 'entity_id');
+            if ($divisionEntity->isEmpty()) {
+                $this->getLogger()->alert('Failed create Individual Templates. Division not found by entity_id: ' .
+                    $divisionId);
+                continue;
+            }
+            $this->getLogger()->info('Create Individual Templates for DivisionId: ' . $divisionId);
+            $divisionEntity->createPaymentTemplates();
+            $divisionEntity->createDeductionTemplates();
+        }
     }
 }

@@ -219,8 +219,8 @@ class Application_Model_Entity_Transactions_Disbursement extends Application_Mod
     public function isAllowReissue()
     {
         $user = User::getCurrentUser();
-        if (($user->isCarrier() && $user->hasPermission(Permissions::DISBURSEMENT_REISSUE)) || $user->isAdmin()) {
-            if ($this->getEntity()->isContractor()) {
+        if (($user->isManager() && $user->hasPermission(Permissions::DISBURSEMENT_REISSUE)) || $user->isAdminOrSuperAdmin()) {
+            if ($this->getEntity()->isSpecialist()) {
                 if ($this->getCycle()->getDisbursementStatus() == PaymentStatus::APPROVED_STATUS && $this->getStatus(
                 ) != PaymentStatus::REVERSED_STATUS) {
                     return true;

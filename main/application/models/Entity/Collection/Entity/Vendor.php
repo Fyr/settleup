@@ -29,7 +29,7 @@ class Application_Model_Entity_Collection_Entity_Vendor extends Application_Mode
             $params = [$params, false];
         }
         if (Application_Model_Entity_Accounts_User::getCurrentUser()->getUserRoleID(
-        ) != Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID) {
+        ) != Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID) {
             $this->addCarrierVendorFilter($params[0], $params[1]);
         } else {
             $this->addFilter(

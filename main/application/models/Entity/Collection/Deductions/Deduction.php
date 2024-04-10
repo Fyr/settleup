@@ -111,7 +111,7 @@ class Application_Model_Entity_Collection_Deductions_Deduction extends Applicati
     public function addCarrierFilter($applyCarrierPermissions = false)
     {
         $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
-        $currentCycles = $userEntity->getEntity()->getCurrentCarrier()->getCycles()->getField('id');
+        $currentCycles = $userEntity->getEntity()->getCycles()->getField('id');
         if ($currentCycles) {
             $this->addFilter('settlement_cycle_id', $currentCycles, 'IN');
         } else {
@@ -121,7 +121,7 @@ class Application_Model_Entity_Collection_Deductions_Deduction extends Applicati
         if (!$userEntity->hasPermission(Application_Model_Entity_Entity_Permissions::VENDOR_DEDUCTION_VIEW)) {
             $this->addFilter('provider_entity_type_id', Application_Model_Entity_Entity_Type::TYPE_VENDOR, '!=');
         }
-        if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID) {
+        if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID) {
             $this->addFilter('provider_id', $userEntity->getEntityId());
         }
 

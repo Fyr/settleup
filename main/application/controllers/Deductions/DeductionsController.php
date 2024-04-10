@@ -151,7 +151,7 @@ class Deductions_DeductionsController extends Zend_Controller_Action
         }
         if ($this->getRequest()->isPost()) {
             if (
-                !$user->hasPermission(Permissions::SETTLEMENT_DATA_MANAGE) || ($user->isVendor(
+                !$user->hasPermission(Permissions::SETTLEMENT_DATA_MANAGE) || ($user->isOnboarding(
                 ) && (!$user->hasPermission(
                     Permissions::VENDOR_DEDUCTION_MANAGE
                 ) || !isset($cycle) || $cycle->getStatusId() == CycleStatus::PROCESSED_STATUS_ID))
@@ -270,7 +270,7 @@ class Deductions_DeductionsController extends Zend_Controller_Action
 
         $this->_getPopupSettings($form->provider_id->getValue());
         $form->configure();
-        if ($user->isVendor()) {
+        if ($user->isOnboarding()) {
             if (
                 !$user->hasPermission(Permissions::VENDOR_DEDUCTION_MANAGE) || $cycle->getStatusId(
                 ) > CycleStatus::VERIFIED_STATUS_ID
@@ -311,8 +311,8 @@ class Deductions_DeductionsController extends Zend_Controller_Action
         if ($this->_entity->checkPermissions()) {
             $cycle = $this->_entity->getSettlementCycle();
             if (
-                $cycle->getStatusId() != CycleStatus::APPROVED_STATUS_ID && (!User::getCurrentUser()->isVendor(
-                ) || (User::getCurrentUser()->isVendor() && User::getCurrentUser()->hasPermission(
+                $cycle->getStatusId() != CycleStatus::APPROVED_STATUS_ID && (!User::getCurrentUser()->isOnboarding(
+                ) || (User::getCurrentUser()->isOnboarding() && User::getCurrentUser()->hasPermission(
                     Permissions::VENDOR_DEDUCTION_MANAGE
                 ) && $cycle->getStatusId() < CycleStatus::PROCESSED_STATUS_ID))
             ) {
@@ -342,7 +342,7 @@ class Deductions_DeductionsController extends Zend_Controller_Action
                     if (
                         $this->_entity->getSettlementCycle()->getStatusId(
                         ) != CycleStatus::APPROVED_STATUS_ID && $this->_entity->checkPermissions(
-                        ) && (!User::getCurrentUser()->isVendor() || (User::getCurrentUser()->isVendor(
+                        ) && (!User::getCurrentUser()->isOnboarding() || (User::getCurrentUser()->isOnboarding(
                         ) && User::getCurrentUser()->hasPermission(
                             Permissions::VENDOR_DEDUCTION_MANAGE
                         ) && $this->_entity->getSettlementCycle()->getStatusId(

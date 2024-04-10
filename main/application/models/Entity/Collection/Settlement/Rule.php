@@ -15,7 +15,7 @@ class Application_Model_Entity_Collection_Settlement_Rule extends Application_Mo
      */
     public function addCarrierFilter()
     {
-        $carrierId = User::getCurrentUser()->getEntity()->getCurrentCarrier()->getEntityId();
+        $carrierId = User::getCurrentUser()->getEntity()->getEntityId();
         $this->addFilter('carrier_id', $carrierId);
 
         return $this;

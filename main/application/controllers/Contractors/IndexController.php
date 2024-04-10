@@ -48,20 +48,20 @@ class Contractors_IndexController extends Zend_Controller_Action
     {
         $user = User::getCurrentUser();
         if (!$user->hasPermission(Permissions::CONTRACTOR_VIEW)) {
-            if (!$user->isContractor()) {
+            if (!$user->isSpecialist()) {
                 return $this->_helper->redirector('index', 'settlement_index');
             }
         }
         $this->view->title = $this->_title;
         $this->view->form = $this->_form;
-        $this->view->isVendor = $user->isVendor();
-        $this->view->isContractor = $user->isContractor();
+        $this->view->isOnboarding = $user->isOnboarding();
+        $this->view->isSpecialist = $user->isSpecialist();
         $this->view->isEditPage = false;
         if ($this->getRequest()->isPost()) {
             if (!$user->hasPermission(Permissions::CONTRACTOR_MANAGE)) {
                 return $this->_helper->redirector('index', 'settlement_index');
             }
-            if ($user->isVendor() || $user->isContractor()) {
+            if ($user->isOnboarding() || $user->isSpecialist()) {
                 return $this->_helper->redirector('list');
             }
             $post = $this->getRequest()->getPost();
@@ -71,7 +71,7 @@ class Contractors_IndexController extends Zend_Controller_Action
             if ($this->_form->isValid($post)) {
                 $this->_entity->setData($this->_form->getValues());
                 $this->_entity->changeDateFormat(['dob', 'start_date', 'termination_date', 'rehire_date', 'expires']);
-                $this->_entity->setCarrierId($user->getEntity()->getCurrentCarrier()->getEntityId());
+                $this->_entity->setCarrierId($user->getEntity()->getEntityId());
                 $isNewContractor = ($this->_entity->getId()) ? false : true;
                 if ($isNewContractor) {
                     $this->_entity->changeStatus(
@@ -88,7 +88,7 @@ class Contractors_IndexController extends Zend_Controller_Action
                 $this->_entity->updateIndividualTemplatePriority();
                 $this->saveAttachments();
 
-                $this->_entity->createNewUser();
+                //$this->_entity->createNewUser();
                 if ($this->_entity->hasMessages()) {
                     //                    Zend_Controller_Action_HelperBroker::getStaticHelper('FlashMessenger')->setData(
                     $this->_entity->implodeMessages(
@@ -118,7 +118,7 @@ class Contractors_IndexController extends Zend_Controller_Action
         } else {
             $id = $this->_getParam('id', 0);
 
-            if ($user->isContractor()) {
+            if ($user->isSpecialist()) {
                 $this->_entity->load($user->getEntityId(), 'entity_id');
                 $id = $this->_entity->getId();
             }
@@ -155,12 +155,12 @@ class Contractors_IndexController extends Zend_Controller_Action
             $this->_form->appendSubforms($this->_entity->getContractorContacts());
             $this->_form->appendVendors($this->_entity->getVendors());
         }
-        if ($this->view->isVendor) {
+        if ($this->view->isOnboarding) {
             $this->_form->readonly();
             $this->_form->removeElement('submit');
         }
         $this->checkUserAccounts();
-        if (!$user->isVendor()) {
+        if (!$user->isOnboarding()) {
             $entityId = $this->_form->entity_id->getValue() ?: 0;
         }
     }
@@ -187,7 +187,7 @@ class Contractors_IndexController extends Zend_Controller_Action
 
     public function listAction()
     {
-        if (User::getCurrentUser()->isContractor()) {
+        if (User::getCurrentUser()->isSpecialist()) {
             return $this->_helper->redirector('edit');
         }
         if (!User::getCurrentUser()->hasPermission(Permissions::CONTRACTOR_VIEW)) {

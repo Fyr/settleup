@@ -18,7 +18,7 @@ class Application_Model_Grid_Transaction_Transaction extends Application_Model_G
         $cycle = $user->getCurrentCycle();
         $transactionEntity = new ReserveTransaction();
 
-        $hideCheckboxes = ($cycle->getStatusId() == CycleStatus::APPROVED_STATUS_ID || $user->isVendor());
+        $hideCheckboxes = ($cycle->getStatusId() == CycleStatus::APPROVED_STATUS_ID || $user->isOnboarding());
 
         $header = [
             'header' => $transactionEntity->getResource()->getInfoFields(),
@@ -32,7 +32,9 @@ class Application_Model_Grid_Transaction_Transaction extends Application_Model_G
             'callbacks' => [
                 'checkbox' => CheckboxCallback::class,
                 'created_datetime' => DateFormatCallback::class,
-                'amount' => QEAmountCallback::class,
+                'amount' => Application_Model_Grid_Callback_MoneyReadOnly::class,
+                'adjusted_balance' => Application_Model_Grid_Callback_MoneyReadOnly::class,
+                'balance' => Application_Model_Grid_Callback_MoneyReadOnly::class,
                 'action' => ActionCallback::class,
             ],
             'buttons' => 'Application_Model_Grid_Header_Transactions',
@@ -46,7 +48,7 @@ class Application_Model_Grid_Transaction_Transaction extends Application_Model_G
             $header['checkboxField'] = false;
         }
 
-        if (!$user->hasPermission(Permissions::SETTLEMENT_DATA_MANAGE) || $user->isVendor()) {
+        if (!$user->hasPermission(Permissions::SETTLEMENT_DATA_MANAGE) || $user->isOnboarding()) {
             $header['callbacks']['amount'] = 'Application_Model_Grid_Callback_Balance';
         }
 

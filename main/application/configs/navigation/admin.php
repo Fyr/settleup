@@ -70,40 +70,13 @@ return [
                 'label' => 'Reserve Transactions',
             ],
             [
-                'controller' => 'reserve_accountcontractor',
+                'controller' => 'reserve_accountpowerunit',
                 'label' => 'Power Unit Reserve Accounts',
             ],
             [
-                'controller' => 'reserve_accountcontractor',
+                'controller' => 'reserve_accountpowerunit',
                 'label' => 'Create Power Unit Reserve Account',
                 'action' => 'new',
-            ],
-        ],
-    ],
-    [
-        'controller' => 'carriers_index',
-        'label' => 'Divisions',
-        'level' => 1,
-        'pages' => [
-            [
-                'label' => 'Divisions',
-                'controller' => 'carriers_index',
-            ],
-            [
-                'label' => 'Settlement Info',
-                'controller' => 'settlement_rule',
-            ],
-            [
-                'label' => 'Escrow Accounts',
-                'controller' => 'escrow',
-            ],
-            [
-                'label' => 'Custom Fields',
-                'controller' => 'custom',
-            ],
-            [
-                'label' => 'Settlement Group',
-                'controller' => 'settlement_group',
             ],
         ],
     ],
@@ -111,16 +84,35 @@ return [
         'controller' => 'contractors_index',
         'label' => 'Contractors',
         'level' => 1,
-    ],
-    [
-        'controller' => 'powerunits_index',
-        'label' => 'Power Units',
-        'level' => 1,
+        'pages' => [
+            [
+                'controller' => 'contractors_index',
+                'label' => 'Contractors',
+            ],
+            [
+                'controller' => 'file_index',
+                'action' => 'edit',
+                'params' => ['file_type' => FileStorageType::CONST_CONTRACTOR_FILE_TYPE],
+                'label' => 'Upload Contractors',
+            ],
+        ],
     ],
     [
         'controller' => 'vendors_index',
         'label' => 'Vendors',
         'level' => 1,
+        'pages' => [
+            [
+                'controller' => 'vendors_index',
+                'label' => 'Vendors',
+            ],
+            [
+                'controller' => 'file_index',
+                'action' => 'edit',
+                'params' => ['file_type' => FileStorageType::CONST_VENDOR_FILE_TYPE],
+                'label' => 'Upload Vendors',
+            ],
+        ],
     ],
     [
         'controller' => 'reporting_index',
@@ -140,10 +132,6 @@ return [
                 'label' => 'Interest Allocation',
                 'controller' => 'interestrate_index',
             ],
-            /*[
-                'controller' => 'freeze',
-                'label' => 'States',
-            ],*/
         ],
     ],
 ];

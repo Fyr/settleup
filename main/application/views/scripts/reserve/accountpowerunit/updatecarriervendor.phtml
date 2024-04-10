@@ -1,0 +1,10 @@
+<?php
+    echo json_encode(
+        array(
+            'popup'           => $this->popupGrid(
+                    $this->popupSetup['vendor_id_title']
+            ),
+            'contractorTitle' => $this->contractorTitle
+        )
+    );
+?>

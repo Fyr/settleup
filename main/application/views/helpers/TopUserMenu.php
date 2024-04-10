@@ -13,11 +13,11 @@ class Application_Views_Helpers_TopUserMenu extends Zend_View_Helper_Abstract
             return '';
         }
         $roles = [
-            Roles::SUPER_ADMIN_ROLE_ID => 'admin.phtml',
-            Roles::MODERATOR_ROLE_ID => 'moderator.phtml',
-            Roles::CARRIER_ROLE_ID => 'carrier.phtml',
-            Roles::CONTRACTOR_ROLE_ID => 'contractor.phtml',
-            Roles::VENDOR_ROLE_ID => 'vendor.phtml',
+            Roles::SUPER_ADMIN_ROLE_ID => 'super-admin.phtml',
+            Roles::ADMIN_ROLE_ID => 'admin.phtml',
+            Roles::MANAGER_ROLE_ID => 'manager.phtml',
+            Roles::SPECIALIST_ROLE_ID => 'specialist.phtml',
+            Roles::ONBOARDING_ROLE_ID => 'onboarding.phtml',
             Roles::GUEST_ROLE_ID => 'guest.phtml',
         ];
 

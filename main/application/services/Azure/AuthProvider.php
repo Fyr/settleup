@@ -1,6 +1,7 @@
 <?php
 
 use Application_Model_Entity_System_UserRoles as UserRoles;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException as IdentityProviderExceptionAlias;
 use TheNetworg\OAuth2\Client\Provider\Azure;
 use TheNetworg\OAuth2\Client\Token\AccessToken;
 
@@ -11,6 +12,19 @@ class Application_Service_Azure_AuthProvider
     private string $resourceId;
     private string $scopeSso;
     private string $scopeGroupRead;
+
+    private const LIST_AD_ROLES = [
+        UserRoles::SUPER_ADMIN_ROLE_ID => 'super_admin',
+        UserRoles::ADMIN_ROLE_ID => 'admin',
+        UserRoles::MANAGER_ROLE_ID => 'settlements_manager',
+        UserRoles::SPECIALIST_ROLE_ID => 'settlements_specialist',
+        UserRoles::ONBOARDING_ROLE_ID => 'settlements_onboarding_specialist',
+    ];
+    private const LIST_AD_DIVISIONS = [
+        'division_linehaul',
+        'division_pud_ics',
+        'division_intermodal',
+    ];
 
     public function __construct()
     {
@@ -76,45 +90,65 @@ class Application_Service_Azure_AuthProvider
         return $result;
     }
 
-    public function getUserAuthData(array $userRoles, array $appRoles, string $email): array
+    /**
+     * @throws IdentityProviderExceptionAlias
+     * @throws JsonException
+     */
+    public function getUserAdData(string $authorizationCode): array
     {
+        $provider = $this->getProvider();
+        /** @var AccessToken $token */
+        $token = $provider->getAccessToken('authorization_code', [
+            'scope' => $provider->scope,
+            'code' => $authorizationCode,
+        ]);
+        $userAdInfo = $provider->validateAccessToken($token->getToken());
+
+        /** @var AccessToken $newToken */
+        $newToken = $provider->getAccessToken('refresh_token', [
+            'scope' => $this->getScopeGroupRead(),
+            'refresh_token' => $token->getRefreshToken(),
+        ]);
+        $userAdRoles = $this->getUserRoles($newToken);
+        $this->getLogger()->info('Sso found roles info: ' . json_encode($userAdRoles, JSON_THROW_ON_ERROR));
+
+        $appRoles = $this->getArrayAppRoles($newToken);
+        $this->getLogger()->info('Sso app roles info: ' . json_encode($appRoles, JSON_THROW_ON_ERROR));
+
+        $email = strtolower($userAdInfo['preferred_username'] ?? '');
         $this->getLogger()->info('Sso start matching roles for user: ' . $email);
-        $this->getLogger()->info('Sso AD Group name: ' . $this->adGroupName);
         $result = [
             'email' => $email,
-            'divisionCode' => '',
+            'name' => $userAdInfo['name'],
+            'sub' => $userAdInfo['sub'],
+            'divisions' => [],
             'roleId' => UserRoles::GUEST_ROLE_ID,
         ];
-        foreach ($this->getArrayMapAdRoles() as $adRoleName => $userRoleId) {
-            $this->getLogger()->info('Sso match role: ' . $adRoleName);
-            foreach ($userRoles as $userRoleInfo) {
-                $appRoleInfo = $appRoles[$userRoleInfo['appRoleId']] ?? null;
-                if (!$appRoleInfo) {
-                    continue;
+        foreach ($userAdRoles as $userRoleInfo) {
+            $appRoleInfo = $appRoles[$userRoleInfo['appRoleId']] ?? null;
+            if (!$appRoleInfo) {
+                $this->getLogger()->alert('Sso in appRoles not found userRoleId: ' . $userRoleInfo['appRoleId']);
+                continue;
+            }
+            $adRoleName = $appRoleInfo['value'] ?? null;
+            if (!$adRoleName) {
+                $this->getLogger()->alert('Sso in appRoleInfo not found value: ' . json_encode($appRoleInfo));
+                continue;
+            }
+            $this->getLogger()->info('Sso match object: ' . $adRoleName);
+            if ($roleId = array_search($adRoleName, self::LIST_AD_ROLES)) {
+                if ($roleId < $result['roleId']) {
+                    $result['roleId'] = $roleId;
                 }
-                if ($appRoleInfo['value'] === $adRoleName) {
-                    $result['roleId'] = $userRoleId;
-                    if (UserRoles::CARRIER_ROLE_ID === $userRoleId) {
-                        $result['divisionCode'] = mb_strcut($adRoleName, 9);
-                    }
-                    $result += $appRoleInfo;
-                }
+            } elseif (in_array($adRoleName, self::LIST_AD_DIVISIONS)) {
+                $result['divisions'][] = mb_strcut((string) $adRoleName, 9);
+            } else {
+                $this->getLogger()->err('Sso not match: ' . $adRoleName);
             }
         }
-        $this->getLogger()->info('Sso finish matching, for user ' . $email . ' set roleId = ' . $result['roleId']);
+        $this->getLogger()->info('Sso finish matching, info: ' . json_encode($result));
 
         return $result;
-    }
-
-    private function getArrayMapAdRoles(): array
-    {
-        return [
-            'division_linehaul' => UserRoles::CARRIER_ROLE_ID,
-            'division_pud_ics' => UserRoles::CARRIER_ROLE_ID,
-            'division_intermodal' => UserRoles::CARRIER_ROLE_ID,
-            'admin' => UserRoles::MODERATOR_ROLE_ID,
-            'super_admin' => UserRoles::SUPER_ADMIN_ROLE_ID,
-        ];
     }
 
     protected function getLogger(): Zend_Log

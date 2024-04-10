@@ -57,7 +57,7 @@ class Application_Model_Entity_Settlement_Cycle extends Application_Model_Base_E
      */
     public function _beforeSave()
     {
-        if ($this->getId() && User::getCurrentUser()->isAdmin(
+        if ($this->getId() && User::getCurrentUser()->isAdminOrSuperAdmin(
         ) && $this->getOriginalData('cycle_close_date') != $this->getCycleCloseDate() && $this->getCycleCloseDate(
         )) {
             $this->setIsCustomCloseDate(true);
@@ -91,7 +91,7 @@ class Application_Model_Entity_Settlement_Cycle extends Application_Model_Base_E
 
         if ($this->getCarrierId() == null) {
             $this->setCarrierId(
-                User::getCurrentUser()->getEntity()->getCurrentCarrier()->getEntityId(
+                User::getCurrentUser()->getEntity()->getEntityId(
                 )
             );
         }
@@ -178,10 +178,19 @@ class Application_Model_Entity_Settlement_Cycle extends Application_Model_Base_E
 
     public function process()
     {
+        // verify cycle status before proceed
         $this->checkCurrentStatus(__FUNCTION__);
+
+        // take a note of RA starting balance vs current balance, create audit records
         $this->updateReserveAccountContractorProcess();
+
+        // handle main logic (calculate payments vs deductions, issue contribution transactions)
         $this->getProcessModel()->process();
+
+        // change cycle status
         $this->setStatusId(Application_Model_Entity_System_SettlementCycleStatus::PROCESSED_STATUS_ID);
+
+        // save result
         $this->save();
     }
 
@@ -614,6 +623,12 @@ class Application_Model_Entity_Settlement_Cycle extends Application_Model_Base_E
         return $this;
     }
 
+    /**
+     * update RA balances on account level and historical records
+     *
+     * @return $this
+     * @throws Zend_Db_Statement_Exception
+     */
     public function updateReserveAccountContractorProcess()
     {
         $id = $this->getId();
@@ -625,14 +640,14 @@ class Application_Model_Entity_Settlement_Cycle extends Application_Model_Base_E
         return $this;
     }
 
-    public function updateReserveAccountVendorProcess()
-    {
-        $collection = (new Application_Model_Entity_Accounts_Reserve_Vendor())->getCollection();
-        $collection->addCarrierVendorFilter(false, true)->addNonDeletedFilter();
-        foreach ($collection as $item) {
-            $item->updateCurrentBalance();
-        }
-    }
+    // public function updateReserveAccountVendorProcess()
+    // {
+    //     $collection = (new Application_Model_Entity_Accounts_Reserve_Vendor())->getCollection();
+    //     $collection->addCarrierVendorFilter(false, true)->addNonDeletedFilter();
+    //     foreach ($collection as $item) {
+    //         $item->updateCurrentBalance();
+    //     }
+    // }
 
     public function getSettlementVendors()
     {
@@ -684,11 +699,12 @@ class Application_Model_Entity_Settlement_Cycle extends Application_Model_Base_E
 
     public function getSettlementPowerunitTotalsByPeriod($from_date, $until_date)
     {
+        $cycleId = $this->getId();
         $sql = 'CALL getSettlementPowerunitTotalsByPeriod(?,?,?)';
         $stmt = $this->getResource()->getAdapter()->prepare($sql);
         $stmt->bindParam(1, $from_date);
         $stmt->bindParam(2, $until_date);
-        $stmt->bindParam(3, $this->getId()); // cycle ID
+        $stmt->bindParam(3, $cycleId);
         $stmt->execute();
 
         return $stmt->fetchAll();
@@ -1087,7 +1103,7 @@ class Application_Model_Entity_Settlement_Cycle extends Application_Model_Base_E
         $this->checkCurrentStatus(__FUNCTION__);
         $this->getProcessModel()->reject();
 
-        return $this;
+        return 'Cycle was successfully rejected.';
     }
 
     /**
@@ -1173,12 +1189,18 @@ class Application_Model_Entity_Settlement_Cycle extends Application_Model_Base_E
     public function getNegativeReserveAccounts()
     {
         $historyEntity = new Application_Model_Entity_Accounts_Reserve_History();
-        $accounts = $historyEntity->getCollection()->addSettlementFilter($this->getId())->addFilter(
-            'current_balance',
-            0,
-            '<'
-        )->addFilter('contractor_vendor_reserve_code', 'CASH', '!=')->addFilter('allow_negative', 0)->getItems();
+        $accounts = $historyEntity->getCollection()
+            ->addSettlementFilter($this->getId())
+            ->addFilter(
+                'current_balance',
+                0,
+                '<'
+            )
+            // ->addFilter('contractor_vendor_reserve_code', 'CASH', '!=')
+            ->addFilter('allow_negative', 0)
+            ->getItems();
 
+        // return [];
         return $accounts;
     }
 
@@ -1311,7 +1333,7 @@ class Application_Model_Entity_Settlement_Cycle extends Application_Model_Base_E
     public function checkPermissions($checkOnlyAction = false)
     {
         $user = User::getCurrentUser();
-        if ($user->isCarrier()) {
+        if ($user->isManager()) {
             $request = Zend_Controller_Front::getInstance()->getRequest();
             switch ($request->getActionName()) {
                 case 'edit':
@@ -1539,12 +1561,12 @@ class Application_Model_Entity_Settlement_Cycle extends Application_Model_Base_E
             }
         }
 
-        if (!$this->checkPaymentsAndDisbursements()) {
-            $errors[] = 'The sum of disbursements should equal sum of compensations ($' . number_format(
-                $this->getPaymentsAndDisbursements()['payment_amount'],
-                2
-            ) . ')';
-        }
+        // if (!$this->checkPaymentsAndDisbursements()) {
+        //     $errors[] = 'The sum of disbursements should equal sum of compensations ($' . number_format(
+        //         $this->getPaymentsAndDisbursements()['payment_amount'],
+        //         2
+        //     ) . ')';
+        // }
 
         return $errors;
     }

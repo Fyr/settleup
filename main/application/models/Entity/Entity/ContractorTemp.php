@@ -436,7 +436,7 @@ class Application_Model_Entity_Entity_ContractorTemp extends Application_Model_B
             return $currentDivisionIdFromCache;
         }
         $user = User::getCurrentUser();
-        $currentDivisionId = $user->getEntity()->getCurrentCarrier()->getEntityId();
+        $currentDivisionId = $user->getEntity()->getEntityId();
         Application_Model_Cache::save('currentDivisionId', $currentDivisionId);
 
         return $currentDivisionId;
@@ -492,7 +492,7 @@ class Application_Model_Entity_Entity_ContractorTemp extends Application_Model_B
         } else {
             $collection = $entity->getCollection()->addNonDeletedFilter();
             $user = User::getCurrentUser();
-            if ($user->isContractor()) {
+            if ($user->isSpecialist()) {
                 $collection->addFilter('id', $user->getEntity()->getId());
             } else {
                 $collection->addCarrierFilter()->vendorFilter();

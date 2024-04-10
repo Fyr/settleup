@@ -62,7 +62,7 @@ class Application_Model_Entity_Collection_Transactions_Disbursement extends Appl
             ->getCurrentCarrier()
             ->getPreviousSettlementCycle();
         $this->addFilter('settlement_cycle_id', $previousCycle->getId());*/
-        $currentCycles = $userEntity->getEntity()->getCurrentCarrier()->getCycles()->getField('id');
+        $currentCycles = $userEntity->getEntity()->getCycles()->getField('id');
         if ($currentCycles) {
             $this->addFilter('settlement_cycle_id', $currentCycles, 'IN');
         } else {

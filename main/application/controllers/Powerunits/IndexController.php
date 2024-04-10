@@ -52,7 +52,7 @@ class Powerunits_IndexController extends Zend_Controller_Action
             if ($this->_form->isValid($post)) {
                 $this->_entity->setData($this->_form->getValues());
                 $this->_entity->setDatetimesToDbFormat($isEdit);
-                $carrierId = $user->getEntity()->getCurrentCarrier()->getEntityId();
+                $carrierId = $user->getEntity()->getEntityId();
                 $this->_entity->setCarrierId($carrierId);
                 $this->_entity->save();
                 $this->_entity->createIndividualTemplates();

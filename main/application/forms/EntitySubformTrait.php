@@ -4,14 +4,11 @@ use Application_Model_Entity_Accounts_User as User;
 
 trait Application_Form_EntitySubformTrait
 {
+    use Application_Model_Entity_EntitySyncTrait;
+
     protected $_entityCount = 0;
 
-    /**
-     * update collection of entities for user (user_entity table)
-     *
-     * @return $this
-     */
-    public function saveEntities(User $user)
+    public function saveEntities(User $user): self
     {
         //get entity id from form
         $newEntityIds = [];
@@ -22,46 +19,12 @@ trait Application_Form_EntitySubformTrait
             }
         }
         $newEntityIds = array_unique($newEntityIds);
-
-        //get entity id from db
-        $oldEntityIds = $user->getAssociatedEntityCollection()->getField('entity_id');
-
-        $insertItems = array_diff($newEntityIds, $oldEntityIds);
-        $deleteItems = array_diff($oldEntityIds, $newEntityIds);
-
-        //insert new items
-        foreach ($insertItems as $item) {
-            $userEntity = new Application_Model_Entity_Accounts_UserEntity();
-            $userEntity->setUserId($user->getId());
-            $userEntity->setEntityId($item);
-            $userEntity->save();
-        }
-
-        //delete old items
-        foreach ($deleteItems as $item) {
-            $userEntity = Application_Model_Entity_Accounts_UserEntity::staticLoad([
-                'user_id' => $user->getId(),
-                'entity_id' => $item,
-            ]);
-            $userEntity->delete();
-        }
-
-        //update current user
-        if (!in_array($user->getEntityId(), $newEntityIds)) {
-            $firstEntityId = array_pop($newEntityIds);
-            if ($firstEntityId) {
-                $user->setEntityId($firstEntityId);
-                $user->save();
-            }
-        }
+        $this->syncEntities($user, $newEntityIds);
 
         return $this;
     }
 
-    /**
-     * @param $dataHolders
-     */
-    public function appendEntities($dataHolders, $isRequired = false)
+    public function appendEntities(array $dataHolders, bool $isRequired = false, bool $isReadonly = false): void
     {
         foreach ($dataHolders as $key => $dataHolder) {
             if (is_array($dataHolder)) {
@@ -78,7 +41,10 @@ trait Application_Form_EntitySubformTrait
 
             $subform = $this->getEntities($dataHolder, $fakeId);
             if ($isRequired && !$subform->deleted->getValue()) {
-                $subform->entity_id_title->setRequired(true);
+                $subform->entity_id_title->setRequired();
+            }
+            if ($isReadonly) {
+                $subform->entity_id_title->setAttrib('readonly', 'readonly');
             }
             $this->addSubForm($subform, 'entity-subform-' . $id);
         }
@@ -108,14 +74,14 @@ trait Application_Form_EntitySubformTrait
         if ((!User::getCurrentUser()->hasPermission(
             Application_Model_Entity_Entity_Permissions::VENDOR_USER_CREATE
         ) && $this->getElement('role_id')->getValue(
-        ) == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID) || (!User::getCurrentUser(
+        ) == Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID) || (!User::getCurrentUser(
         )->hasPermission(
             Application_Model_Entity_Entity_Permissions::CONTRACTOR_USER_CREATE
         ) && $this->getElement('role_id')->getValue(
-        ) == Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID) || ($this->getElement(
+        ) == Application_Model_Entity_System_UserRoles::SPECIALIST_ROLE_ID) || ($this->getElement(
             'id'
-        ) && $this->getElement('id')->getAttrib('readonly') == 'readonly') || ($user->isContractor(
-        ) || $user->isVendor())) {
+        ) && $this->getElement('id')->getAttrib('readonly') == 'readonly') || ($user->isSpecialist(
+        ) || $user->isOnboarding())) {
             $subform->readonly();
         }
 

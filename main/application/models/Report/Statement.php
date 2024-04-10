@@ -1,6 +1,6 @@
 <?php
 
-use Application_Model_Entity_Accounts_Reserve_Contractor as ReserveContractor;
+use Application_Model_Entity_Accounts_Reserve_Powerunit as ReserveContractor;
 use Application_Model_Entity_Accounts_Reserve_Transaction as ReserveTransaction;
 use Application_Model_Entity_Accounts_User as User;
 use Application_Model_Entity_Deductions_Deduction as Deduction;

@@ -1,3 +1,11 @@
+<?php
+use Application_Model_Entity_Accounts_User as User;
+use Application_Model_Entity_Entity_Contact_Type as ContactType;
+use Application_Model_Entity_Entity_Permissions as Permissions;
+use Application_Model_Entity_System_SystemValues as SystemValues;
+use Application_Model_Entity_System_UserRoles as UserRoles;
+?>
+
 <?php $this->headTitle()->append($this->title); ?>
 
 <?php if($this->form->id->getValue()): ?>
@@ -6,19 +14,17 @@
     <h3>Create User</h3><br />
 <?php endif ?>
 
-<?php //if ( $this->form->entity_id->getValue() && $this->form->role_id->getValue() != Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID && $this->form->role_id->getValue() != Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID): ?>
+<?php //if ( $this->form->entity_id->getValue() && $this->form->role_id->getValue() != UserRoles::SUPER_ADMIN_ROLE_ID && $this->form->role_id->getValue() != UserRoles::ONBOARDING_ROLE_ID): ?>
 <!--<div class="right">-->
 <!--<a class="btn btn-success" href="--><?php //echo $this->url(array('controller' => 'users_visibility', 'action' =>'index', 'userEntityId' => $this->form->entity_id->getValue())); ?><!--"><i class="icon-plus icon-white"></i> Edit list of visibility</a></br>-->
 <!--</div>-->
 <?php //endif ?>
-<?php $user = Application_Model_Entity_Accounts_User::getCurrentUser() ?>
+<?php $user = User::getCurrentUser() ?>
 <?php if (
-    ($user->isAdmin()
-     || ($user->isCarrier() &&
-        (($this->form->role_id->getValue() == Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID && $user->hasPermission(Application_Model_Entity_Entity_Permissions::PERMISSIONS_MANAGE))
-        || ($this->form->role_id->getValue() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID))))
+    ($user->isAdminOrSuperAdmin()
+     || ($user->isManager() && $user->hasPermission(Permissions::PERMISSIONS_MANAGE)))
     && $this->form->id->getValue() != $user->getId()
-    && !in_array($this->form->role_id->getValue(), [Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID, Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID, Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID])
+    && !in_array($this->form->role_id->getValue(), [UserRoles::ADMIN_ROLE_ID, UserRoles::SUPER_ADMIN_ROLE_ID])
 ): ?>
     <div class="left bank-reserve-acc-actions">
         <?php if ($userId = $this->form->id->getValue()): ?>
@@ -37,7 +43,6 @@
         <div class="span7">
             <?php echo $this->form->id; ?>
             <?php echo $this->form->entity_id; ?>
-
             <?php echo $this->form->name; ?>
             <?php echo $this->form->email; ?>
             <div class="row">
@@ -56,11 +61,11 @@
             <?php echo $this->form->role_id; ?>
             <div class="wrapper <?php if (in_array($this->form->role_id->getValue(),
                 [
-                    Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID,
-                    Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID,
-                    Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID,
-                    Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID,
-                    Application_Model_Entity_System_UserRoles::GUEST_ROLE_ID,
+                    UserRoles::SUPER_ADMIN_ROLE_ID,
+                    UserRoles::ADMIN_ROLE_ID,
+                    UserRoles::SPECIALIST_ROLE_ID,
+                    UserRoles::ONBOARDING_ROLE_ID,
+                    UserRoles::GUEST_ROLE_ID,
                 ])) echo 'nondisplay'?>">
                 <?php echo $this->form->entity_id_title; ?>
             </div>
@@ -70,18 +75,23 @@
             <?php
                 $notDeletedEntitySubformsCount = 0;
                 foreach ($subforms as $subform) {
-                    if ($subform->deleted->getValue() != Application_Model_Entity_System_SystemValues::DELETED_STATUS) {
+                    if ($subform->deleted->getValue() != SystemValues::DELETED_STATUS) {
                         $notDeletedEntitySubformsCount++;
                     }
                 }
-                $disabledDelete = ($notDeletedEntitySubformsCount > 1)?'':'disabled';
+                $disabledDelete = ($notDeletedEntitySubformsCount > 1) ? '' : 'disabled';
             ?>
             <?php $disabled = '';?>
-            <?php if ((!$user->hasPermission(Application_Model_Entity_Entity_Permissions::VENDOR_USER_CREATE) && $this->form->getElement('role_id')->getValue() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID)
-                      || (!$user->hasPermission(Application_Model_Entity_Entity_Permissions::CONTRACTOR_USER_CREATE) && $this->form->getElement('role_id')->getValue() == Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID)) $disabled = 'disabled'?>
-            <div class="entity-subform-wrapper <?php if (!in_array($this->form->role_id->getValue(), array(Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID, Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID))) echo 'nondisplay' ?>">
-            <?php foreach ($subforms as $subform): ?>
-                <div class="entity-subform subform row <?php if ($subform->deleted->getValue() == Application_Model_Entity_System_SystemValues::DELETED_STATUS) echo 'nondisplay'?>" data-contact-type="entity">
+            <?php if ((!$user->hasPermission(Permissions::VENDOR_USER_CREATE) && $this->form->getElement('role_id')->getValue() == UserRoles::ONBOARDING_ROLE_ID)
+                      || (!$user->hasPermission(Permissions::CONTRACTOR_USER_CREATE) && $this->form->getElement('role_id')->getValue() == UserRoles::SPECIALIST_ROLE_ID)) $disabled = 'disabled'?>
+            <div class="entity-subform-wrapper <?php if (!in_array($this->form->role_id->getValue(), [
+                UserRoles::SPECIALIST_ROLE_ID,
+                UserRoles::ONBOARDING_ROLE_ID,
+                UserRoles::MANAGER_ROLE_ID
+            ])) echo 'nondisplay' ?>">
+            <?php foreach ($subforms as $key => $subform): ?>
+                <?php $disabledDeleted = ($key === array_key_first($subforms) ? 'disabled' : $disabledDelete) ?>
+                <div class="entity-subform subform row <?php if ($subform->deleted->getValue() == SystemValues::DELETED_STATUS) echo 'nondisplay'?>" data-contact-type="entity">
                     <div class="entity-fields span">
                         <?php if ($subform->deleted->getValue() === '' && $subform->id->getValue() === '') {
                             $subform->deleted->setValue(0);
@@ -93,23 +103,21 @@
                         <?php echo $subform->entity_id; ?>
                         <?php echo $subform->entity_id_title; ?>
                     </div>
-                    <?php if (!$user->isVendor() && !$user->isContractor()): ?>
+                    <?php if (!$user->isOnboarding() && !$user->isSpecialist() && !$user->isManager()): ?>
                         <div class="span subform-buttons" >
                             <a href="#" class="btn btn-success add <?php echo $disabled ?>"><i class="icon-plus icon-white"></i></a>
-                            <a href="#" class="btn btn-danger delete <?php echo $disabledDelete ?> <?php echo $disabled ?> <?php if (!$subform->entity_id->getValue() && count($subforms) == 1) echo 'disabled' ?>"><i class="icon-trash icon-white"></i></a>
+                            <a href="#" class="btn btn-danger delete <?php echo $disabledDeleted ?> <?php echo $disabled ?> <?php if (!$subform->entity_id->getValue() && count($subforms) == 1) echo 'disabled' ?>"><i class="icon-trash icon-white"></i></a>
                         </div>
                     <?php endif ?>
-                    <div class="span"><?php echo $subform->carrier_name ?></div>
                 </div>
             <?php endforeach; ?>
             </div>
 
-
             <div class="contact <?php if (in_array($this->form->role_id->getValue(),
                 [
-                    Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID,
-                    Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID,
-                    Application_Model_Entity_System_UserRoles::GUEST_ROLE_ID,
+                    UserRoles::SUPER_ADMIN_ROLE_ID,
+                    UserRoles::ADMIN_ROLE_ID,
+                    UserRoles::GUEST_ROLE_ID,
                 ])) echo "nondisplay" ?>">
                 <?php if ($this->form->getElement('id') && $this->form->getElement('id')->getAttrib('readonly') == 'readonly') {
                     $readonly = 'readonly="readonly"';
@@ -119,10 +127,10 @@
                     $disabled = '';
                 }
                 ?>
-                <?php foreach (array(Application_Model_Entity_Entity_Contact_Type::TYPE_ADDRESS, Application_Model_Entity_Entity_Contact_Type::TYPE_HOME_PHONE, Application_Model_Entity_Entity_Contact_Type::TYPE_FAX, Application_Model_Entity_Entity_Contact_Type::TYPE_EMAIL) as $contactType): ?>
+                <?php foreach ([ContactType::TYPE_ADDRESS, ContactType::TYPE_HOME_PHONE, ContactType::TYPE_FAX, ContactType::TYPE_EMAIL] as $contactType): ?>
                     <?php $subforms = $this->form->getContactSubForms($contactType)?>
                     <?php foreach ($subforms as $subform): ?>
-                        <div class="subform row <?php if ($subform->deleted->getValue() == Application_Model_Entity_System_SystemValues::DELETED_STATUS) echo 'nondisplay'?>" data-contact-type="<?php echo $subform->contact_type->getValue() ?>">
+                        <div class="subform row <?php if ($subform->deleted->getValue() == SystemValues::DELETED_STATUS) echo 'nondisplay'?>" data-contact-type="<?php echo $subform->contact_type->getValue() ?>">
                             <div class="span4">
                                 <?php echo $subform->id; ?>
                                 <?php echo $subform->entity_id; ?>
@@ -130,7 +138,7 @@
                                 <?php echo $subform->contact_type; ?>
                                 <?php echo $subform->title; ?>
                                 <?php echo $subform->deleted; ?>
-                                <?php if ($contactType == Application_Model_Entity_Entity_Contact_Type::TYPE_ADDRESS): ?>
+                                <?php if ($contactType == ContactType::TYPE_ADDRESS): ?>
                                     <?php $addressData = json_decode($subform->value->getValue(), true) ?>
                                     <?php $subform->value->setValue($addressData['address']) ?>
                                     <div class="address-block">
@@ -194,10 +202,6 @@
         <a class="btn cancel btn-danger">Cancel</a>
     </div>
 </form>
-
-<?php foreach($this->popupSetup as $setings): ?>
-    <?php echo $this->popupGrid($setings); ?>
-<?php endforeach; ?>
 
 <?php foreach($this->popupUserEntity as $setings): ?>
     <?php echo $this->popupUserEntity($setings); ?>

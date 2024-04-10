@@ -1,6 +1,6 @@
 <?php
 $iterator = new RecursiveIteratorIterator ( $this->container, RecursiveIteratorIterator::SELF_FIRST );
-$isCarrier = Application_Model_Entity_Accounts_User::getCurrentUser()->isCarrier();
+$isManager = Application_Model_Entity_Accounts_User::getCurrentUser()->isManager();
 ?>
 <ul class="nav nav-pills">
     <?php foreach ($iterator as $page): ?>
@@ -8,7 +8,7 @@ $isCarrier = Application_Model_Entity_Accounts_User::getCurrentUser()->isCarrier
             <?php continue; ?>
         <?php else: ?>
             <?php /** @var Zend_Navigation_Page_Mvc $page*/?>
-            <?php if ($isCarrier && $page->getResource() == 'carriers_index'): ?>
+            <?php if ($isManager && $page->getResource() == 'carriers_index'): ?>
                 <?php continue; ?>
             <?php endif ?>
             <?php if ($iterator->getDepth() == 0): ?>

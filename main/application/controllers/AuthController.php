@@ -1,13 +1,15 @@
 <?php
 
 use Application_Model_Entity_Accounts_User as User;
+use Application_Model_Entity_Entity_Carrier as Division;
 use Application_Model_Entity_Entity_UserAuthProviders as UserAuthProviders;
 use Application_Model_Entity_System_UserRoles as UserRoles;
 use Application_Service_Azure_AuthProvider as AuthProvider;
-use TheNetworg\OAuth2\Client\Token\AccessToken;
 
 class AuthController extends Zend_Controller_Action
 {
+    use Application_Model_Entity_EntitySyncTrait;
+
     final public const SESSION_SSO_NAMESPACE = 'sso';
 
     public function loginAction()
@@ -24,6 +26,7 @@ class AuthController extends Zend_Controller_Action
                         $form->getValue('password')
                     );
                     if ($user) {
+                        $user->checkLastSelectedDivision();
                         $this->redirect('/');
 
                         return $this;
@@ -95,55 +98,41 @@ class AuthController extends Zend_Controller_Action
         }
     }
 
+    /**
+     * @throws Zend_Session_Exception
+     */
     public function ssoLoginAction(): void
     {
         $provider = (new AuthProvider())->getProvider();
         $authorizationUrl = $provider->getAuthorizationUrl(['scope' => $provider->scope]);
-        $this->getSsoSessionStorage()->state = $provider->getState();
+        $this->getSsoSessionStorage()->__set('state', $provider->getState());
         $this->redirect($authorizationUrl);
     }
 
+    /**
+     * @throws Zend_Session_Exception
+     */
     public function ssoAction(): void
     {
         $request = $this->getRequest();
-        $sessionStorage = $this->getSsoSessionStorage();
-        if ($request->getParam('code') && $request->getParam('state')) {
+        if ($authorizationCode = $request->getParam('code')) {
+            $sessionStorage = $this->getSsoSessionStorage();
             if ($request->getParam('state') !== $sessionStorage->state) {
                 $this->redirect('/auth/login');
             }
-            $sessionStorage->unsetAll();
-            $authProvider = new AuthProvider();
-            $provider = $authProvider->getProvider();
+            $sessionStorage->__unset('state');
 
             try {
-                /** @var AccessToken $token */
-                $token = $provider->getAccessToken('authorization_code', [
-                    'scope' => $provider->scope,
-                    'code' => $request->getParam('code'),
-                ]);
-                $userAdInfo = $provider->validateAccessToken($token->getToken());
-
-                /** @var AccessToken $newToken */
-                $newToken = $provider->getAccessToken('refresh_token', [
-                    'scope' => $authProvider->getScopeGroupRead(),
-                    'refresh_token' => $token->getRefreshToken(),
-                ]);
-                $userAdRoles = $authProvider->getUserRoles($newToken);
-                $this->getLogger()->info('Sso found roles info: ' . json_encode($userAdRoles, JSON_THROW_ON_ERROR));
-
-                $appRoles = $authProvider->getArrayAppRoles($newToken);
-                $this->getLogger()->info('Sso app roles info: ' . json_encode($appRoles, JSON_THROW_ON_ERROR));
-
-                $email = strtolower($userAdInfo['preferred_username'] ?? '');
-                $adData = $authProvider->getUserAuthData($userAdRoles, $appRoles, $email);
-                $roleId = $adData['roleId'];
-                $user = (new User())->getByEmail($email);
+                $authProvider = new AuthProvider();
+                $userAdData = $authProvider->getUserAdData($authorizationCode);
+                $roleId = $userAdData['roleId'];
+                $user = (new User())->getByEmail($userAdData['email']);
                 if ($user->isEmpty()) {
                     $user = (new User())->setData([
                         'role_id' => $roleId,
-                        'email' => $email,
-                        'name' => $userAdInfo['name'],
-                        'password' => $userAdInfo['sub'],
+                        'email' => $userAdData['email'],
+                        'name' => $userAdData['name'],
+                        'password' => $userAdData['sub'],
                     ]);
                     $user->save(true);
                     $user->createSsoRestData();
@@ -152,23 +141,31 @@ class AuthController extends Zend_Controller_Action
                 $authProvider = (new UserAuthProviders())->getByUserId($user->getId());
                 if ($authProvider->isEmpty()) {
                     $authProvider = (new UserAuthProviders())->create([
-                        'providerId' => $userAdInfo['sub'],
+                        'providerId' => $userAdData['sub'],
                         'providerType' => UserAuthProviders::PROVIDER_TYPE_AZURE,
                         'userId' => $user->getId(),
-                        'adData' => $adData,
+                        'adData' => $userAdData,
                     ]);
                 }
 
-                if (!$user->getLastSelectedCarrier() && $adData['divisionCode']) {
-                    $entity = (new Application_Model_Entity_Entity_Carrier())
-                        ->load($adData['divisionCode'], 'short_code');
-                    if ($entity->getEntityId()) {
-                        $user->setLastSelectedCarrier($entity->getId());
-                        $user->setEntityId($entity->getEntityId());
-                        $user->save();
-                    } else {
-                        $this->getLogger()->err('Sso err division not found by divisionCode: ' . $adData['divisionCode']);
+                $entity = new Division();
+                $newEntityIds = [];
+                if (UserRoles::GUEST_ROLE_ID !== $roleId) {
+                    foreach ($userAdData['divisions'] as $divisionCode) {
+                        $entity = $entity->load($divisionCode, 'short_code');
+                        if ($entity->isEmpty()) {
+                            $this->getLogger()->err('Sso err division not found by divisionCode: ' . $divisionCode);
+                            continue;
+                        }
+                        $newEntityIds[] = $entity->getEntityId();
                     }
+                }
+                $this->syncEntities($user, $newEntityIds);
+
+                if (!$user->getLastSelectedCarrier() && !$entity->isEmpty()) {
+                    $user->setLastSelectedCarrier($entity->getId());
+                    $user->setEntityId($entity->getEntityId());
+                    $user->save();
                 }
 
                 if ((int) $user->getRoleId() !== $roleId) {
@@ -179,8 +176,9 @@ class AuthController extends Zend_Controller_Action
                         $user->setEntityId(null);
                     }
                     $user->save();
-                    $authProvider->setAdData($adData);
+                    $authProvider->setAdData($userAdData);
                     $authProvider->save();
+                    $this->isNeedUpdateRestData = true;
                 }
 
                 $authUser = (new User())->authUser(
@@ -188,6 +186,10 @@ class AuthController extends Zend_Controller_Action
                     $authProvider->getProviderId()
                 );
                 if ($authUser) {
+                    if ($this->isNeedUpdateRestData) {
+                        $user->updateRestData();
+                    }
+                    $user->checkLastSelectedDivision();
                     $this->redirect('/');
                 }
             } catch (Throwable $e) {

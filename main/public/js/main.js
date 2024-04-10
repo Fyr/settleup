@@ -76,7 +76,7 @@ $(function () {
                     form.appendChild(hiddenField);
                 }
             }
-        }        
+        }
 
         document.body.appendChild(form);
         form.submit();
@@ -105,7 +105,7 @@ $(function () {
         post($(this).attr('href'), data, 'post', '_blank');
     });
 
-    function getClosestFriday(date) {        
+    function getClosestFriday(date) {
         if (date.getDay() === 5) {
             date.setDate(date.getDate() + 7);
         } else {
@@ -132,7 +132,7 @@ $(function () {
         }
     });
 
-    $('#cycle_close_date').on('change', function () {        
+    $('#cycle_close_date').on('change', function () {
         var timestamp = Date.parse($('#cycle_close_date').val());
         var dateObject = new Date(timestamp);
         $("#disbursement_date").val(getClosestFriday(dateObject));
@@ -473,15 +473,51 @@ function URLToArray(url) {
     return request;
 }
 
+/*--------------RA Create/Edit Page-------------------------*/
+$(document).ready(function(){
+    function getLabelForMinBalance() {
+        var labelForMinBalance = $('label[for="min_balance"]');
+        return labelForMinBalance.length > 0 ? labelForMinBalance : null;
+    }
+
+    function isMinBalanceSetAsRequired(labelForMinBalance) {
+        if (!labelForMinBalance) {
+            return false;
+        }
+        return labelForMinBalance.text().includes('*');
+    }
+
+    function updateMinBalance() {
+        var accountType = raAccountTypes[$('#account_type').val()];
+        var labelForMinBalance = getLabelForMinBalance();
+        if (isMinBalanceSetAsRequired(labelForMinBalance)) {
+            if (accountType == 'MAINTENANCE_ACCOUNT') {
+                labelForMinBalance.text(labelForMinBalance.text().replace(' *', ''));
+            }
+        } else {
+            if (accountType == 'ESCROW_ACCOUNT') {
+                labelForMinBalance.text(labelForMinBalance.text() + ' *');
+            }
+        }
+    }
+
+    $('form[name="reserve_account"]').parents('body').ready(function(e){
+        if ($('#account_type').val()) { // only run when needed
+            updateMinBalance();
+        }
+        
+    });
+
+    $('form[name="reserve_account"]').parents('body').on('change', '#account_type', function(e){
+        updateMinBalance();
+    });
+});
+
 /*--------------RA Contractor/Deduction Setup-------------------------*/
 $(document).ready(function() {
     $('form[name="reserve_account_contractor"]').parents('body').on('click','#entity_id_modal.modal tbody tr:not(.placeholder)', function(event) {
         updateCarrierVendor($(this).find('.idField').text());
         $('form[name="reserve_account_contractor"]').change();
-    });
-    $('form[name="reserve_account_contractor"], form[name="deductionsetup"]').parents('body').on('click','#vendor_id_modal.modal tbody tr:not(.placeholder), #provider_id_modal.modal tbody tr:not(.placeholder)', function(event) {
-        getRA($(this).find('.idField').html());
-        $('form[name="reserve_account_contractor"], form[name="deductionsetup"]').change();
     });
     $('form[name="reserve_account_contractor"]').parents('body').on('click', '#reserve_account_vendor_id_modal.modal tbody tr:not(.placeholder)', function() {
         getRASetup($(this).find('.idField').html());
@@ -529,30 +565,6 @@ $(document).ready(function() {
             type: 'GET'
         });
         $('#current_contractor_name').html(entityTitle);
-    }
-    function getRA(entityId) {
-        $.ajax({
-            url:getRAUrl,
-            data:{'vendorEntityId': entityId},
-            type: 'POST',
-            beforeSend: function() {
-                $('#reserve_account_vendor_id_title, #reserve_account_receiver_title').addClass('input-preloader').attr('readonly','readonly');
-            },
-            success: function(popup){
-                $('#reserve_account_vendor_id_modal, #reserve_account_receiver_modal').next('script').remove();
-                $('#reserve_account_vendor_id_clear, #reserve_account_receiver_clear').remove();
-                $('#reserve_account_vendor_id_modal, #reserve_account_receiver_modal').next('script').remove();
-                $('#reserve_account_vendor_id_modal, #reserve_account_receiver_modal').remove();
-                $('#reserve_account_vendor_title, #reserve_account_receiver_title').val('');
-                $('#reserve_account_vendor_id, #reserve_account_receiver_id').val('');
-                $('#vendor_reserve_code').val('');
-                $('.content').append(popup);
-                $('#reserve_account_vendor_id_clear, #reserve_account_receiver_clear').click();
-            },
-            complete: function() {
-                $('#reserve_account_vendor_id_title, #reserve_account_receiver_title').removeClass('input-preloader').removeAttr('readonly');
-            }
-        });
     }
     function getRASetup(raId) {
         $.ajax({
@@ -657,7 +669,6 @@ $(document).ready(function() {
 
 
     // #grid
-
     $('.btnFilterContractors').on("click", function (event) {
         event.preventDefault();
         filterContractors();
@@ -668,32 +679,35 @@ $(document).ready(function() {
     $('#settlement_division.settlement-page').on("change", function (event) {
         filterContractors();
     });
-    function filterContractors() {
-        var filterParams = '';
-        $('input.settle').each(function(){
-            if($(this).val()) {
-                var paramName = $(this).attr('id');
-                var paramValue = $(this).val();
-                filterParams += '&' + paramName + '=' + paramValue;
-            }
-        });
-        if ($('#settlement_division').val() == '0') {
-            filterParams += '&limit=' + $('#rec_per_page').val() + '&filter=update';
-        } else {
-            filterParams += '&limit=' + $('#rec_per_page').val() + '&filter=update' + '&division=' + $('#settlement_division').val();
-        }
-        if ($('.header .sorting.asc, .header .sorting.desc').length) {
-            filterParams += '&sort=' + $('.header .sorting.asc, .header .sorting.desc').closest('th').data('sort') + '&order=' + (($('.header .sorting.asc, .header .sorting.desc').hasClass('asc'))? 'asc' : 'desc');
-        }
 
-        if(filterParams.length) {
-            window.location.href = '/settlement_index?' + filterParams.substr(1);
+    function filterContractors(filterParams) {
+        let queryString = '';
+        if (filterParams !== false) {
+            filterParams = filterParams || {};
+            $('input.settle').each(function () {
+                if ($(this).val()) {
+                    filterParams[$(this).attr('id')] = $(this).val();
+                }
+            });
+            let division = parseInt($('#settlement_division').val() || 0);
+            if (division) {
+                filterParams['division'] = division;
+            }
+            let $sorting = $('.header .sorting.asc, .header .sorting.desc');
+            if ($sorting.length) {
+                filterParams['sort'] = $sorting.closest('th').data('sort');
+                filterParams['order'] = $sorting.hasClass('asc') ? 'asc' : 'desc';
+            }
+            filterParams['limit'] = parseInt($('#rec_per_page').val());
+
+            queryString = '?' + (new URLSearchParams(filterParams)).toString();
         }
+        window.location.href = '/settlement_index' + queryString;
     }
 
     $('.btnClearFilterContractors').click(function (event) {
         event.preventDefault();
-        window.location.href = '/settlement_index?filter=update&limit=' + $('#rec_per_page').val();
+        filterContractors(false);
     });
 
     $('.filterInput.settle').keypress(function (e) {
@@ -776,7 +790,7 @@ $(function(){
                 newSubform.find('select[name*="vendor_id"]').removeAttr('readonly');
             }
         }
-        $('form .subform[data-contact-type="' + contactType + '"] .delete').removeClass('disabled');
+        $('form .subform[data-contact-type="' + contactType + '"] .delete').slice(1).removeClass('disabled');
         if (contactType == 'vendor') {
             fixVendorOptions(0);
         }

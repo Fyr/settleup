@@ -1,7 +1,7 @@
 <?php
 
 use Application_Model_Entity_Accounts_Reserve as ReserveAccount;
-use Application_Model_Entity_Accounts_Reserve_Contractor as ReserveAccountContractor;
+use Application_Model_Entity_Accounts_Reserve_Powerunit as ReserveAccountContractor;
 use Application_Model_Entity_Accounts_Reserve_Transaction as Transaction;
 use Application_Model_Entity_Entity_Contractor as Contractor;
 
@@ -51,7 +51,7 @@ class Application_Model_Entity_Accounts_Reserve_History extends Application_Mode
     }
 
     /**
-     * @return Application_Model_Entity_Accounts_Reserve_Contractor
+     * @return Application_Model_Entity_Accounts_Reserve_Powerunit
      */
     public function getReserveAccountContractor()
     {

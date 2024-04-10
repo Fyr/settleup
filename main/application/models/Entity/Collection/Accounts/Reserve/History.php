@@ -26,12 +26,12 @@ class Application_Model_Entity_Collection_Accounts_Reserve_History extends Appli
         $this->addFieldsForSelect(
             new Application_Model_Entity_Accounts_Reserve_History(),
             'reserve_account_id',
-            new Application_Model_Entity_Accounts_Reserve_Contractor(),
-            'reserve_account_id',
+            new Application_Model_Entity_Accounts_Reserve_Powerunit(),
+            'id',
             [
-                'reserve_account_vendor_id',
+                // 'reserve_account_vendor_id',
                 'reserve_account_contractor_id' => 'id',
-                'contractor_vendor_reserve_code' => 'vendor_reserve_code',
+                // 'contractor_vendor_reserve_code' => 'vendor_reserve_code',
             ]
         );
 
@@ -46,30 +46,30 @@ class Application_Model_Entity_Collection_Accounts_Reserve_History extends Appli
             ]
         );
 
-        $this->addFieldsForSelect(
-            new Application_Model_Entity_Accounts_Reserve_Contractor(),
-            'reserve_account_vendor_id',
-            new Application_Model_Entity_Accounts_Reserve_Vendor(),
-            'id',
-            ['vendor_reserve_code', 'vendor_reserve_account_id' => 'reserve_account_id']
-        );
+        // $this->addFieldsForSelect(
+        //     new Application_Model_Entity_Accounts_Reserve_Powerunit(),
+        //     'reserve_account_vendor_id',
+        //     new Application_Model_Entity_Accounts_Reserve_Vendor(),
+        //     'id',
+        //     ['vendor_reserve_code', 'vendor_reserve_account_id' => 'reserve_account_id']
+        // );
 
-        $this->addFieldsForSelect(
-            new Application_Model_Entity_Accounts_Reserve_Vendor(),
-            'reserve_account_id',
-            new Application_Model_Entity_Accounts_Reserve(),
-            'id',
-            ['vendor_entity_id' => 'entity_id'],
-            'reserve_account_vendor.reserve_account_id=reserve_account_2.id'
-        );
+        // $this->addFieldsForSelect(
+        //     new Application_Model_Entity_Accounts_Reserve_Vendor(),
+        //     'reserve_account_id',
+        //     new Application_Model_Entity_Accounts_Reserve(),
+        //     'id',
+        //     ['vendor_entity_id' => 'entity_id'],
+        //     'reserve_account_vendor.reserve_account_id=reserve_account_2.id'
+        // );
 
-        $this->addFieldsForSelect(
-            'reserve_account_2',
-            'entity_id',
-            new Application_Model_Entity_Entity(),
-            'id',
-            ['vendor_name' => 'name']
-        );
+        // $this->addFieldsForSelect(
+        //     'reserve_account_2',
+        //     'entity_id',
+        //     new Application_Model_Entity_Entity(),
+        //     'id',
+        //     ['vendor_name' => 'name']
+        // );
 
         $this->addFieldsForSelect(
             new Application_Model_Entity_Accounts_Reserve(),

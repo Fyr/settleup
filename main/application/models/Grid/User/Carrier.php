@@ -7,7 +7,7 @@ class Application_Model_Grid_User_Carrier extends Application_Model_Grid
         $carrierEntity = new Application_Model_Entity_Entity_Carrier();
 
         $header = [
-            'header' => $carrierEntity->getResource()->getInfoFieldsForPopup(),
+            'header' => $carrierEntity->getResource()->getInfoFields(),
             'sort' => ['entity_id' => 'ASC'],
             'titleField' => $carrierEntity->getTitleColumn(),
             'id' => static::class,

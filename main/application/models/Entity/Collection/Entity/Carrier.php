@@ -1,24 +1,25 @@
 <?php
 
+use Application_Model_Entity_Accounts_User as User;
+use Application_Model_Entity_Accounts_UserEntity as UserEntity;
+
 class Application_Model_Entity_Collection_Entity_Carrier extends Application_Model_Base_Collection
 {
     use Application_Model_Entity_Collection_Entity_ConfiguredFilterTrait;
 
-    /**
-     * Adds visibility filter for current user
-     *
-     * @return Application_Model_Entity_Collection_Entity_Carrier
-     * @var bool $showAllForAdmin
-     */
-    public function addVisibilityFilterForUser($showAllForAdmin = false)
+    public function addVisibilityFilterForUser($showAllForAdmin = false): self
     {
-        $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if (!$userEntity->isAdmin()) {
-            $this->addFilter('entity_id', $userEntity->getSelectedCarrier()->getEntityId(), '=');
-        } else {
+        $userEntity = User::getCurrentUser();
+        if ($userEntity->isAdminOrSuperAdmin()) {
             if (!$showAllForAdmin) {
-                $this->addFilter('entity_id', $userEntity->getSelectedCarrier()->getEntityId(), '=');
+                $this->addFilter('entity_id', $userEntity->getSelectedCarrier()->getEntityId());
             }
+        } else {
+            $entityIds = (new UserEntity())
+                ->getCollection()
+                ->addFilterByUserId($userEntity->getId())
+                ->getField('entity_id');
+            $this->addFilter('entity_id', $entityIds ?: [0], 'IN');
         }
 
         return $this;
@@ -97,7 +98,7 @@ class Application_Model_Entity_Collection_Entity_Carrier extends Application_Mod
 
     public function addContractorStatusFilter()
     {
-        if ($contractorId = Application_Model_Entity_Accounts_User::getCurrentUser()->getData(
+        if ($contractorId = User::getCurrentUser()->getData(
             'last_selected_contractor'
         )) {
             $contractor = new Application_Model_Entity_Entity_Contractor();

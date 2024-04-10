@@ -21,7 +21,7 @@ class Application_Model_Grid_User_EntityVendor extends Application_Model_Grid
         ];
 
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($user->isCarrier() && $user->hasPermission(
+        if ($user->isManager() && $user->hasPermission(
             Application_Model_Entity_Entity_Permissions::VENDOR_USER_CREATE
         )) {
             $customFilters = [['name' => 'addVisibilityFilterForUser', 'value' => [true, true]], 'addCarrierName'];

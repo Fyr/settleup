@@ -93,7 +93,7 @@ class Application_Model_Entity_Accounts_Reserve_Carrier extends Application_Mode
         $carrierEntity = new Application_Model_Entity_Entity_Carrier();
         $carrierCollection = $carrierEntity->getCollection();
 
-        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID) {
+        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::MANAGER_ROLE_ID) {
             $carrierCollection->addFilter(
                 'entity_id',
                 Application_Model_Entity_Entity::getCurrentEntity()->getId()

@@ -18,7 +18,7 @@ class Application_Model_Grid_Reporting_ReserveAccountVendor extends Application_
             'dragrows' => false,
             'id' => static::class,
             'filter' => true,
-            'checkboxField' => 'reserve_account_id',
+            'checkboxField' => 'id',
             'idField' => 'id',
             'titleField' => 'account_name',
             'pagination' => false,

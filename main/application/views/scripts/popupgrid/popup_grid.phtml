@@ -108,10 +108,13 @@
 
             $('#<?php echo $this->destFieldName; ?>_modal.modal tbody tr').bind('click', function(event) {
                 <?php if ($this->destFieldName != 'cycle_id'): ?>
-                $('#<?php echo $this->destFieldName?>_title').val($.trim($(this).children('td.titleField').html())); //#titleField
+                let val = $(this).children('td.titleField').html();
+                val = $("<div/>").html(val).text();
+                $('#<?php echo $this->destFieldName?>_title').val($.trim(val)); //#titleField
                 <?php else: ?>
                 $('#<?php echo $this->destFieldName?>_title').val($.trim($(this).children('td.titleField').html()) + ' - ' +$.trim($(this).children('td.titleField').next().html())); //#titleField
                 <?php endif ?>
+
                 $('#<?php echo $this->destFieldName; ?>').val($.trim($(this).children('td.idField').html()));    //#idField
                 $('#<?php echo $this->destFieldName; ?>_modal').modal('hide');
                 $('#<?php echo $this->destFieldName; ?>').change();

@@ -1,0 +1,62 @@
+<?php $user = Application_Model_Entity_Accounts_User::getCurrentUser() ?>
+<div class="span">
+    <dl>
+        <dt><h3>Settlement <input type="checkbox" class="check-all pull-right"></h3></dt>
+        <dd><?php echo $this->form->settlement_edit; ?></dd>
+        <dd><?php echo $this->form->settlement_verify; ?></dd>
+        <dd><?php echo $this->form->settlement_process; ?></dd>
+        <dd><?php echo $this->form->settlement_delete; ?></dd>
+        <dd><?php echo $this->form->settlement_approve; ?></dd>
+        <dd><?php echo $this->form->settlement_export; ?></dd>
+        <dd><?php echo $this->form->settlement_reject; ?></dd>
+        <dd><?php echo $this->form->settlement_data_view; ?></dd>
+        <dd><?php echo $this->form->settlement_data_manage; ?></dd>
+        <dd><?php echo $this->form->settlement_rule_view; ?></dd>
+        <dd><?php echo $this->form->settlement_rule_manage; ?></dd>
+        <dd><?php echo $this->form->settlement_group_view; ?></dd>
+        <dd><?php echo $this->form->settlement_group_manage; ?></dd>
+        <dd><?php echo $this->form->settlement_escrow_account_view; ?></dd>
+    </dl>
+</div>
+<div class="span">
+    <dl>
+        <dt><h3>Carrier <input type="checkbox" class="check-all pull-right"></h3></dt>
+        <dd><?php echo $this->form->carrier_view; ?></dd>
+        <dd><?php echo $this->form->carrier_manage; ?></dd>
+    </dl>
+    <dl>
+        <dt><h3>Contractor <input type="checkbox" class="check-all pull-right"></h3></dt>
+        <dd><?php echo $this->form->contractor_view; ?></dd>
+        <dd><?php echo $this->form->contractor_manage; ?></dd>
+    </dl>
+    <dl>
+        <dt><h3>Vendor <input type="checkbox" class="check-all pull-right"></h3></dt>
+        <dd><?php echo $this->form->vendor_view; ?></dd>
+        <dd><?php echo $this->form->vendor_manage; ?></dd>
+        <dd><?php echo $this->form->reserve_account_vendor_view; ?></dd>
+        <dd><?php echo $this->form->reserve_account_vendor_manage; ?></dd>
+        <dd><?php echo $this->form->vendor_deduction_view; ?></dd>
+        <dd><?php echo $this->form->vendor_deduction_manage; ?></dd>
+    </dl>
+</div>
+<div class="span">
+    <dl>
+        <dt><h3>Reporting <input type="checkbox" class="check-all pull-right"></h3></dt>
+        <dd><?php echo $this->form->reporting_ach_check; ?></dd>
+        <dd><?php echo $this->form->reporting_deduction_remittance_file; ?></dd>
+        <dd><?php echo $this->form->reporting_settlement_reconciliation; ?></dd>
+        <dd><?php echo $this->form->reporting_general; ?></dd>
+    </dl>
+    <dl>
+        <dt><h3>Other <input type="checkbox" class="check-all pull-right"></h3></dt>
+        <dd><?php echo $this->form->template_view; ?></dd>
+        <dd><?php echo $this->form->template_manage; ?></dd>
+        <dd><?php echo $this->form->uploading; ?></dd>
+        <dd><?php echo $this->form->contractor_vendor_auth_manage; ?></dd>
+        <dd><?php echo $this->form->vendor_user_create; ?></dd>
+        <dd><?php echo $this->form->contractor_user_create; ?></dd>
+        <?php if ($user->isAdminOrSuperAdmin()): ?>
+            <dd><?php echo $this->form->permissions_manage; ?></dd>
+        <?php endif ?>
+    </dl>
+</div>

@@ -119,16 +119,6 @@ class Application_Form_Deductions_Setup extends Application_Form_Base
         $rate = new Application_Form_Element_Money('rate');
         $rate->setLabel('Rate')->setRequired(true);
 
-        $eligible = new Zend_Form_Element_Checkbox('eligible');
-        $eligible->setLabel('Eligible');
-
-        $reserveAccountVendor = new Zend_Form_Element_Hidden('reserve_account_receiver');
-
-        $reserveAccountVendorTitle = new Zend_Form_Element_Text('reserve_account_receiver_title');
-        $reserveAccountVendorTitle->setLabel('Reserve Account * ')->addFilter('StripTags')->addFilter(
-            'StringTrim'
-        )->setAttrib('href', '#reserve_account_receiver_modal')->setAttrib('data-toggle', 'modal');
-
         $changeCycleRuleFields = new Application_Form_Element_Hidden('change_cycle_rule_fields');
 
         $contractorId = new Zend_Form_Element_Hidden('contractor_id');
@@ -157,9 +147,6 @@ class Application_Form_Deductions_Setup extends Application_Form_Base
             $secondStartDay,
             $rate,
             $levelId,
-            $eligible,
-            $reserveAccountVendorTitle,
-            $reserveAccountVendor,
             $changeCycleRuleFields,
             $weekDay,
             $secondWeekDay,
@@ -183,8 +170,6 @@ class Application_Form_Deductions_Setup extends Application_Form_Base
             'billing_cycle_id',
             'terms',
             'rate',
-            'eligible',
-            'reserve_account_receiver_title',
             'week_day',
             'second_week_day',
             'contractor_name',
@@ -226,7 +211,7 @@ class Application_Form_Deductions_Setup extends Application_Form_Base
     {
         if (!$this->provider_id->getValue()) {
             $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
-            if ($userEntity->isVendor()) {
+            if ($userEntity->isOnboarding()) {
                 $entity = $userEntity->getEntity();
                 $this->provider_id->setValue($entity->getEntityId());
                 $this->provider_id_title->setValue($entity->getName())->setAttrib('readonly', 'readonly');
@@ -249,7 +234,6 @@ class Application_Form_Deductions_Setup extends Application_Form_Base
                 'week_day',
                 'second_week_day',
                 'billing_cycle_id',
-                'reserve_account_receiver_title',
                 'biweekly_start_day',
                 'start_date',
             ] as $element
@@ -260,9 +244,6 @@ class Application_Form_Deductions_Setup extends Application_Form_Base
 
     public function isValid($data)
     {
-        if ($data['eligible']) {
-            $this->reserve_account_receiver_title->setRequired(true);
-        }
         if ($data['id']) {
             $this->provider_id_title->setRequired(false);
             $this->deduction_code->removeValidator('DeductionPaymentCode');

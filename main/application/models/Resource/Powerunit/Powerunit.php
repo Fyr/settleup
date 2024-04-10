@@ -21,15 +21,23 @@ class Application_Model_Resource_Powerunit_Powerunit extends Application_Model_B
     public function getInfoFieldsForDeductionPopup()
     {
         return [
-            'code' => 'Power Unit',
+            'code' => 'PU Code',
             'contractor_code' => 'Contractor Code',
             'company_name' => 'Company',
             'tax_id' => 'Fed Tax ID',
             'first_name' => 'First Name',
             'last_name' => 'Last Name',
-            'division_code' => 'Division Code',
-            'department' => 'Department',
-            'route' => 'Route',
+        ];
+    }
+
+    public function getInfoFieldsShort()
+    {
+        return [
+            'contractor_code' => 'Contractor',
+            'code' => 'Code',
+            'company_name' => 'Company',
+            'first_name' => 'First Name',
+            'last_name' => 'Last Name',
         ];
     }
 

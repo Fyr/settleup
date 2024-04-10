@@ -48,7 +48,7 @@
 <script type="text/javascript">
 $(function() {
     $("input[name='disbursement_date'], input[name='processing_date']").datepicker();
-    <?php if (Application_Model_Entity_Accounts_User::getCurrentUser()->isAdmin()): ?>
+    <?php if (Application_Model_Entity_Accounts_User::getCurrentUser()->isAdminOrSuperAdmin()): ?>
     $("input[name='cycle_start_date'], input[name='cycle_close_date']").datepicker();
     <?php endif ?>
 });

@@ -39,7 +39,7 @@ class Application_Model_Report_ContractorStatus extends Application_Model_Report
             'ASC'
         );
 
-        if (Application_Model_Entity_Accounts_User::getCurrentUser()->isVendor()) {
+        if (Application_Model_Entity_Accounts_User::getCurrentUser()->isOnboarding()) {
             $lastFieldsPart = ['vendor_status_title' => 'Vendor Status', ...$lastFieldsPart];
             $contractorCollection->vendorFilter();
             $contractorCollection->setOrder('vendor_status_title', 'ASC');

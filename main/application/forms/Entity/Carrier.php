@@ -1,5 +1,7 @@
 <?php
 
+use Application_Model_Entity_Entity_Permissions as Permissions;
+
 class Application_Form_Entity_Carrier extends Application_Form_Base
 {
     use Application_Form_ContactSubformTrait;
@@ -8,6 +10,7 @@ class Application_Form_Entity_Carrier extends Application_Form_Base
     {
         $this->setName('carrier');
         parent::init();
+        $currentUser = Application_Model_Entity_Accounts_User::getCurrentUser();
 
         $id = new Application_Form_Element_Hidden('id');
 
@@ -49,9 +52,7 @@ class Application_Form_Entity_Carrier extends Application_Form_Base
             ['tax_id', 'short_code', 'name', 'contact', 'terms']
         );
 
-        if (!Application_Model_Entity_Accounts_User::getCurrentUser()->hasPermission(
-            Application_Model_Entity_Entity_Permissions::CARRIER_MANAGE
-        )) {
+        if (!$currentUser->hasPermission(Permissions::CARRIER_MANAGE) || !$currentUser->isAdminOrSuperAdmin()) {
             foreach ($this->getElements() as $element) {
                 $element->setAttrib('readonly', 'readonly');
             }
@@ -59,7 +60,7 @@ class Application_Form_Entity_Carrier extends Application_Form_Base
             $this->addSubmit('Save');
         }
 
-        if (Application_Model_Entity_Accounts_User::getCurrentUser()->isSuperAdmin()) {
+        if ($currentUser->isSuperAdmin()) {
             $createContractorType = new Zend_Form_Element_Select('create_contractor_type');
             $createContractorType->setLabel('Contractor User ')->setMultiOptions([
                 Application_Model_Entity_Entity_Carrier::AUTO_CREATE_CONTRACTOR_USER => 'Auto create',

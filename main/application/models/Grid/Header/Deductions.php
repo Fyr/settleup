@@ -74,7 +74,7 @@ class Application_Model_Grid_Header_Deductions implements Application_Model_Grid
                     $buttons['download'] = $download;
                 }
             }
-            if ($user->isVendor() && $grid->getSettlementCycleStatus(
+            if ($user->isOnboarding() && $grid->getSettlementCycleStatus(
             ) == Application_Model_Entity_System_SettlementCycleStatus::PROCESSED_STATUS_ID) {
                 unset($buttons['delete']);
                 unset($buttons['add']);

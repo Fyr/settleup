@@ -102,7 +102,7 @@ class Application_Model_Entity_Accounts_Reserve_Vendor extends Application_Model
         $vendorEntity = new Application_Model_Entity_Entity_Vendor();
         $vendorCollection = $vendorEntity->getCollection();
 
-        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID) {
+        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID) {
             $vendorCollection->addFilter(
                 'entity_id',
                 Application_Model_Entity_Entity::getCurrentEntity()->getId()
@@ -120,7 +120,7 @@ class Application_Model_Entity_Accounts_Reserve_Vendor extends Application_Model
         $carrierEntity = new Application_Model_Entity_Entity_Carrier();
         $vendorCollection = $carrierEntity->getCollection();
 
-        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID) {
+        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::MANAGER_ROLE_ID) {
             $vendorCollection->addFilter(
                 'entity_id',
                 Application_Model_Entity_Entity::getCurrentEntity()->getId()
@@ -194,12 +194,12 @@ class Application_Model_Entity_Accounts_Reserve_Vendor extends Application_Model
             return false;
         }
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($user->isAdmin()) {
+        if ($user->isAdminOrSuperAdmin()) {
             return true;
         }
         $carrierVendorEntity = $this->getReserveAccountEntity()->getEntity();
         if ($entityId = $user->getCarrierEntityId()) {
-            if ($carrierVendorEntity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_CARRIER) {
+            if ($carrierVendorEntity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_DIVISION) {
                 if ($carrierVendorEntity->getId() == $entityId && $user->hasPermission(
                     Application_Model_Entity_Entity_Permissions::RESERVE_ACCOUNT_CARRIER_VIEW
                 )) {
@@ -258,9 +258,9 @@ class Application_Model_Entity_Accounts_Reserve_Vendor extends Application_Model
             }
         }
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if (($carrierVendorEntity->isCarrier() && !$user->hasPermission(
+        if (($carrierVendorEntity->isDivision() && !$user->hasPermission(
             Application_Model_Entity_Entity_Permissions::RESERVE_ACCOUNT_CARRIER_MANAGE
-        )) || ($carrierVendorEntity->isVendor() && !$user->hasPermission(
+        )) || ($carrierVendorEntity->isOnboarding() && !$user->hasPermission(
             Application_Model_Entity_Entity_Permissions::RESERVE_ACCOUNT_VENDOR_MANAGE
         ))) {
             $result = false;

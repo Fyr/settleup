@@ -419,15 +419,15 @@ class Application_Model_Entity_Deductions_Temp extends Application_Model_Base_Te
             } else {
                 $user = User::getCurrentUser();
                 $carrier = $user->getSelectedCarrier();
-                if ($user->isVendor() && $this->getVendorCode()) {
+                if ($user->isOnboarding() && $this->getVendorCode()) {
                 }
-                if ($this->getVendorCode() == $carrier->getId() && !$user->isVendor()) {
+                if ($this->getVendorCode() == $carrier->getId() && !$user->isOnboarding()) {
                     if ($carrier->getStatus() == SystemValues::CONFIGURED_STATUS) {
                         $this->vendor = $carrier;
                     }
                 } else {
                     $entity = new Vendor();
-                    if ($user->isVendor() && $this->getVendorCode() != $user->getEntity()->getCode()) {
+                    if ($user->isOnboarding() && $this->getVendorCode() != $user->getEntity()->getCode()) {
                         $this->vendor = $entity;
                     } else {
                         $collection = $entity->getCollection();
@@ -532,8 +532,11 @@ class Application_Model_Entity_Deductions_Temp extends Application_Model_Base_Te
         if ((int)$idOrFilters && !is_array($idOrFilters)) {
             $collection = [$entity->load($idOrFilters)];
         } else {
-            $collection = $entity->getCollection()->addCarrierFilter()->addContractorFilter()->addNonDeletedFilter(
-            )->addSettlementFilter();
+            $collection = $entity
+                ->getCollection()
+                ->addCarrierFilter()
+                ->addContractorFilter()
+                ->addNonDeletedFilter();
             $this->applyFilters($collection, $idOrFilters);
         }
 

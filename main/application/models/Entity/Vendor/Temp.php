@@ -29,7 +29,7 @@ class Application_Model_Entity_Vendor_Temp extends Application_Model_Base_TempEn
 
     private function setupDivisionId(): self
     {
-        $currentDivision = User::getCurrentUser()->getEntity()->getCurrentCarrier();
+        $currentDivision = User::getCurrentUser()->getEntity();
         $this->setCarrierId($currentDivision->getEntityId());
         $divisionCode = $currentDivision->getShortCode();
 

@@ -1,0 +1,3 @@
+<?php if ($this->user->hasPermission(Application_Model_Entity_Entity_Permissions::VENDOR_VIEW)): ?>
+    <li class="text-right"><a href="<?php echo $this->url(array('controller' => 'users_index', 'action' => 'edit', 'id' => $this->user->getId(), 'redirect' => 'true'), null, true); ?>">User Info</a></li>
+<?php endif ?>

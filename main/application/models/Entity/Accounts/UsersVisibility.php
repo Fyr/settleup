@@ -45,19 +45,20 @@ class Application_Model_Entity_Accounts_UsersVisibility extends Application_Mode
      */
     protected function _setEntities()
     {
+        //TODO will be change in SUP-1170
         $entityEntity = new Application_Model_Entity_Entity();
         $userEntity = new Application_Model_Entity_Accounts_User();
 
         $userId = $entityEntity->load($this->userEntityId, 'id')->getUserId();
         $userEntity->load($userId, 'id');
         switch ($userEntity->getRoleId()) {
-            case Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID:
+            case Application_Model_Entity_System_UserRoles::MANAGER_ROLE_ID:
                 $this->entities = [
                     'Contractors' => new Application_Model_Entity_Entity_Contractor(),
                     'Vendors' => new Application_Model_Entity_Entity_Vendor(),
                 ];
                 break;
-            case Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID:
+            case Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID:
                 $this->entities = [
                     'Carriers' => new Application_Model_Entity_Entity_Carrier(),
                     'Contractors' => new Application_Model_Entity_Entity_Contractor(),

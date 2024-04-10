@@ -1,123 +1,26 @@
 <?php $this->headTitle()->append($this->title); ?>
-<?php $user = Application_Model_Entity_Accounts_User::getCurrentUser() ?>
-<h3><?php echo $this->title?></h3><br />
-<form  action="<?php echo $this->escape($this->form->getAction()); ?>"
-       method="<?php echo $this->escape($this->form->getMethod()); ?>"
-       name="<?php echo $this->escape($this->form->getName()); ?>"
-       class="form-horizontal permissions">
+<h3><?php echo $this->title ?></h3><br/>
+<form action="<?php echo $this->escape($this->form->getAction()); ?>"
+      method="<?php echo $this->escape($this->form->getMethod()); ?>"
+      name="<?php echo $this->escape($this->form->getName()); ?>"
+      class="form-horizontal permissions">
     <?php echo $this->form->id; ?>
     <?php echo $this->form->user_id; ?>
     <div class="row">
-        <?php if ($this->form instanceof Application_Form_Entity_CarrierPermissions): ?>
-        <div class="span">
-            <dl>
-                <dt><h3>Settlement <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->settlement_edit; ?></dd>
-                <dd><?php echo $this->form->settlement_verify; ?></dd>
-                <dd><?php echo $this->form->settlement_process; ?></dd>
-                <dd><?php echo $this->form->settlement_delete; ?></dd>
-                <dd><?php echo $this->form->settlement_approve; ?></dd>
-                <dd><?php echo $this->form->settlement_export; ?></dd>
-                <dd><?php echo $this->form->settlement_reject; ?></dd>
-                <dd><?php echo $this->form->settlement_data_view; ?></dd>
-                <dd><?php echo $this->form->settlement_data_manage; ?></dd>
-                <dd><?php echo $this->form->settlement_rule_view; ?></dd>
-                <dd><?php echo $this->form->settlement_rule_manage; ?></dd>
-                <dd><?php echo $this->form->settlement_group_view; ?></dd>
-                <dd><?php echo $this->form->settlement_group_manage; ?></dd>
-                <dd><?php echo $this->form->settlement_escrow_account_view; ?></dd>
-            </dl>
-        </div>
-        <div class="span">
-            <dl>
-                <dt><h3>Disbursement <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->disbursement_view; ?></dd>
-                <dd><?php echo $this->form->disbursement_manage; ?></dd>
-                <dd><?php echo $this->form->disbursement_approve; ?></dd>
-                <dd><?php echo $this->form->disbursement_reissue; ?></dd>
-            </dl>
-            <dl>
-                <dt><h3>Vendor <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->vendor_view; ?></dd>
-                <dd><?php echo $this->form->vendor_manage; ?></dd>
-                <dd><?php echo $this->form->reserve_account_vendor_view; ?></dd>
-                <dd><?php echo $this->form->reserve_account_vendor_manage; ?></dd>
-                <dd><?php echo $this->form->vendor_deduction_view; ?></dd>
-                <dd><?php echo $this->form->vendor_deduction_manage; ?></dd>
-            </dl>
-        </div>
-        <div class="span">
-            <dl>
-                <dt><h3>Carrier <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->carrier_view; ?></dd>
-                <dd><?php echo $this->form->carrier_manage; ?></dd>
-            </dl>
-            <dl>
-                <dt><h3>Contractor <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->contractor_view; ?></dd>
-                <dd><?php echo $this->form->contractor_manage; ?></dd>
-            </dl>
-        </div>
-        <div class="span">
-            <dl>
-                <dt><h3>Reporting <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->reporting_ach_check; ?></dd>
-                <dd><?php echo $this->form->reporting_deduction_remittance_file; ?></dd>
-                <dd><?php echo $this->form->reporting_settlement_reconciliation; ?></dd>
-                <dd><?php echo $this->form->reporting_general; ?></dd>
-            </dl>
-            <dl>
-                <dt><h3>Other <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->template_view; ?></dd>
-                <dd><?php echo $this->form->template_manage; ?></dd>
-                <dd><?php echo $this->form->uploading; ?></dd>
-                <dd><?php echo $this->form->contractor_vendor_auth_manage; ?></dd>
-                <dd><?php echo $this->form->vendor_user_create; ?></dd>
-                <dd><?php echo $this->form->contractor_user_create; ?></dd>
-                <?php if ($user->isAdmin()): ?>
-                    <dd><?php echo $this->form->permissions_manage; ?></dd>
-                <?php endif ?>
-            </dl>
-        </div>
-        <?php else: ?>
-        <div class="span">
-            <dl>
-                <dt><h3>Reserves <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->reserve_transaction_vendor_view; ?></dd>
-                <dd><?php echo $this->form->reserve_account_contractor_view; ?></dd>
-                <dd><?php echo $this->form->reserve_account_vendor_view; ?></dd>
-                <dd><?php echo $this->form->reserve_account_vendor_manage; ?></dd>
-            </dl>
-        </div>
-        <div class="span">
-            <dl>
-                <dt><h3>Vendor <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->vendor_view; ?></dd>
-                <dd><?php echo $this->form->vendor_manage; ?></dd>
-            </dl>
-        </div>
-        <div class="span">
-            <dl>
-                <dt><h3>Deduction <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->vendor_deduction_manage; ?></dd>
-                <dd><?php echo $this->form->template_view; ?></dd>
-                <dd><?php echo $this->form->template_manage; ?></dd>
-                <dd><?php echo $this->form->uploading; ?></dd>
-            </dl>
-        </div>
-        <div class="span">
-            <dl>
-                <dt><h3>Reporting <input type="checkbox" class="check-all pull-right"></h3></dt>
-                <dd><?php echo $this->form->reporting_deduction_remittance_file; ?></dd>
-                <dd><?php echo $this->form->reporting_general; ?></dd>
-            </dl>
-        </div>
-        <?php endif ?>
+        <?php
+        if ($this->form instanceof Application_Form_Entity_ManagerPermissions) {
+            echo $this->partial('users/index/permissions-manager.phtml', ['form' => $this->form]);
+        } elseif ($this->form instanceof Application_Form_Entity_SpecialistPermissions) {
+            echo $this->partial('users/index/permissions-specialist.phtml', ['form' => $this->form]);
+        } elseif ($this->form instanceof Application_Form_Entity_OnboardingPermissions) {
+            echo $this->partial('users/index/permissions-onboarding.phtml', ['form' => $this->form]);
+        }
+        ?>
     </div>
-    <div class="row">
-        <div class="pull-left">
-            <?php echo $this->form->submit; ?>
+        <div class="row">
+            <div class="pull-left">
+                <?php echo $this->form->submit; ?>
+            </div>
+            <a class="btn cancel btn-danger">Cancel</a>
         </div>
-        <a class="btn cancel btn-danger">Cancel</a>
-    </div>
 </form>

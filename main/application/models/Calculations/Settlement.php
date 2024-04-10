@@ -20,8 +20,12 @@ class Application_Model_Calculations_Settlement
 
     public function process()
     {
-        foreach ($this->_cycle->getCarrier()->getContractors() as $contractor) {
-            $this->fundingForAllPossible($contractor);
+        // pull all contractors filtered by current cycle and settlement group
+        foreach ($this->_cycle->getCarrier()->getContractors($this->_cycle->getSettlementGroupId()) as $contractor) {
+            // pull all power units from this cycle
+            foreach ($contractor->getPowerunits() as $powerunit) {
+                $this->fundingForAllPossible($powerunit);
+            }
         }
 
         return $this;
@@ -202,16 +206,15 @@ class Application_Model_Calculations_Settlement
     }
 
     /**
-     * @TODO rewrite (don't delete)
      * returns the sum of all the payments for current contractor
-     * @return float
+     * @return float|int
      */
-    public function getPaymentsSum(Application_Model_Entity_Entity_Contractor $contractor)
+    public function getPaymentsSum(Application_Model_Entity_Powerunit_Powerunit $powerunit): float|int
     {
         $paymentsSum = 0;
         $this->_payments = $this->getPayments()->addFilter(
-            'payments.contractor_id',
-            $contractor->getEntityId()
+            'payments.powerunit_id',
+            $powerunit->getId()
         )->addFilter('payments.deleted', 0);
 
         foreach ($this->_payments as $payment) {
@@ -221,30 +224,34 @@ class Application_Model_Calculations_Settlement
         return $paymentsSum;
     }
 
-    public function fundingForAllPossible($contractor): void
+    public function fundingForAllPossible($powerunit): void
     {
         $transactionEntity = new Application_Model_Entity_Accounts_Reserve_Transaction();
-        $paymentsSum = $this->getPaymentsSum($contractor);
-        $deductions = $this->getDeductions()->addFilter(
-            'deductions.contractor_id',
-            $contractor->getEntityId()
-        )->addApprovedVendorFilter($contractor)->addNonDeletedFilter(
+        $paymentsSum = $this->getPaymentsSum($powerunit);
+        $deductions = $this->getDeductions()
+            ->addFilter('deductions.powerunit_id', $powerunit->getId())
+//            ->addApprovedVendorFilter($contractor)
+            ->addNonDeletedFilter()
             // )->setOrder(
             //     'priority',
             //     Application_Model_Base_Collection::SORT_ORDER_ASC
-        )->getItems();
+        ;
 
+        // TODO: the logic below updates deductions by covering balance using available compensations
+        // moving forward it will be handled by OCF and therefore this logic should be disabled, i.e. SettleUp
+        // should not cover any deduction balances
         /**
          * @var Application_Model_Entity_Deductions_Deduction $deduction
          */
-        foreach ($deductions as $deduction) {
+        foreach ($deductions->getItems() as $deduction) {
             if ($paymentsSum >= $deduction->getBalance()) {
+                // if amount of available compensations more than a deduction balance then cover the deduction fully
                 $paymentsSum -= $deduction->getBalance();
-                $deduction->setBalance(0);
+                $deduction->setAmount($deduction->getBalance());
                 $deduction->save();
             } else {
-                //$transSum = $deduction->getBalance() - $paymentsSum;
-                $transFundSum = 0;
+                //                $transSum = $deduction->getBalance() - $paymentsSum;
+                //                $transFundSum = 0;
                 /*if ($deduction->getEligible() && $deduction->getReserveAccountReceiver()) {
                     $transaction = $transactionEntity->create(
                         $deduction->getReserveAccountReceiver(),
@@ -260,13 +267,22 @@ class Application_Model_Calculations_Settlement
                         $transFundSum = $transaction->getAmount();
                     }
                 }*/
-                $deduction->setBalance($deduction->getBalance() - $paymentsSum - $transFundSum);
+                $deduction->setAmount($paymentsSum);
                 $deduction->save();
+                // set remaining compensations funding to zero as there is nothing left
                 $paymentsSum = 0;
             }
         }
+
+        // create outstanding contributions from previous cycle
+        $contributions = $powerunit->processOutstandingContributions($this->_cycle, $paymentsSum);
+        foreach ($contributions as $contribution) {
+            $paymentsSum -= $contribution->getAmount();
+        }
+
+        // create RA contributions if there is enough compensations
         if ($paymentsSum) {
-            $contractor->updateReserveAccount($this->_cycle, $paymentsSum);
+            $powerunit->updateReserveAccount($this->_cycle, $paymentsSum);
         }
 
         // $transactionEntity->reorderImportedPriority($this->_cycle->getId());
@@ -333,7 +349,7 @@ class Application_Model_Calculations_Settlement
             $deduction->getResource()->resetDeductions($this->_cycle->getId());
 
             $this->_cycle->updateReserveAccountContractorProcess();
-            $this->_cycle->updateReserveAccountVendorProcess();
+            // $this->_cycle->updateReserveAccountVendorProcess();
 
             $this->_cycle->getResource()->changeStatusId(
                 $this->_cycle->getId(),

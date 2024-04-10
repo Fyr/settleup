@@ -191,9 +191,8 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
             $this->setRate($this->getSetup()->getRate());
         }
 
-        $this->setRate(str_replace(',', '', (string) $this->getRate()) ?: null);
+        // remove any commas in numbers
         $this->setAmount(str_replace(',', '', (string) $this->getAmount()) ?: null);
-        $this->setBalance(str_replace(',', '', (string) $this->getBalance()) ?: null);
         $this->setAdjustedBalance(str_replace(',', '', (string) $this->getAdjustedBalance()) ?: null);
 
         if ($this->getContractorId() == null || $this->getContractorId() == '') {
@@ -252,8 +251,9 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
             $this->setAdjustedBalance(null);
         }
 
-        if ((float)$this->getAmount() < (float)$this->getAdjustedBalance()) {
-            $this->setAdjustedBalance($this->getAmount());
+        // make sure that paid amount do not exceed amount
+        if ((float)$this->getAmount() > (float)$this->getAdjustedBalance()) {
+            $this->setAmount($this->getAdjustedBalance());
         }
 
         if ($this->getData('quantity') > 1_000_000) {
@@ -304,10 +304,11 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
                     }
                 }
             }
-        } elseif ((float)$this->getAmount() !== (float)$this->getRate() * (int)$this->getQuantity()) {
-            $this->resetAmount();
-            $this->resetBalance();
         }
+        // elseif ((float)$this->getAmount() !== (float)$this->getRate() * (int)$this->getQuantity()) {
+        //            $this->resetAmount();
+        //            $this->resetBalance();
+        //        }
 
         if ($this->getInvoiceDueDate() === null || $this->getInvoiceDueDate() == '0000-00-00' || (!$this->getFromImport(
         ) && ($this->getOriginalData('invoice_date') != $this->getInvoiceDate() || $this->getOriginalData(
@@ -321,6 +322,8 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
         if ($this->getDeleted() === Application_Model_Entity_System_SystemValues::DELETED_STATUS) {
             $this->markColumnAsDeleted($this->colDeductionCode());
         }
+
+        $this->recalculateBalance();
 
         return $this;
     }
@@ -338,9 +341,9 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
     /**
      * @return bool
      */
-    public function isVendorApproved()
+    public function isOnboardingApproved()
     {
-        if ($this->getProvider()->isVendor()) {
+        if ($this->getProvider()->isOnboarding()) {
             $contractorVendor = Application_Model_Entity_Entity_ContractorVendor::staticLoad([
                 'contractor_id' => $this->getContractorId(),
                 'vendor_id' => $this->getProviderId(),
@@ -395,8 +398,6 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
         $this->setData('quantity', $setup->getData('quantity'));
         $this->setData('rate', $setup->getData('rate'));
         $this->setData('amount', $setup->getData('amount'));
-        $this->setData('eligible', $setup->getData('eligible'));
-        $this->setData('reserve_account_receiver', $setup->getData('reserve_account_receiver'));
         $this->getRecurringDataFromSetup();
 
         return $this;
@@ -602,7 +603,7 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
             if (!is_object($vendorAccount)) {
                 return null;
             }
-            $reserveAccountContractorEntity = new Application_Model_Entity_Accounts_Reserve_Contractor();
+            $reserveAccountContractorEntity = new Application_Model_Entity_Accounts_Reserve_Powerunit();
             $collection = $reserveAccountContractorEntity->getCollection();
             $collection->addFilter(
                 'reserve_account.entity_id',
@@ -715,7 +716,7 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
     //     $collection = $this->getCollection();
     //     $collection->addFilter('deductions.priority', $priority, '>')->addFilter(
     //         'deductions.settlement_cycle_id',
-    //         Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity()->getCurrentCarrier(
+    //         Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity(
     //         )->getActiveSettlementCycle()->getId()
     //     )->setOrder('deductions.priority', 'ASC');
     //     $deductions = $collection->getItems();
@@ -756,7 +757,7 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
         $entityEntity = new Application_Model_Entity_Entity();
         $entityEntity->load($this->getProviderId(), 'id');
 
-        if ($entityEntity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_CARRIER) {
+        if ($entityEntity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_DIVISION) {
             $searchingEntity = $carrierEntity;
         } else {
             $searchingEntity = $vendorEntity;
@@ -808,7 +809,7 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
         $carrierEntity = new Application_Model_Entity_Entity_Carrier();
         $carrierCollection = $carrierEntity->getCollection();
 
-        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID) {
+        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::MANAGER_ROLE_ID) {
             $entityId = Application_Model_Entity_Entity::getCurrentEntity()->getId();
             $carrierCollection->addFilter('entity_id', $entityId);
         } else {
@@ -829,7 +830,7 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
         $vendorEntity = new Application_Model_Entity_Entity_Vendor();
         $vendorCollection = $vendorEntity->getCollection();
 
-        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID) {
+        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID) {
             $vendorCollection->addFilter(
                 'entity_id',
                 Application_Model_Entity_Entity::getCurrentEntity()->getId()
@@ -881,7 +882,7 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
             } elseif ($contractorVendor->getFirstItem()->getStatus() == VendorStatus::STATUS_RESCINDED) {
                 $message = ['warning' => 'Rescinded'];
             }
-        } elseif ($provider->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_CARRIER) {
+        } elseif ($provider->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_DIVISION) {
             if (!Application_Model_Entity_Accounts_User::getCurrentUser()->hasPermission(
                 Application_Model_Entity_Entity_Permissions::SETTLEMENT_DATA_MANAGE
             )) {
@@ -912,8 +913,13 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
         if ($deduction->getRecurring()) {
             $deduction->recurring();
         }
-        $deduction->resetAmount();
-        $deduction->resetBalance();
+        // specify amounts
+        // TODO: rename setAdjustedBalance to something more meaningful as this field stores initial deduction amount
+        $deduction->setAdjustedBalance((int)$deduction->getQuantity() * (float)$deduction->getRate());
+        // TODO: rename setAmount to something more meaningful as this field stores paid deduction amount
+        // set deduction as unfunded by default
+        $deduction->setAmount(0);
+        //        $deduction->resetBalance();
         $deduction->setFromPopup(true);
         $deduction->save();
         if ($deduction->getRecurring()) {
@@ -1016,14 +1022,14 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
     {
         $provider = $this->getProvider();
         $contractor = $this->getContractor();
-        if ($provider->isCarrier()) {
+        if ($provider->isDivision()) {
             if (in_array(
                 $contractor->getCarrierStatusId(),
                 [VendorStatus::STATUS_ACTIVE, VendorStatus::STATUS_RESCINDED]
             )) {
                 return true;
             }
-        } elseif ($provider->isVendor()) {
+        } elseif ($provider->isOnboarding()) {
             if (in_array(
                 $contractor->getVendorStatus($provider->getId()),
                 [VendorStatus::STATUS_ACTIVE, VendorStatus::STATUS_RESCINDED]
@@ -1033,5 +1039,17 @@ class Application_Model_Entity_Deductions_Deduction extends Application_Model_Ba
         }
 
         return false;
+    }
+
+    /**
+     * recalculate outstanding balance
+     *
+     * @return void
+     */
+    protected function recalculateBalance()
+    {
+        // initial balance minus paid amount
+        $balance = (float)$this->getAdjustedBalance() - (float)$this->getAmount();
+        $this->setBalance($balance);
     }
 }

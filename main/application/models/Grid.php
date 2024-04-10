@@ -304,7 +304,7 @@ class Application_Model_Grid extends Application_Model_Base_Object
             } elseif ($this->currentControllerName == 'payments_payments') {
                 $totalFields = 'SUM(totalresult.amount) as totals';
             } elseif ($this->currentControllerName == 'deductions_deductions') {
-                $totalFields = 'SUM(totalresult.amount) as totals, SUM(totalresult.balance) as totals_balance, SUM(totalresult.adjusted_balance) as totals_adjusted_balance, SUM(totalresult.deduction_amount) as totals_deduction_amount';
+                $totalFields = 'SUM(totalresult.amount) as total_paid, SUM(totalresult.balance) as total_balance, SUM(totalresult.adjusted_balance) as total_original_amount, SUM(totalresult.transaction_fee) as total_transaction_fee';
             }
             if ($totalFields) {
                 $stmt = $adapter->query('select ' . $totalFields . ' FROM (' . $select . ') as totalresult ');
@@ -391,7 +391,7 @@ class Application_Model_Grid extends Application_Model_Base_Object
             }
 
             // only for transactions
-            if ($entity instanceof Application_Model_Entity_Accounts_Reserve_Transaction || $entity instanceof Application_Model_Entity_Deductions_Deduction || $entity instanceof Application_Model_Entity_Accounts_Reserve_Contractor) {
+            if ($entity instanceof Application_Model_Entity_Accounts_Reserve_Transaction || $entity instanceof Application_Model_Entity_Deductions_Deduction || $entity instanceof Application_Model_Entity_Accounts_Reserve_Powerunit) {
                 if (is_countable($resultList) ? count($resultList) : 0) {
                     $cycle = null;
                     $contractorIds = [];
@@ -399,7 +399,7 @@ class Application_Model_Grid extends Application_Model_Base_Object
                         if ($cycle == null) {
                             $cycle = $entityCollection[$transaction]->getSettlementCycleId();
                         }
-                        if ($entity instanceof Application_Model_Entity_Accounts_Reserve_Contractor) {
+                        if ($entity instanceof Application_Model_Entity_Accounts_Reserve_Powerunit) {
                             $contractorIds[$entityCollection[$transaction]->getReserveAccountEntity()->getEntityId(
                             )] = $entityCollection[$transaction]->getReserveAccountEntity()->getEntityId();
                         } else {
@@ -410,7 +410,7 @@ class Application_Model_Grid extends Application_Model_Base_Object
 
                     foreach ($contractorIds as $contractorId) {
                         $entity->reorderPriority($cycle, $contractorId);
-                        if ($entity instanceof Application_Model_Entity_Accounts_Reserve_Contractor) {
+                        if ($entity instanceof Application_Model_Entity_Accounts_Reserve_Powerunit) {
                             $contractor = Application_Model_Entity_Entity_Contractor::staticLoad(
                                 $contractorId,
                                 'entity_id'

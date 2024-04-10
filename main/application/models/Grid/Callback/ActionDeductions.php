@@ -12,7 +12,7 @@ class Application_Model_Grid_Callback_ActionDeductions
 
         if ((($providerEntityTypeId == Application_Model_Entity_Entity_Type::TYPE_VENDOR && $user->hasPermission(
             Application_Model_Entity_Entity_Permissions::VENDOR_DEDUCTION_MANAGE
-        ) && $this->row['settlement_cycle_status'] < Application_Model_Entity_System_SettlementCycleStatus::PROCESSED_STATUS_ID) || !$user->isVendor(
+        ) && $this->row['settlement_cycle_status'] < Application_Model_Entity_System_SettlementCycleStatus::PROCESSED_STATUS_ID) || !$user->isOnboarding(
         )) && $this->row['settlement_cycle_status'] != Application_Model_Entity_System_SettlementCycleStatus::APPROVED_STATUS_ID && $user->hasPermission(
             Application_Model_Entity_Entity_Permissions::SETTLEMENT_DATA_MANAGE
         )) {

@@ -28,7 +28,7 @@ class Application_Model_Grid_User_Contractor extends Application_Model_Grid
         ];
 
         $user = User::getCurrentUser();
-        if ($user->isCarrier() && $user->hasPermission(Permissions::CONTRACTOR_USER_CREATE)) {
+        if ($user->isManager() && $user->hasPermission(Permissions::CONTRACTOR_USER_CREATE)) {
             $customFilters = ['addCarrierFilter', 'vendorFilter'];
         } else {
             $customFilters = ['addNonDeletedFilter'];

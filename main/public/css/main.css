@@ -53,6 +53,7 @@ h1, h2, h3 {
 
 h3 {
     font-size: 16px;
+    margin: 20px 0;
 }
 
 .alert h4 {
@@ -103,7 +104,7 @@ div.main {
 
 div.user-info {
     float: right;
-    margin: 30px 40px 0 0;
+    margin: 20px 40px 6px 0;
 }
 
 div.user-name {
@@ -117,6 +118,17 @@ div.right {
 
 div.controls:has(ul) input {
     border-color: #B94A48;
+}
+
+div.controls ul.powerunit {
+    max-height: 87px;
+    width: 206px;
+    overflow-y: auto;
+    border-radius: 4px 4px 4px 4px;
+    border: 1px solid #ccc;
+    margin: 0 0 10px;
+    padding: 4px 6px;
+    background-color: #eee;
 }
 
 .help-inline.error {
@@ -209,9 +221,7 @@ div.menu {
 div.content {
     clear: both;
     position: relative;
-    top: -20px;
     margin: 0 40px 0 40px;
-
 }
 
 fieldset dt, fieldset dd, .nondisplay, #settlement_cycle_filter_year_wrapper.nondisplay {
@@ -597,7 +607,7 @@ div.bank-reserve-acc-actions {margin-bottom: 16px;}
 .vendor_controls a.contractors-add-contact {margin-left: 10px}
 
 .contractor-vendors .controls {height: auto;}
-.contractor-vendors .controls > select {margin-bottom: 10px;}
+.contractor-vendors .controls > select, .form-horizontal .controls > select {margin-bottom: 10px;}
 .contractor-vendors .controls > a {margin-left: 10px;float: left;}
 .contractor-vendors div[class^=contractor_contact] .control-group {float: left;}
 

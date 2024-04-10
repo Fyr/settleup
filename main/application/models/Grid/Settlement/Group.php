@@ -27,11 +27,16 @@ class Application_Model_Grid_Settlement_Group extends Application_Model_Grid
             ],
         ];
 
+        $customFilters = [
+            'addNonDeletedFilter',
+            ['name' => 'addVisibilityFilterForUser', 'value' => true],
+        ];
+
         return parent::__construct(
             $group::class,
             $header,
             [],
-            ['addNonDeletedFilter']
+            $customFilters
         );
     }
 }

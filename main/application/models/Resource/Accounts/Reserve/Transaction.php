@@ -9,17 +9,16 @@ class Application_Model_Resource_Accounts_Reserve_Transaction extends Applicatio
     public function getInfoFields()
     {
         return [
-            'id' => 'ID',
+            'id' => 'Transaction ID',
             'contractor_code' => 'Contractor Code',
+            'powerunit_code' => 'PU Code',
+            'ra_code' => 'RA Code',
+            'ra_name' => 'RA Name',
+            'type' => 'Transaction Type',
+            'amount' => 'Paid Amount',
+            'adjusted_balance' => 'Initial Amount',
+            'balance' => 'Balance',
             'created_datetime' => 'Transaction Date',
-            'company_name' => 'Contractor',
-            'vendor_reserve_code' => 'Code',
-            'description' => 'Description',
-            'powerunit_code' => 'Power Unit',
-            'reference' => 'Reference',
-            'title' => 'Type',
-            'amount' => 'Amount',
-            'balance' => 'Remaining Balance',
         ];
     }
 

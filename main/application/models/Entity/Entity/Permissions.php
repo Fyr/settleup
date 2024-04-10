@@ -52,7 +52,7 @@ class Application_Model_Entity_Entity_Permissions extends Application_Model_Base
         parent::_afterSave();
 
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($user->isAdmin() || $user->isCarrier()) {
+        if ($user->isAdminOrSuperAdmin() || $user->isManager()) {
             $user->setPermissions($this->load($this->getId()));
         }
 

@@ -329,8 +329,8 @@ class Application_Form_Entity_Contractor extends Application_Form_Base
         if (!Application_Model_Entity_Accounts_User::getCurrentUser()->hasPermission(
             Application_Model_Entity_Entity_Permissions::CONTRACTOR_MANAGE
         )
-            || Application_Model_Entity_Accounts_User::getCurrentUser()->isContractor()
-            || Application_Model_Entity_Accounts_User::getCurrentUser()->isVendor()) {
+            || Application_Model_Entity_Accounts_User::getCurrentUser()->isSpecialist()
+            || Application_Model_Entity_Accounts_User::getCurrentUser()->isOnboarding()) {
             $this->readonly();
         } else {
             $this->addSubmit('Save');

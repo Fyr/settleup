@@ -11,7 +11,7 @@ class Application_Model_Grid_Callback_ActionReserveTransaction
     {
         if (
             $this->row['settlement_cycle_status'] == SettlementCycleStatus::APPROVED_STATUS_ID || ($this->row['settlement_cycle_status'] == SettlementCycleStatus::PROCESSED_STATUS_ID && ($this->row['type'] == ReserveTransactionTypes::ADJUSTMENT_INCREASE || $this->row['type'] == ReserveTransactionTypes::ADJUSTMENT_DECREASE)) || Application_Model_Entity_Accounts_User::getCurrentUser(
-            )->isVendor() || !Application_Model_Entity_Accounts_User::getCurrentUser()->hasPermission(
+            )->isOnboarding() || !Application_Model_Entity_Accounts_User::getCurrentUser()->hasPermission(
                 Application_Model_Entity_Entity_Permissions::SETTLEMENT_DATA_MANAGE
             )) {
             return '<a class="btn btn-primary" href="/reserve_transactions/edit/id/' . $this->row['id'] . '"><i class="icon-search icon-white"></i> View</a>';

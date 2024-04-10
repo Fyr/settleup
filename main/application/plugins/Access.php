@@ -24,14 +24,11 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
         $acl
             ->addRole(new Zend_Acl_Role(UserRoles::DEFAULT_ROLE))
             ->addRole(new Zend_Acl_Role(UserRoles::GUEST_ROLE_ID), UserRoles::DEFAULT_ROLE)
-            ->addRole(new Zend_Acl_Role(UserRoles::CONTRACTOR_ROLE_ID), UserRoles::GUEST_ROLE_ID)
-            ->addRole(new Zend_Acl_Role(UserRoles::VENDOR_ROLE_ID), UserRoles::CONTRACTOR_ROLE_ID)
-            ->addRole(new Zend_Acl_Role(UserRoles::CARRIER_ROLE_ID), UserRoles::VENDOR_ROLE_ID)
-            ->addRole(new Zend_Acl_Role(UserRoles::MODERATOR_ROLE_ID))
-            ->addRole(
-                new Zend_Acl_Role(UserRoles::SUPER_ADMIN_ROLE_ID),
-                UserRoles::MODERATOR_ROLE_ID
-            );
+            ->addRole(new Zend_Acl_Role(UserRoles::ONBOARDING_ROLE_ID), UserRoles::GUEST_ROLE_ID)
+            ->addRole(new Zend_Acl_Role(UserRoles::SPECIALIST_ROLE_ID), UserRoles::ONBOARDING_ROLE_ID)
+            ->addRole(new Zend_Acl_Role(UserRoles::MANAGER_ROLE_ID), UserRoles::SPECIALIST_ROLE_ID)
+            ->addRole(new Zend_Acl_Role(UserRoles::ADMIN_ROLE_ID), UserRoles::MANAGER_ROLE_ID)
+            ->addRole(new Zend_Acl_Role(UserRoles::SUPER_ADMIN_ROLE_ID), UserRoles::ADMIN_ROLE_ID);
 
         // define Resource
         $acl
@@ -68,8 +65,8 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
             ->addResource('reporting_settlement')
             ->addResource('reporting_ondemand')
             ->addResource('users_index')
-            ->addResource('reserve_accountcontractor')
-            ->addResource('reserve_accountcontractor_new')
+            ->addResource('reserve_accountpowerunit')
+            ->addResource('reserve_accountpowerunit_new')
             ->addResource('reserve_accountcarriervendor')
             ->addResource('reserve_accountcarriervendor_new')
             ->addResource('reserve_index')
@@ -108,7 +105,7 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
 
         //contractor
         $acl->allow(
-            UserRoles::CONTRACTOR_ROLE_ID,
+            UserRoles::SPECIALIST_ROLE_ID,
             [
                 'contractor_info',
                 'contractors_index',
@@ -118,13 +115,13 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
                 'reporting_ondemand',
                 'reporting_settlement',
                 'users_index',
-                'reserve_accountcontractor',
+                'reserve_accountpowerunit',
             ]
         );
 
         //vendor
         $acl->allow(
-            UserRoles::VENDOR_ROLE_ID,
+            UserRoles::ONBOARDING_ROLE_ID,
             [
                 'deductions_setup',
                 'deductions_setup_new',
@@ -143,27 +140,28 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
             ]
         );
         $acl->deny(
-            UserRoles::VENDOR_ROLE_ID,
+            UserRoles::ONBOARDING_ROLE_ID,
             [
-                //                'reserve_accountcontractor',
-                'reserve_accountcontractor_new',
+                //                'reserve_accountpowerunit',
+                'reserve_accountpowerunit_new',
                 'contractor_info',
             ]
         );
 
         //carrier
         $acl->allow(
-            UserRoles::CARRIER_ROLE_ID,
+            UserRoles::MANAGER_ROLE_ID,
             [
                 'transactions_index',
                 'reserve_transactions',
-                'reserve_accountcontractor',
-                'reserve_accountcontractor_new',
+                'reserve_accountpowerunit',
+                'reserve_accountpowerunit_new',
                 'reserve_accountcarriervendor',
                 'reserve_accountcarriervendor_new',
                 'transactions_disbursement',
                 'settlement_index',
                 'settlement_rule',
+                'settlement_group',
                 'payments_setup',
                 'payments_setup_new',
                 'payments_payments',
@@ -178,15 +176,15 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
         );
 
         //        $acl->deny(
-        //            UserRoles::CARRIER_ROLE_ID,
+        //            UserRoles::MANAGER_ROLE_ID,
         //            'reserve_transactions'
         //        );
 
         //moderator
-        $acl->allow(UserRoles::MODERATOR_ROLE_ID);
+        $acl->allow(UserRoles::ADMIN_ROLE_ID);
 
         $acl->deny(
-            UserRoles::MODERATOR_ROLE_ID,
+            UserRoles::ADMIN_ROLE_ID,
             ['contractor_info', 'freeze']
         );
 
@@ -259,12 +257,12 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
 
                 return;
             }
-            if (!$identity->isContractor()) {
+            if (!$identity->isSpecialist()) {
                 if (!in_array(
                     $resource,
                     ['carriers_index', 'users_index', 'index', 'error', 'grid', 'auth', 'guest']
                 )) {
-                    if ($identity->isAdmin() && in_array($resource, [
+                    if ($identity->isAdminOrSuperAdmin() && in_array($resource, [
                             'system_userroles',
                             'system_usercontacttypes',
                             'system_setuplevels',
@@ -307,7 +305,7 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
         $navigation = Zend_Registry::get('Zend_Navigation');
         $deny = [];
 
-        if ($user->isCarrier()) {
+        if ($user->isManager()) {
             if (!$user->hasPermission(Permissions::SETTLEMENT_DATA_VIEW)) {
                 $deny[] = 'reserve_transactions';
                 $deny[] = 'payments_payments';
@@ -384,7 +382,7 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
 
             $deny = array_unique($deny);
 
-            $acl->deny(UserRoles::CARRIER_ROLE_ID, $deny);
+            $acl->deny(UserRoles::MANAGER_ROLE_ID, $deny);
 
             foreach ($deny as $id) {
                 $page = $navigation->findOneBy('id', $id);
@@ -393,7 +391,7 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
                 }
             }
         }
-        if ($user->isVendor()) {
+        if ($user->isOnboarding()) {
             self::applyVendorPermissions($acl);
         }
     }
@@ -405,7 +403,7 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
         $navigation = Zend_Registry::get('Zend_Navigation');
         $deny = [];
 
-        if ($user->isVendor()) {
+        if ($user->isOnboarding()) {
             if (!$user->hasPermission(Permissions::RESERVE_ACCOUNT_VENDOR_VIEW)) {
                 $deny[] = 'reserve_accountcarriervendor';
             }
@@ -458,7 +456,7 @@ class Application_Plugin_Access extends Zend_Controller_Plugin_Abstract
 
             $deny = array_unique($deny);
 
-            $acl->deny(UserRoles::VENDOR_ROLE_ID, $deny);
+            $acl->deny(UserRoles::ONBOARDING_ROLE_ID, $deny);
 
             foreach ($deny as $id) {
                 $page = $navigation->findOneBy('id', $id);

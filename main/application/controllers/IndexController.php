@@ -22,9 +22,9 @@ class IndexController extends Zend_Controller_Action
 
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
         if ($user->getId()) {
-            if ($user->isContractor()) {
+            if ($user->isSpecialist()) {
                 $this->redirect('reporting_index');
-            } elseif ($user->isVendor()) {
+            } elseif ($user->isOnboarding()) {
                 if ($user->hasPermission(
                     Application_Model_Entity_Entity_Permissions::REPORTING_GENERAL
                 ) || $user->hasPermission(
@@ -40,7 +40,7 @@ class IndexController extends Zend_Controller_Action
                 if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_DATA_VIEW)) {
                     $this->_redirect('settlement_index');
                 } else {
-                    $this->_redirect('reserve_accountcontractor');
+                    $this->_redirect('reserve_accountpowerunit');
                 }
             }
         } else {
@@ -85,13 +85,13 @@ class IndexController extends Zend_Controller_Action
         $entityId = $this->getRequest()->getParam('entityId');
         $currentController = $this->getRequest()->getParam('currentController');
         $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($userEntity->isContractor() || $userEntity->isVendor()) {
-            if ($entityId) {
-                $userEntity->setEntityId($entityId);
-            }
+        if ($currentCarrierId && $entityId) {
+            $userEntity
+                ->setEntityId($entityId)
+                ->setLastSelectedCarrier($currentCarrierId)
+                ->setLastSelectedSettlementGroup()
+                ->save();
         }
-        $userEntity->setLastSelectedCarrier($currentCarrierId)->setLastSelectedSettlementGroup()->setLastSelectedContractor()->save();
-
         $userEntity->resetCarrier()->resetSettlementGroup()->reloadCycle();
 
         $this->_helper->redirector(null, $currentController);
@@ -117,7 +117,7 @@ class IndexController extends Zend_Controller_Action
             $currentSettlementGroupId
         );
 
-        if ($settlementGroup) {
+        if (!$settlementGroup->isEmpty()) {
             $userEntity->setLastSelectedSettlementGroup($currentSettlementGroupId)->save();
             Application_Model_Entity_Accounts_User::getCurrentUser()->resetSettlementGroup()->reloadCycle();
         } else {
@@ -151,7 +151,7 @@ class IndexController extends Zend_Controller_Action
         if ($this->_getParam('no-redirect', false)) {
             $this->_helper->json->sendJson(['status' => 'ok']);
         } else {
-            if ($currentController == 'reserve_accountcontractor') {
+            if ($currentController == 'reserve_accountpowerunit') {
                 $contractorEntity = new Application_Model_Entity_Entity_Contractor();
                 $contractorEntity->load($currentContractorId);
                 $this->_helper->redirector(null, $currentController, 'default', [

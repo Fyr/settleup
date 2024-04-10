@@ -162,7 +162,7 @@ class Settlement_IndexController extends Zend_Controller_Action
             $this->view->disableApprove = true;
             $contractor = new Application_Model_Entity_Entity_Contractor();
             $reserveAccount = new Application_Model_Entity_Accounts_Reserve();
-            $reserveAccountContractor = new Application_Model_Entity_Accounts_Reserve_Contractor();
+            $reserveAccountContractor = new Application_Model_Entity_Accounts_Reserve_Powerunit();
             $message = '';
             foreach ($reserveAccounts as $account) {
                 $contractor->load($account->getContractorId(), 'entity_id');
@@ -550,7 +550,7 @@ class Settlement_IndexController extends Zend_Controller_Action
                 if ($processName == 'approve') {
                     setcookie('settlement_cycle_filter_type', Cycle::LAST_CLOSED_FILTER_TYPE, ['expires' => time() + 3600, 'path' => '/']);
 
-                    return $this->_helper->redirector('index', 'transactions_disbursement');
+                    return $this->_helper->redirector('index');
                 }
             } catch (Exception $e) {
                 if ($e->getMessage() == Cycle::CYCLE_STAGE_ERROR) {

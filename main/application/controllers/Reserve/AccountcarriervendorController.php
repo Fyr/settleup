@@ -134,7 +134,7 @@ class Reserve_AccountcarriervendorController extends Zend_Controller_Action
     private function _setDefaultPopup()
     {
         $entityId = $this->_getParam('entity', 0);
-        if (!$this->_form->id->getValue()) { // || !Application_Model_Entity_Accounts_User::getCurrentUser()->isVendor()
+        if (!$this->_form->id->getValue()) { // || !Application_Model_Entity_Accounts_User::getCurrentUser()->isOnboarding()
             if (!$entityId) {
                 $user = User::getCurrentUser();
                 $collections = [];
@@ -143,7 +143,7 @@ class Reserve_AccountcarriervendorController extends Zend_Controller_Action
                     )->addVisibilityFilterForUser(true);
                 }
 
-                if (!User::getCurrentUser()->isVendor() && $user->hasPermission(
+                if (!User::getCurrentUser()->isOnboarding() && $user->hasPermission(
                     Permissions::RESERVE_ACCOUNT_CARRIER_MANAGE
                 )) {
                     $collections['Division'] = $this->_carrierEntity->getCollection()->addConfiguredFilter(
@@ -166,11 +166,11 @@ class Reserve_AccountcarriervendorController extends Zend_Controller_Action
             } else {
                 $user = User::getCurrentUser();
                 $entity = Application_Model_Entity_Entity::staticLoad($entityId);
-                if (($entity->isCarrier() && (!$user->hasPermission(
+                if (($entity->isDivision() && (!$user->hasPermission(
                     Permissions::RESERVE_ACCOUNT_CARRIER_MANAGE
                 ) || !$user->hasPermission(
                     Permissions::RESERVE_ACCOUNT_CARRIER_VIEW
-                ))) || ($entity->isVendor() && (!$user->hasPermission(
+                ))) || ($entity->isOnboarding() && (!$user->hasPermission(
                     Permissions::RESERVE_ACCOUNT_VENDOR_MANAGE
                 ) || !$user->hasPermission(Permissions::RESERVE_ACCOUNT_VENDOR_VIEW)))) {
                     $this->_helper->redirector('index', 'settlement_index');

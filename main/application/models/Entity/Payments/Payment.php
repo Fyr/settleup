@@ -105,7 +105,7 @@ class Application_Model_Entity_Payments_Payment extends Application_Model_Base_E
 
         if ($this->getCarrierId() == null) {
             $this->setCarrierId(
-                Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity()->getCurrentCarrier()->getEntityId(
+                Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity()->getEntityId(
                 )
             );
         }
