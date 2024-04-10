@@ -15,9 +15,9 @@ class Application_Model_Grid_ReserveAccount_CarrierVendor extends Application_Mo
         if ($entityId = (int)$request->getParam('entity', 0)) {
             $entity = (new Application_Model_Entity_Entity())->load($entityId);
 
-            if (($entity->isCarrier() && !$user->hasPermission(
+            if (($entity->isDivision() && !$user->hasPermission(
                 Permissions::RESERVE_ACCOUNT_CARRIER_VIEW
-            )) || ($entity->isVendor() && !$user->hasPermission(Permissions::RESERVE_ACCOUNT_VENDOR_VIEW))) {
+            )) || ($entity->isOnboarding() && !$user->hasPermission(Permissions::RESERVE_ACCOUNT_VENDOR_VIEW))) {
                 Zend_Controller_Action_HelperBroker::getStaticHelper('redirector')->gotoSimple(
                     'index',
                     'settlement_index'
@@ -36,9 +36,9 @@ class Application_Model_Grid_ReserveAccount_CarrierVendor extends Application_Mo
             //            );
             $customFilters = ['addNonDeletedFilter'];
 
-            if (($entity->isCarrier() && $user->hasPermission(
+            if (($entity->isDivision() && $user->hasPermission(
                 Permissions::RESERVE_ACCOUNT_CARRIER_VIEW
-            )) || ($entity->isVendor() && $user->hasPermission(Permissions::RESERVE_ACCOUNT_VENDOR_VIEW))) {
+            )) || ($entity->isOnboarding() && $user->hasPermission(Permissions::RESERVE_ACCOUNT_VENDOR_VIEW))) {
                 $button = [
                     'add' => [
                         "caption" => "Create New",
@@ -62,7 +62,7 @@ class Application_Model_Grid_ReserveAccount_CarrierVendor extends Application_Mo
                 Permissions::RESERVE_ACCOUNT_CARRIER_MANAGE
             )) || (!$user->hasPermission(Permissions::RESERVE_ACCOUNT_CARRIER_VIEW) && !$user->hasPermission(
                 Permissions::RESERVE_ACCOUNT_VENDOR_MANAGE
-            )) || ($user->isVendor() && !$user->hasPermission(Permissions::RESERVE_ACCOUNT_VENDOR_MANAGE))) {
+            )) || ($user->isOnboarding() && !$user->hasPermission(Permissions::RESERVE_ACCOUNT_VENDOR_MANAGE))) {
                 $button = [];
             } else {
                 $button = [
@@ -101,7 +101,7 @@ class Application_Model_Grid_ReserveAccount_CarrierVendor extends Application_Mo
                 'bindOn' => 'id',
             ],
         ];
-        if ($entityId || $user->isVendor()) {
+        if ($entityId || $user->isOnboarding()) {
             $header['dragrows'] = false;
             $header['sortable'] = false;
         }

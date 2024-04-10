@@ -11,7 +11,7 @@ class Application_Model_Entity_Collection_File extends Application_Model_Base_Co
     {
         $this->addFilter(
             'uploaded_by',
-            Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity()->getCurrentCarrier()->getEntityId()
+            Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity()->getEntityId()
         );
 
         return $this;

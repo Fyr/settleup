@@ -273,7 +273,7 @@ class File_IndexController extends Zend_Controller_Action
                 SettlementCycleStatus::VERIFIED_STATUS_ID => 'Verified',
                 SettlementCycleStatus::PROCESSED_STATUS_ID => 'Processed',
             ];
-            if (User::getCurrentUser()->isVendor()) {
+            if (User::getCurrentUser()->isOnboarding()) {
                 unset($this->view->periods[SettlementCycleStatus::PROCESSED_STATUS_ID]);
                 unset($this->view->cycleStatus[SettlementCycleStatus::PROCESSED_STATUS_ID]);
                 if (isset($this->view->periods[SettlementCycleStatus::VERIFIED_STATUS_ID][0])) {

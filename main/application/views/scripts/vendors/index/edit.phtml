@@ -6,18 +6,12 @@
         ?>
     <h3>Edit Vendor</h3><br />
     <div class="left bank-reserve-acc-actions">
-        <?php if (Application_Model_Entity_Accounts_User::getCurrentUser()->hasPermission(Application_Model_Entity_Entity_Permissions::RESERVE_ACCOUNT_VENDOR_VIEW)): ?>
-            <?php echo $this->setButtons(array('reserve-accounts-vendor'),$entityId);?>
-        <?php endif ?>
         <?php if (!$vendor->hasDeductions() && !$vendor->hasTransactions() && Application_Model_Entity_Accounts_User::getCurrentUser()->hasPermission(Application_Model_Entity_Entity_Permissions::VENDOR_MANAGE)) : ?>
             <a class="btn btn-danger confirm pull-right" confirm-type="Deletion" href="<?php echo $this->url(array('action' => 'delete', 'controller' => 'vendors_index', 'id' => $vendor->getId()), null, true)?>"><i class="icon-trash icon-white"></i> Delete Vendor</a>
         <?php endif ?>
     </div>
     <?php else: ?>
     <h3>Create Vendor</h3><br />
-    <div class="left bank-reserve-acc-actions">
-        <a class="btn btn-primary disabled" href="#"><i class="icon-pencil icon-white"></i>Reserve Accounts</a>
-    </div>
     <?php endif ?>
 
 <form  action="<?php echo $this->escape($this->form->getAction()); ?>"

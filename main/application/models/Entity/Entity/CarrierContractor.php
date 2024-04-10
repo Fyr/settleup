@@ -1,5 +1,7 @@
 <?php
 
+use Application_Model_Entity_Accounts_User as User;
+
 class Application_Model_Entity_Entity_CarrierContractor extends Application_Model_Base_Entity
 {
     protected $_titleColumn = 'company_name';
@@ -22,9 +24,9 @@ class Application_Model_Entity_Entity_CarrierContractor extends Application_Mode
     }
 
     /**
-     * Adds
+     * An array of ids of contractors that have been added
      *
-     * @param $contractorsId An array of ids of contractors that have been added
+     * @param $contractorsId
      * from the pop-up grid
      * @return Application_Model_Entity_Entity_CarrierContractor
      */
@@ -72,8 +74,7 @@ class Application_Model_Entity_Entity_CarrierContractor extends Application_Mode
             //        ) {
             $this->setData(
                 [
-                    'carrier_id' => Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity(
-                    )->getCurrentCarrier()->getEntityId(),
+                    'carrier_id' => User::getCurrentUser()->getEntity()->getEntityId(),
                     'contractor_id' => $this->_contractorId,
                 ]
             );

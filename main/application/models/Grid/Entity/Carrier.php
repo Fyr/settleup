@@ -8,7 +8,7 @@ class Application_Model_Grid_Entity_Carrier extends Application_Model_Grid
     public function __construct()
     {
         $carrierEntity = new Application_Model_Entity_Entity_Carrier();
-
+        $currentUser = User::getCurrentUser();
         $header = [
             'header' => $carrierEntity->getResource()->getInfoFields(),
             'sort' => ['name' => 'ASC'],
@@ -16,8 +16,7 @@ class Application_Model_Grid_Entity_Carrier extends Application_Model_Grid
             'filter' => true,
             'checkboxField' => false,
             'callbacks' => [
-                'action' => 'Application_Model_Grid_Callback_ActionCarriers',
-                //                'tax_id' => 'Application_Model_Grid_Callback_Decrypt',
+                'action' => Application_Model_Grid_Callback_ActionCarriers::class,
             ],
             'service' => [
                 'header' => ['action' => 'Action'],
@@ -25,7 +24,9 @@ class Application_Model_Grid_Entity_Carrier extends Application_Model_Grid
             ],
         ];
 
-        if (User::getCurrentUser()->hasPermission(Permissions::CONTRACTOR_MANAGE)) {
+        $customFilters = [['name' => 'addVisibilityFilterForUser', 'value' => true]];
+
+        if ($currentUser->hasPermission(Permissions::CARRIER_MANAGE)) {
             $button = [
                 'add' => [
                     "caption" => "Create New",
@@ -42,7 +43,7 @@ class Application_Model_Grid_Entity_Carrier extends Application_Model_Grid
             $carrierEntity::class,
             $header,
             [],
-            [],
+            $customFilters,
             $button
         );
     }

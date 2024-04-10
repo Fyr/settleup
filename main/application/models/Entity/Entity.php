@@ -1,7 +1,7 @@
 <?php
 
 use Application_Model_Entity_Accounts_User as User;
-use Application_Model_Entity_Entity_Carrier as Carrier;
+use Application_Model_Entity_Entity_Carrier as Division;
 use Application_Model_Entity_Entity_Contractor as Contractor;
 use Application_Model_Entity_Entity_Type as EntityType;
 use Application_Model_Entity_Entity_Vendor as Vendor;
@@ -40,7 +40,7 @@ class Application_Model_Entity_Entity extends Application_Model_Base_Entity impl
     {
         if (!isset($this->entity) || $this->entity != $this->getId()) {
             $entity = match ((int)$this->getEntityTypeId()) {
-                EntityType::TYPE_CARRIER => new Carrier(),
+                EntityType::TYPE_DIVISION => new Division(),
                 EntityType::TYPE_CONTRACTOR => new Contractor(),
                 EntityType::TYPE_VENDOR => new Vendor(),
                 default => throw new Exception(self::EXCEPTION_MESSAGE),
@@ -101,23 +101,25 @@ class Application_Model_Entity_Entity extends Application_Model_Base_Entity impl
         return match ($this->getEntityTypeId()) {
             EntityType::TYPE_CONTRACTOR => $currentEntity->getCompanyName(),
             EntityType::TYPE_VENDOR => $currentEntity->getName(),
-            EntityType::TYPE_CARRIER => $currentEntity->getName(),
+            EntityType::TYPE_DIVISION => $currentEntity->getName(),
             default => '',
         };
     }
 
-    public function isContractor()
+    //TODO will be change in SUP-1170
+    public function isSpecialist()
     {
         return ($this->getEntityTypeId() == EntityType::TYPE_CONTRACTOR);
     }
 
-    public function isVendor()
+    //TODO will be change in SUP-1170
+    public function isOnboarding()
     {
         return ($this->getEntityTypeId() == EntityType::TYPE_VENDOR);
     }
 
-    public function isCarrier()
+    public function isDivision(): bool
     {
-        return (bool)($this->getEntityTypeId() == EntityType::TYPE_CARRIER);
+        return $this->getEntityTypeId() == EntityType::TYPE_DIVISION;
     }
 }

@@ -79,7 +79,7 @@ class Application_Model_Grid_Header_Transactions implements Application_Model_Gr
             }
         }
 
-        if (Application_Model_Entity_Accounts_User::getCurrentUser()->isVendor()) {
+        if (Application_Model_Entity_Accounts_User::getCurrentUser()->isOnboarding()) {
             unset($buttons['delete']);
             unset($buttons['contribution']);
             unset($buttons['withdrawal']);

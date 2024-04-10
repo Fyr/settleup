@@ -71,7 +71,15 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
 
         $this->limitAmount();
 
-        $this->updateEligibleDeduction();
+        //$this->updateEligibleDeduction();
+
+        //$this->unsReserveAccountVendor();
+
+        if (!$this->getReserveAccountContractor()) {
+            $this->setReserveAccountContractor($this->getReserveAccountContractorEntity()->getId());
+        }
+
+        $this->recalculateBalance();
 
         return $this;
     }
@@ -130,7 +138,7 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
     {
         $entity = new Application_Model_Entity_Accounts_Reserve_History();
         $entity->load([
-            'reserve_account_id' => $this->getReserveAccountContractor(),
+            'reserve_account_id' => $this->getReserveAccountContractorEntity()->getId(),
             'settlement_cycle_id' => $this->getSettlementCycleId(),
         ]);
 
@@ -215,20 +223,20 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
     public function updateReserveAccount()
     {
         $cycle = $this->getSettlementCycle();
-        $reserveAccountContractorId = $this->getReserveAccountContractor();
+        $reserveAccountId = $this->getReserveAccountContractor();
         $reserveAccount = new Application_Model_Entity_Accounts_Reserve();
-        $reserveAccount->load($reserveAccountContractorId);
+        $reserveAccount->load($reserveAccountId);
 
         if ($this->getType() == TransactionType::ADJUSTMENT_INCREASE || $this->getType(
         ) == TransactionType::ADJUSTMENT_DECREASE) {
             $this->getResource()->updateReserveAccountContractorStartingBalance(
-                $reserveAccountContractorId,
+                $reserveAccountId,
                 $cycle->getId()
             );
         }
 
         $this->getResource()->updateReserveAccountContractorCurrentBalance(
-            $reserveAccountContractorId,
+            $reserveAccountId,
             $cycle->getId()
         );
 
@@ -308,7 +316,7 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
     public function getSender()
     {
         $reserveAccountEntity = new Application_Model_Entity_Accounts_Reserve();
-        $reserveAccountEntity->load($this->getReserveAccountContractor());
+        $reserveAccountEntity->load($this->getReserveAccountContractorEntity()->getId());
 
         return $reserveAccountEntity;
     }
@@ -355,7 +363,7 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
     }
 
     /**
-     * @param Application_Model_Entity_Accounts_Reserve|int $reserveAccountVendor
+     * @param Application_Model_Entity_Accounts_Powerunit|int
      * @param $contractor
      * @param $cycle
      * @param $type
@@ -363,7 +371,8 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
      * @return Application_Model_Entity_Accounts_Reserve_Transaction
      */
     public function create(
-        $reserveAccountVendor,
+        // $reserveAccountVendor,
+        $reserveAccount,
         $contractor,
         $cycle,
         $type,
@@ -380,30 +389,30 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
             $cycle = $cycle->getId();
         }
 
-        if (!$reserveAccountVendor instanceof Application_Model_Entity_Accounts_Reserve) {
+        if (!$reserveAccount instanceof Application_Model_Entity_Accounts_Reserve) {
             $reserveAccountEntity = new Application_Model_Entity_Accounts_Reserve();
-            $reserveAccountVendor = $reserveAccountEntity->load((int)$reserveAccountVendor);
+            // $reserveAccountVendor = $reserveAccountEntity->load((int)$reserveAccountVendor);
         }
 
-        if ($reserveAccountVendor->getEntityId() == $contractor) {
-            $reserveAccountContractor = clone $reserveAccountVendor;
-            $reserveAccountVendorId = (new Application_Model_Entity_Accounts_Reserve_Contractor())->load(
-                $reserveAccountContractor->getId(),
-                'reserve_account_id'
-            )->getReserveAccountVendorId();
-            if ($reserveAccountVendorId) {
-                $reserveAccountVendorId = (new Application_Model_Entity_Accounts_Reserve_Vendor())->load(
-                    $reserveAccountVendorId
-                )->getReserveAccountId();
-                $reserveAccountVendor->load($reserveAccountVendorId);
-            }
+        if ($reserveAccount->getEntityId() == $contractor) {
+            $reserveAccountContractor = clone $reserveAccount;
+            // $reserveAccountVendorId = (new Application_Model_Entity_Accounts_Reserve_Contractor())->load(
+            //     $reserveAccountContractor->getId(),
+            //     'reserve_account_id'
+            // )->getReserveAccountVendorId();
+            // if ($reserveAccountVendorId) {
+            //     $reserveAccountVendorId = (new Application_Model_Entity_Accounts_Reserve_Vendor())->load(
+            //         $reserveAccountVendorId
+            //     )->getReserveAccountId();
+            //     $reserveAccountVendor->load($reserveAccountVendorId);
+            // }
         } else {
-            $reserveAccountContractor = $reserveAccountVendor->getReserveAccountContractor($contractor);
+            $reserveAccountContractor = $reserveAccount->getReserveAccountContractor($contractor);
             if ($reserveAccountContractor == null) {
                 return false;
             }
             $reserveAccountEntity = new Application_Model_Entity_Accounts_Reserve();
-            $reserveAccountContractor = $reserveAccountEntity->load($reserveAccountContractor->getReserveAccountId());
+            $reserveAccountContractor = $reserveAccountEntity->load($reserveAccount->getId());
         }
         if ($reserveAccountContractor) {
             if ($amount > 0) {
@@ -416,9 +425,9 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
             }
             $transaction = new self();
             $transaction->setContractorId($contractor);
-            $transaction->setReserveAccountVendor($reserveAccountVendor->getId());
+            // $transaction->setReserveAccountVendor($reserveAccountVendor->getId());
             $transaction->setReserveAccountContractor($reserveAccountContractor->getId());
-
+            $transaction->setPowerunitId($reserveAccount->getPowerunitId());
             $transaction->setType($type);
             $transaction->setDescription($reserveAccountContractor->getDescription());
             $transaction->setReference($reserveAccountContractor->getReference() ?? 'todo SUP-937');
@@ -439,26 +448,27 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
             if ($transaction->getAmount() > 0 || $important) {
                 //check for carrier/vendor restrictions
                 $entity = new Application_Model_Entity_Entity();
-                $entity->load($reserveAccountVendor->getEntityId());
-                $restriction = true;
-                if ($entity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_VENDOR) {
-                    $contractorVendorEntity = new Application_Model_Entity_Entity_ContractorVendor();
-                    $contractorVendorStatus = $contractorVendorEntity->getCollection()->addFilter(
-                        'contractor_id',
-                        $contractor
-                    )->addFilter('vendor_id', $entity->getId())->getFirstItem();
-                    if ($contractorVendorStatus->getStatus(
-                    ) == Application_Model_Entity_System_VendorStatus::STATUS_ACTIVE) {
-                        $restriction = false;
-                    }
-                } elseif ($entity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_CARRIER) {
-                    $contractorEntity = new Application_Model_Entity_Entity_Contractor();
-                    $contractorEntity->load($contractor, 'entity_id');
-                    if ($contractorEntity->getCarrierStatusId(
-                    ) == Application_Model_Entity_System_VendorStatus::STATUS_ACTIVE) {
-                        $restriction = false;
-                    }
-                }
+                // $entity->load($reserveAccountVendor->getEntityId());
+                $entity->load($reserveAccount->getEntityId());
+                $restriction = false;
+                // if ($entity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_VENDOR) {
+                //     $contractorVendorEntity = new Application_Model_Entity_Entity_ContractorVendor();
+                //     $contractorVendorStatus = $contractorVendorEntity->getCollection()->addFilter(
+                //         'contractor_id',
+                //         $contractor
+                //     )->addFilter('vendor_id', $entity->getId())->getFirstItem();
+                //     if ($contractorVendorStatus->getStatus(
+                //     ) == Application_Model_Entity_System_VendorStatus::STATUS_ACTIVE) {
+                //         $restriction = false;
+                //     }
+                // } elseif ($entity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_CARRIER) {
+                //     $contractorEntity = new Application_Model_Entity_Entity_Contractor();
+                //     $contractorEntity->load($contractor, 'entity_id');
+                //     if ($contractorEntity->getCarrierStatusId(
+                //     ) == Application_Model_Entity_System_VendorStatus::STATUS_ACTIVE) {
+                //         $restriction = false;
+                //     }
+                // }
                 if ($restriction == false) {
                     $transaction->save();
 
@@ -490,10 +500,14 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
 
     public function getReserveAccountContractorEntity()
     {
-        if (!isset($this->reserveAccountContractor)) {
-            $this->reserveAccountContractor = new Application_Model_Entity_Accounts_Reserve_Contractor();
-            if ($raId = $this->getReserveAccountContractor()) {
-                $this->reserveAccountContractor->load($raId, 'reserve_account_id');
+        if (!$this->reserveAccountContractor) {
+            $raEntity = new Application_Model_Entity_Accounts_Reserve_Powerunit();
+            if ($contractorId = $this->getContractorId()) {
+                return $raEntity
+                    ->load($contractorId, 'entity_id');
+            } elseif ($id = $this->getReserveAccountContractor()) {
+                return $raEntity
+                    ->load($id, 'id');
             }
         }
 
@@ -501,7 +515,7 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
     }
 
     /**
-     * @param Application_Model_Entity_Accounts_Reserve_Contractor $contractorEntity
+     * @param Application_Model_Entity_Accounts_Reserve_Powerunit $contractorEntity
      */
     public function setReserveAccountContractorEntity($contractorEntity)
     {
@@ -523,7 +537,7 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
             }
         } elseif ($entityId = $user->getVendorEntityId()) {
             $reserveAccount = new Application_Model_Entity_Accounts_Reserve();
-            $reserveAccount->load($this->getReserveAccountVendor());
+            // $reserveAccount->load($this->getReserveAccountVendor());
             if ($reserveAccount->getEntityId() == $entityId) {
                 return true;
             }
@@ -539,7 +553,7 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
     {
         $user = User::getCurrentUser();
         $cycle = $this->getSettlementCycle();
-        if ($this->checkPermissions() && $user->hasPermission(Permissions::SETTLEMENT_DATA_MANAGE) && !$user->isVendor(
+        if ($this->checkPermissions() && $user->hasPermission(Permissions::SETTLEMENT_DATA_MANAGE) && !$user->isOnboarding(
         )) {
             if (($cycle->getStatusId() == CycleStatus::PROCESSED_STATUS_ID && in_array($this->getType(), [
                         TransactionType::CONTRIBUTION,
@@ -553,5 +567,17 @@ class Application_Model_Entity_Accounts_Reserve_Transaction extends Application_
         }
 
         return false;
+    }
+
+    /**
+     * recalculate outstanding balance
+     *
+     * @return void
+     */
+    protected function recalculateBalance()
+    {
+        // initial balance minus paid amount
+        $balance = (float)$this->getAdjustedBalance() - (float)$this->getAmount();
+        $this->setBalance($balance);
     }
 }

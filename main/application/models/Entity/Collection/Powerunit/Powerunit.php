@@ -93,7 +93,7 @@ class Application_Model_Entity_Collection_Powerunit_Powerunit extends Applicatio
     public function addFilterByVendorVisibility($onlyActive = true)
     {
         $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($userEntity->isVendor()) {
+        if ($userEntity->isOnboarding()) {
             $entity = $userEntity->getEntity();
             if ($onlyActive) {
                 $status = [
@@ -129,27 +129,22 @@ class Application_Model_Entity_Collection_Powerunit_Powerunit extends Applicatio
         return $this;
     }
 
-    public function addSettlementGroupFilter()
+    public function addSettlementGroupFilter($settlementGroupId = null)
     {
-        $contractorCollection = (new Application_Model_Entity_Entity_Contractor())
-            ->getCollection()
-            ->addSettlementGroupFilter();
-
-        $contractorIds = [];
-        foreach ($contractorCollection as $contractor) {
-            $contractorIds[] = $contractor->getEntityId();
-        }
-
-        if (empty($contractorIds)) {
-            $contractorIds = [0];
+        if (!$settlementGroupId) {
+            $settlementGroupId = Application_Model_Entity_Accounts_User::getCurrentUser()->getLastSelectedSettlementGroup();
         }
 
         $this->addFilter(
-            'contractor_id',
-            $contractorIds,
-            'IN'
+            'contractor.settlement_group_id',
+            $settlementGroupId,
         );
 
         return $this;
+    }
+
+    public function getDeletedFieldName()
+    {
+        return 'powerunit.deleted';
     }
 }

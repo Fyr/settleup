@@ -81,7 +81,7 @@ class Application_Model_Report_Reconciliation extends Application_Model_Report_R
         $data['deduction-grid']['items'] = $deductions;
 
         foreach ($this->getReserveAccounts() as $reserveAccount) {
-            $reserveAccountEntity = (new Application_Model_Entity_Accounts_Reserve_Contractor())->setData(
+            $reserveAccountEntity = (new Application_Model_Entity_Accounts_Reserve_Powerunit())->setData(
                 $reserveAccount
             );
             $data['transaction-grid']['items'][] = $reserveAccountEntity;

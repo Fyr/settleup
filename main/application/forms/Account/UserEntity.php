@@ -17,12 +17,14 @@ class Application_Form_Account_UserEntity extends Application_Form_Base
         $entityId = new Application_Form_Element_Hidden('entity_id');
 
         $entityIdTitle = new Zend_Form_Element_Text('entity_id_title');
-        $entityIdTitle->setLabel('Company *');
+        $entityIdTitle->setLabel('Division')
+            ->setRequired()
+            ->addFilter('StripTags')
+            ->addFilter('StringTrim');
 
         $carrierId = new Application_Form_Element_Hidden('carrier_id');
 
-        $carrierTitle = new Zend_Form_Element_Text('carrier_name');
-        $carrierTitle->setAttrib('readonly', 'readonly')->setLabel('Division');
+        $carrierTitle = new Application_Form_Element_Hidden('carrier_name');
 
         $this->addElements([$entityId, $entityIdTitle, $carrierId, $carrierTitle, $deleted, $id, $userId]);
         $this->setDefaultDecorators([
@@ -43,10 +45,10 @@ class Application_Form_Account_UserEntity extends Application_Form_Base
                     $carrier = Application_Model_Entity_Entity_Carrier::staticLoad($carrierId);
                 } else {
                     if (isset($entity)) {
-                        $carrier = $entity->getEntityByType()->getCarrier();
+                        $carrier = $entity->getEntityByType();
                     } else {
                         $carrier = Application_Model_Entity_Entity::staticLoad($entityId)->getEntityByType(
-                        )->getCarrier();
+                        );
                     }
                 }
 

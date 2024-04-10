@@ -3,11 +3,11 @@
     <?php if (!$this->gridData['hideCheckbox']) : ?>
         <td></td>
     <?php endif ?>
-    <td colspan="11">Total</td>
-    <td class="num"><?php echo $this->money($this->data['totals']) ?></td>
-    <td class="num"><?php echo $this->money($this->data['totals_balance']) ?></td>
-    <td class="num"><?php echo $this->money($this->data['totals_adjusted_balance']) ?></td>
-    <td class="num"><?php echo $this->money($this->data['totals_deduction_amount']) ?></td>
+    <td colspan="6">Total</td>
+    <td class="num"><?php echo $this->money($this->data['total_original_amount']) ?></td>
+    <td class="num"><?php echo $this->money($this->data['total_transaction_fee']) ?></td>
+    <td class="num"><?php echo $this->money($this->data['total_paid']) ?></td>
+    <td class="num"><?php echo $this->money($this->data['total_balance']) ?></td>
     <td></td>
 </tr>
 <?php endif ?>

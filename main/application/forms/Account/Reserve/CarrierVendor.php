@@ -103,7 +103,7 @@ class Application_Form_Account_Reserve_CarrierVendor extends Application_Form_Ba
         if (!$this->vendor_reserve_code->getValue()) {
             $this->vendor_reserve_code->setValue($vendorAccountEntity->getVendorReserveCode());
         }
-        if (($entity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_CARRIER && !$user->hasPermission(
+        if (($entity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_DIVISION && !$user->hasPermission(
             Permissions::RESERVE_ACCOUNT_CARRIER_MANAGE
         )) || ($entity->getEntityTypeId(
         ) == Application_Model_Entity_Entity_Type::TYPE_VENDOR && !$user->hasPermission(
@@ -123,7 +123,7 @@ class Application_Form_Account_Reserve_CarrierVendor extends Application_Form_Ba
         $this->current_balance->setAttrib('readonly', 'readonly');
         $this->current_balance->setValue('0.00');
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($user->isVendor()) {
+        if ($user->isOnboarding()) {
             if (!$user->hasPermission(Permissions::RESERVE_ACCOUNT_VENDOR_MANAGE) || !$user->hasPermission(
                 Permissions::RESERVE_ACCOUNT_VENDOR_VIEW
             )) {

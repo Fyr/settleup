@@ -29,7 +29,7 @@ class Application_Model_Grid_Deduction_Powerunit extends Application_Model_Grid
 
         $customFilters = [
             'addFilterByCarrierContractor',
-            ['name' => 'addFilterByVendorVisibility', 'value' => false],
+//            ['name' => 'addFilterByVendorVisibility', 'value' => false],
             'addNonDeletedFilter',
             'addConfiguredFilter',
             'addSettlementGroupFilter',

@@ -8,20 +8,15 @@ class Application_Model_Resource_Deductions_Deduction extends Application_Model_
     {
         return [
             'id' => 'ID',
+            'created_datetime' => 'Transaction<br/>Date',
+            'powerunit_code' => 'PU Code',
             'deduction_code' => 'Code',
-            'contractor_code' => 'Contractor<br/>Code',
-            'company_name' => 'Contractor',
-            'powerunit_code' => 'Power Unit<br/>Code',
-            'description' => 'Description',
             'recurring_title' => 'Recurring',
-            'billing_title' => 'Frequency',
             'reference' => 'Reference',
-            'invoice_date' => 'Transaction<br/>Date',
+            'adjusted_balance' => 'Original<br/>Amount',
             'transaction_fee' => 'Transaction<br/>Fee',
-            'amount' => 'Original<br/>Amount',
-            'balance' => 'Remaining<br/>Balance',
-            'adjusted_balance' => 'Current<br/>Amount',
-            'deduction_amount' => 'Deduction<br/>Amount',
+            'amount' => 'Paid<br/>Amount',
+            'balance' => 'Balance Remaining<br/>',
         ];
     }
 
@@ -29,19 +24,15 @@ class Application_Model_Resource_Deductions_Deduction extends Application_Model_
     {
         return [
             'id' => 'ID',
+            'created_datetime' => 'Transaction<br/>Date',
+            'powerunit_code' => 'PU Code',
             'deduction_code' => 'Code',
-            'contractor_code' => 'Contractor<br/>Code',
-            'powerunit_code' => 'Power Unit<br/>Code',
-            'description' => 'Description',
             'recurring_title' => 'Recurring',
-            'billing_title' => 'Frequency',
             'reference' => 'Reference',
-            'invoice_date' => 'Transaction<br/>Date',
+            'adjusted_balance' => 'Original<br/>Amount',
             'transaction_fee' => 'Transaction<br/>Fee',
-            'amount' => 'Original<br/>Amount',
-            'balance' => 'Remaining<br/>Balance',
-            'adjusted_balance' => 'Current<br/>Amount',
-            'deduction_amount' => 'Deduction<br/>Amount',
+            'amount' => 'Paid<br/>Amount',
+            'balance' => 'Balance Remaining<br/>',
         ];
     }
 
@@ -52,8 +43,8 @@ class Application_Model_Resource_Deductions_Deduction extends Application_Model_
     public function resetDeductions($cycleId)
     {
         $this->update([
-            'balance' => new Zend_Db_Expr('`amount`'),
-            //'adjusted_balance' => null,
+            'balance' => new Zend_Db_Expr('`adjusted_balance`'),
+            'amount' => null,
         ], [
             'settlement_cycle_id = ?' => $cycleId,
         ]);

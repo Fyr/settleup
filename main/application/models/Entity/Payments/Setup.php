@@ -37,7 +37,7 @@ class Application_Model_Entity_Payments_Setup extends Application_Model_Base_Ent
     {
         if ($this->getCarrierId() == null) {
             $this->setCarrierId(
-                Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity()->getCurrentCarrier()->getEntityId(
+                Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity()->getEntityId(
                 )
             );
         }

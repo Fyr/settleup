@@ -96,7 +96,6 @@ class Reporting_IndexController extends Zend_Controller_Action
                 }
             }
         }
-
         $this->view->form = $this->form->configure();
         $this->view->popupSettings = $this->getPopupSettings();
     }
@@ -118,7 +117,7 @@ class Reporting_IndexController extends Zend_Controller_Action
     public function getPopupSettings()
     {
         $reserveCarrierVendorEntity = new Application_Model_Entity_Accounts_Reserve_Vendor();
-        $reserveContractorEntity = new Application_Model_Entity_Accounts_Reserve_Contractor();
+        $reserveContractorEntity = new Application_Model_Entity_Accounts_Reserve_Powerunit();
 
         $reserveCarrierVendorHeader = [
             'header' => $reserveCarrierVendorEntity->getResource()->getInfoFields(),
@@ -150,22 +149,13 @@ class Reporting_IndexController extends Zend_Controller_Action
                     'Vendor' => (new Application_Model_Grid_Reporting_Vendor()),
                 ],
             ],
-            'reserve_account' => [
-                'multiselect' => true,
-                'filterable' => true,
-                'gridTitle' => 'Select Reserve Account',
-                'destFieldName' => 'reserve_account_id',
-                'collections' => [
-                    'Reserve Account Vendor' => (new Application_Model_Grid_Reporting_ReserveAccountVendor()),
-                ],
-            ],
             'reserve_account_contractor' => [
                 'multiselect' => true,
                 'filterable' => true,
                 'gridTitle' => 'Select Reserve Account',
                 'destFieldName' => 'reserve_account_contractor_id',
                 'collections' => [
-                    'Reserve Account Contractor' => (new Application_Model_Grid_Reporting_ReserveAccountContractor()),
+                    'Reserve Account Contractor' => (new Application_Model_Grid_Reporting_ReserveAccountPowerunit()),
                 ],
             ],
             'contractor' => [

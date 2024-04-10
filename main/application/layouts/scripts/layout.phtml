@@ -41,20 +41,17 @@ $this->headScript()->appendFile($this->manifest('main.js'));
         <?php if (Application_Model_Entity_Accounts_User::getCurrentUser()->isLoggedIn()) : ?>
             <?php echo $this->topUserMenu() ?>
             <?php echo $this->selector(1) ?>
-            <?php echo $this->selector(3) ?>
+            <?php echo $this->selector(2) ?>
         <?php endif ?>
     </div>
-        <div class="menu">
-            <?php echo $this->navigation()->menu($this->menu)->setPartial('main_menu.phtml')->setMaxDepth(1)->render(new My_Navigation($this->navigation()->findAllBy('level','1',true))); ?>
-        </div>
-<!--        --><?php //if (!isset($this->hideContractorSelector)): ?>
-        <?php if (false): ?>
-            <?php if(!preg_match('#\bcontractor.*\/new#i', $_SERVER['REQUEST_URI'])) : ?>
-                <?php echo $this->selector(2); ?>
-            <?php endif; ?>
-        <?php else : ?>
-            <div class="current-selector contractor"></div>
-        <?php endif ?>
+    <div class="menu">
+        <?php echo $this->navigation()
+            ->menu($this->menu)
+            ->setPartial('main_menu.phtml')
+            ->setMaxDepth(1)
+            ->render(new My_Navigation($this->navigation()->findAllBy('level','1',true)));
+        ?>
+    </div>
     <div class="content clearfix">
         <?php echo $this->flashMessenger() ?>
         <?php echo $this->layout()->content ?>

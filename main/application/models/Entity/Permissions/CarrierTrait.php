@@ -15,12 +15,12 @@ trait Application_Model_Entity_Permissions_CarrierTrait
         if ($this->getCarrierId() == $carrierEntityId) {
             return true;
         }
-        if ($user->isContractor()) {
+        if ($user->isSpecialist()) {
             if ($this->getEntityId() == $user->getEntityId()) {
                 return true;
             }
         }
-        if ($user->isVendor()) {
+        if ($user->isOnboarding()) {
             $contractorVendor = new Application_Model_Entity_Entity_ContractorVendor();
             $contractorVendor->load([
                 'vendor_id' => $user->getEntityId(),

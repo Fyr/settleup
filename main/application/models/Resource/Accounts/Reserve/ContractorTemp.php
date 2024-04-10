@@ -21,6 +21,7 @@ class Application_Model_Resource_Accounts_Reserve_ContractorTemp extends Applica
 
     public function getParentEntity()
     {
-        return new Application_Model_Entity_Accounts_Reserve_Contractor();
+        return null;
+        // return new Application_Model_Entity_Accounts_Reserve_Contractor();
     }
 }

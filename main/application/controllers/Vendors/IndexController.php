@@ -59,7 +59,7 @@ class Vendors_IndexController extends Zend_Controller_Action
                     Application_Model_Entity_Accounts_UsersVisibility();
 
                     $userVisibility->addEntities(
-                        Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity()->getCurrentCarrier(
+                        Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity(
                         )->getEntityId(),
                         [$vendor->getEntityId()]
                     );

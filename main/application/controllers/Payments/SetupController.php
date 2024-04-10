@@ -5,6 +5,7 @@ use Application_Model_Entity_Entity_Permissions as Permissions;
 use Application_Model_Entity_Payments_Setup as PaymentSetup;
 use Application_Model_Entity_System_CyclePeriod as CyclePeriod;
 use Application_Model_Entity_System_SetupLevels as SetupLevel;
+use Application_Model_Entity_System_SystemValues as SystemValues;
 
 class Payments_SetupController extends Zend_Controller_Action
 {
@@ -140,9 +141,9 @@ class Payments_SetupController extends Zend_Controller_Action
         $id = (int)$this->getRequest()->getParam('id');
         $this->_entity->load($id);
         if ($this->_entity->checkPermissions()) {
+            $this->_entity->setDeleted(SystemValues::DELETED_STATUS);
+            $this->_entity->save();
             if ($this->_entity->getLevelId() == SetupLevel::MASTER_LEVEL_ID) {
-                $this->_entity->setDeleted(1);
-                $this->_entity->save();
                 $this->_entity->deleteIndividualTemplates();
             }
         }
@@ -158,9 +159,9 @@ class Payments_SetupController extends Zend_Controller_Action
         foreach ($ids as $id) {
             $this->_entity->load((int)$id);
             if ($this->_entity->checkPermissions()) {
+                $this->_entity->setDeleted(SystemValues::DELETED_STATUS);
+                $this->_entity->save();
                 if ($this->_entity->getLevelId() == SetupLevel::MASTER_LEVEL_ID) {
-                    $this->_entity->setDeleted(1);
-                    $this->_entity->save();
                     $this->_entity->deleteIndividualTemplates();
                 }
             }

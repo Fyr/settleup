@@ -79,16 +79,16 @@ class Application_Model_Entity_Collection_Deductions_Setup extends Application_M
     {
         //todo fix filter for admin and vendor
         $userEntity = User::getCurrentUser();
-        if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID) {
+        if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID) {
             $this->addFilter(
                 'provider_id',
                 Entity::getCurrentEntity()->getId()
             );
         } else {
-            if (!$userEntity->isAdmin()) {
+            if (!$userEntity->isAdminOrSuperAdmin()) {
                 $userEntityId = Entity::getCurrentEntity()->getId();
             } else {
-                $userEntityId = $userEntity->getEntity()->getCurrentCarrier()->getEntityId();
+                $userEntityId = $userEntity->getEntity()->getEntityId();
             }
             $userVisibilityEntity = new Application_Model_Entity_Accounts_UsersVisibility();
             $participantIds = $userVisibilityEntity->getCollection()->addFilter('entity_id', $userEntityId)->getField(
@@ -108,7 +108,7 @@ class Application_Model_Entity_Collection_Deductions_Setup extends Application_M
             );
             $this->addFilter(
                 'provider_id',
-                $userEntity->getEntity()->getCurrentCarrier()->getEntityId(),
+                $userEntity->getEntity()->getEntityId(),
                 '=',
                 true,
                 Application_Model_Base_Collection::WHERE_TYPE_OR,
@@ -119,11 +119,27 @@ class Application_Model_Entity_Collection_Deductions_Setup extends Application_M
         return $this;
     }
 
+    public function addProviderIdFilter(?int $entityId): self
+    {
+        $entityId = $entityId ?: User::getCurrentUser()->getEntity()->getEntityId();
+        $contractorVendorIds = (new Contractor())
+            ->getCollection()
+            ->addNonDeletedFilter()
+            ->addContractorVendorFilter()
+            ->addFilter('carrier_id', $entityId)
+            ->getField('vendor_id');
+
+        $contractorVendorIds[] = $entityId;
+        $this->addFilter('provider_id', array_unique($contractorVendorIds), 'IN');
+
+        return $this;
+    }
+
     public function addUserVisibilityFilter($checkCarrierPermissions = [false, false], $useCarrier = false)
     {
         $user = User::getCurrentUser();
 
-        if ($user->isVendor() && !$useCarrier) {
+        if ($user->isOnboarding() && !$useCarrier) {
             if (($checkCarrierPermissions[0] && !$user->hasPermission(
                 Permissions::VENDOR_DEDUCTION_VIEW
             )) || ($checkCarrierPermissions[1] && !$user->hasPermission(

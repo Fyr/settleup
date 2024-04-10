@@ -116,7 +116,7 @@ class Application_Form_Account_Escrow extends Application_Form_Base
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
         $carrier = Carrier::staticLoad($this->carrier_id->getValue(), 'entity_id');
         $this->carrier_title->setValue($carrier->getName());
-        if ($user->isCarrier()) {
+        if ($user->isManager()) {
             $this->escrow_account_holder->setAttrib('disabled', 'disabled')->setRequired(false);
             $this->holder_federal_tax_id->setAttrib('disabled', 'disabled')->setRequired(false);
             $this->holder_address->setAttrib('disabled', 'disabled')->setRequired(false);
@@ -137,7 +137,7 @@ class Application_Form_Account_Escrow extends Application_Form_Base
         } else {
             $this->carrier_title->setValue($user->getSelectedCarrier()->getName());
         }
-        if ($user->isCarrier()) {
+        if ($user->isManager()) {
             $this->escrow_account_holder->setAttrib('disabled', 'disabled')->setRequired(false);
             $this->holder_federal_tax_id->setAttrib('disabled', 'disabled')->setRequired(false);
             $this->holder_address->setAttrib('disabled', 'disabled')->setRequired(false);

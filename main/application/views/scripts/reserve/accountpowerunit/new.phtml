@@ -1,0 +1,14 @@
+<?php $this->headTitle()->append($this->title); ?>
+<h3><?php echo $this->title; ?></h3>
+
+<?php echo $this->partial(
+    'grid.phtml',
+    array(
+        'collection' => $this->entity->getCollection()->addVisibilityFilterForUser()->setOrder('priority', Application_Model_Base_Collection::SORT_ORDER_ASC),
+        'columns'    => $this->entity->getResource()->getInfoFields(),
+        'buttons'    => array('select'),
+        'sortable'   => true,
+        'idField'    => 'id',
+        'removeActionNew' => true,
+    ));
+?>

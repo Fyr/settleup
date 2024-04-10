@@ -113,7 +113,7 @@ class Application_Model_Report_Reporting extends Application_Model_Base_Entity
             self::PAYMENT_HISTORY => Application_Model_Report_PaymentHistory::class,
             self::DEDUCTION_HISTORY => Application_Model_Report_DeductionHistory::class,
             self::RESERVE_ACCOUNT_HISTORY => Application_Model_Report_ReserveAccountHistory::class,
-            self::RESERVE_ACCOUNT_CONTRACTOR_HISTORY => Application_Model_Report_ReserveAccountContractorHistory::class,
+            self::RESERVE_ACCOUNT_CONTRACTOR_HISTORY => Application_Model_Report_ReserveAccountPowerunitHistory::class,
             self::CONTRACTOR_STATUS => Application_Model_Report_ContractorStatus::class,
             self::VENDOR_STATUS => Application_Model_Report_VendorStatus::class,
             self::CONTRACTOR_EXPORT_FILE => Application_Model_Report_ContractorExport::class,
@@ -479,7 +479,7 @@ class Application_Model_Report_Reporting extends Application_Model_Base_Entity
 
     public function getContractorId($configData = [])
     {
-        if ($this->getUser()->isContractor()) {
+        if ($this->getUser()->isSpecialist()) {
             $contractorIds = [$this->getUser()->getRelatedEntity()->getId()];
         } else {
             if ($this->getSelectContractor() != self::SELECTED_CONTRACTORS) {
@@ -516,7 +516,7 @@ class Application_Model_Report_Reporting extends Application_Model_Base_Entity
     public function getCarrierVendorId()
     {
         $carrierVendorIds = [];
-        if ($this->getUser()->isVendor()) {
+        if ($this->getUser()->isOnboarding()) {
             $entity = $this->getUser()->getRelatedEntity();
             if ($entity->getEntityByType()->getStatus(
             ) == Application_Model_Entity_System_SystemValues::CONFIGURED_STATUS) {
@@ -547,9 +547,9 @@ class Application_Model_Report_Reporting extends Application_Model_Base_Entity
     public function getReserveAccountId()
     {
         if ($this->getSelectReserveAccount() == self::ALL_RA) {
-            $raIds = (new Application_Model_Entity_Accounts_Reserve_Contractor())->getCollection()->addNonDeletedFilter(
-            )->addVisibilityFilterForUser()->getField('reserve_account_id');
-            //            if (!$this->getUser()->isContractor()) {
+            $raIds = (new Application_Model_Entity_Accounts_Reserve_Powerunit())->getCollection()->addNonDeletedFilter(
+            )->addVisibilityFilterForUser()->getField('id');
+            //            if (!$this->getUser()->isSpecialist()) {
             //                $raIds = array_merge($raIds, (new Application_Model_Entity_Accounts_Reserve_Vendor())->getCollection()->addNonDeletedFilter()->addVisibilityFilterForUser()->getField('reserve_account_id'));
             //            }
         } else {
@@ -564,9 +564,9 @@ class Application_Model_Report_Reporting extends Application_Model_Base_Entity
     public function getReserveAccountContractorId()
     {
         if ($this->getSelectReserveAccountContractor() == self::ALL_RA) {
-            $raIds = (new Application_Model_Entity_Accounts_Reserve_Contractor())->getCollection()->addNonDeletedFilter(
-            )->addVisibilityFilterForUser()->getField('reserve_account_id');
-            //            if (!$this->getUser()->isContractor()) {
+            $raIds = (new Application_Model_Entity_Accounts_Reserve_Powerunit())->getCollection()->addNonDeletedFilter(
+            )->addVisibilityFilterForUser()->getField('id');
+            //            if (!$this->getUser()->isSpecialist()) {
             //                $raIds = array_merge($raIds, (new Application_Model_Entity_Accounts_Reserve_Vendor())->getCollection()->addNonDeletedFilter()->addVisibilityFilterForUser()->getField('reserve_account_id'));
             //            }
         } else {

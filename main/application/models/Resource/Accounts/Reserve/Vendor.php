@@ -22,7 +22,7 @@ class Application_Model_Resource_Accounts_Reserve_Vendor extends Application_Mod
 
     public function getInfoFieldsForReport()
     {
-        if (!Application_Model_Entity_Accounts_User::getCurrentUser()->isVendor()) {
+        if (!Application_Model_Entity_Accounts_User::getCurrentUser()->isOnboarding()) {
             $fields = [
                 'name' => 'Vendor',
                 'account_name' => 'Reserve Account',

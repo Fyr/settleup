@@ -34,7 +34,7 @@ class Application_Model_Entity_Collection_Entity_Contractor extends Application_
     {
         $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
 
-        if (!$userEntity->isAdmin()) {
+        if (!$userEntity->isAdminOrSuperAdmin()) {
             $this->addVisibilityFilter(
                 Application_Model_Entity_Entity::getCurrentEntity()->getId()
             );
@@ -51,7 +51,7 @@ class Application_Model_Entity_Collection_Entity_Contractor extends Application_
     {
         $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
         $this->addVisibilityFilter(
-            $userEntity->getEntity()->getCurrentCarrier()->getEntityId()
+            $userEntity->getEntity()->getEntityId()
         );
 
         return $this;
@@ -111,7 +111,7 @@ class Application_Model_Entity_Collection_Entity_Contractor extends Application_
     public function addFilterByVendorVisibility($onlyActive = true)
     {
         $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($userEntity->isVendor()) {
+        if ($userEntity->isOnboarding()) {
             $entity = $userEntity->getEntity();
             if ($onlyActive) {
                 $status = [
@@ -143,7 +143,7 @@ class Application_Model_Entity_Collection_Entity_Contractor extends Application_
     public function vendorFilter()
     {
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($user->isVendor()) {
+        if ($user->isOnboarding()) {
             $this->addFieldsForSelect(
                 new Application_Model_Entity_Entity_Contractor(),
                 'entity_id',
@@ -275,7 +275,7 @@ class Application_Model_Entity_Collection_Entity_Contractor extends Application_
      */
     public function addCarrierFilter()
     {
-        $carrierEntity = Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity()->getCurrentCarrier();
+        $carrierEntity = Application_Model_Entity_Accounts_User::getCurrentUser()->getEntity();
         $this->addFilter('carrier_id', $carrierEntity->getEntityId());
 
         return $this;
@@ -349,6 +349,22 @@ class Application_Model_Entity_Collection_Entity_Contractor extends Application_
     {
         $currentSettlementGroupId = Application_Model_Entity_Accounts_User::getCurrentUser()->getLastSelectedSettlementGroup();
         $this->addFilter('settlement_group_id', $currentSettlementGroupId);
+
+        return $this;
+    }
+
+    public function addContractorVendorFilter(): self
+    {
+        $this->addFieldsForSelect(
+            new Application_Model_Entity_Entity_Contractor(),
+            'entity_id',
+            new Application_Model_Entity_Entity_ContractorVendor(),
+            'contractor_id',
+            ['vendor_id', 'vendor_status' => 'status'],
+            null,
+            true
+        );
+        $this->addFilter('vendor_status', Application_Model_Entity_System_VendorStatus::STATUS_ACTIVE);
 
         return $this;
     }

@@ -49,11 +49,8 @@
                     </div>
                     <div class="clearfix"></div>
                 </div>
-                <?php echo $this->form->eligible ?>
-                <?php echo $this->form->reserve_account_receiver_title ?>
                 <?php echo $this->form->provider_id ?>
                 <?php echo $this->form->id ?>
-                <?php echo $this->form->reserve_account_receiver ?>
                 <?php echo $this->form->level_id ?>
                 <?php echo $this->form->contractor_id ?>
             </fieldset>
@@ -61,29 +58,7 @@
     </form>
 </div>
 <script>
-    getRAUrl = '<?php echo $this->url(array('action' =>'updateracollection')); ?>';
     getProviderSetupUrl = '<?php echo $this->url(array('action' =>'updateterms')); ?>';
-
-    /*-------Hides or shows reserve account field in accordance with a marked eligible option-------------------------*/
-
-    if ($('#eligible').attr('checked') == null) {
-        $('#reserve_account_receiver_title').parent().parent().css('display', 'none');
-    }
-
-    $(function () {
-        $('#eligible').bind('click', function () {
-            return changeEligible();
-        });
-    });
-
-    function changeEligible() {
-        if ($('#eligible').attr('checked') == 'checked') {
-            $('#reserve_account_receiver_title').parent().parent().show('blind');
-        } else {
-            $('#reserve_account_receiver_title').parent().parent().hide('blind');
-        }
-    }
-
 </script>
 
 <?php foreach ($this->popupSetup as $settings): ?>

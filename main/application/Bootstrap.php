@@ -43,11 +43,11 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $prefix = APPLICATION_PATH . $ds . 'configs' . $ds . 'navigation' . $ds;
 
         $roles = [
-            UserRoles::SUPER_ADMIN_ROLE_ID => 'admin',
-            UserRoles::MODERATOR_ROLE_ID => 'moderator',
-            UserRoles::CARRIER_ROLE_ID => 'carrier',
-            UserRoles::CONTRACTOR_ROLE_ID => 'contractor',
-            UserRoles::VENDOR_ROLE_ID => 'vendor',
+            UserRoles::SUPER_ADMIN_ROLE_ID => 'super-admin',
+            UserRoles::ADMIN_ROLE_ID => 'admin',
+            UserRoles::MANAGER_ROLE_ID => 'manager',
+            UserRoles::SPECIALIST_ROLE_ID => 'specialist',
+            UserRoles::ONBOARDING_ROLE_ID => 'onboarding',
             UserRoles::GUEST_ROLE_ID => 'guest',
         ];
 

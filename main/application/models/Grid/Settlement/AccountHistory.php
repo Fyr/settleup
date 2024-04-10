@@ -17,7 +17,7 @@ class Application_Model_Grid_Settlement_AccountHistory extends Application_Model
         }
         $reserveAccountsHeader = [
             'header' => $raInfoFields,
-            'sort' => ['contractor_vendor_reserve_code' => 'ASC'],
+            // 'sort' => ['contractor_vendor_reserve_code' => 'ASC'],
             'title' => 'Reserve Accounts',
             'id' => static::class,
             'pagination' => false,

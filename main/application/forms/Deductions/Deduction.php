@@ -64,17 +64,14 @@ class Application_Form_Deductions_Deduction extends Application_Form_Base
         $reference = new Zend_Form_Element_Text('reference');
         $reference->setLabel('Reference ')->addFilter('StripTags')->addFilter('StringTrim');
 
-        $deductionAmount = new Application_Form_Element_Money('deduction_amount', ['long' => true]);
-        $deductionAmount->setLabel('Deduction Amount ');
+        //        $deductionAmount = new Application_Form_Element_Money('deduction_amount', ['long' => true]);
+        //        $deductionAmount->setLabel('Deduction Amount ');
 
         $transactionFee = new Application_Form_Element_Money('transaction_fee', ['long' => true]);
         $transactionFee->setLabel('Transaction Fee ');
 
         $terms = new Zend_Form_Element_Text('terms');
         $terms->setLabel('Terms ')->addValidator('Int', true, ['messages' => 'Entered value is invalid']);
-
-        $amount = new Application_Form_Element_Money('amount', ['long' => true]);
-        $amount->setLabel('Original Amount ')->setAttrib('readonly', 'readonly');
 
         $recurring = new Zend_Form_Element_Checkbox('recurring');
         $recurring->setLabel('Recurring ')->setAttrib('readonly', 'readonly');
@@ -124,27 +121,21 @@ class Application_Form_Deductions_Deduction extends Application_Form_Base
             $this->getDaysOptions()
         )->setAttrib('readonly', 'readonly');
 
-        $eligible = new Zend_Form_Element_Checkbox('eligible');
-        $eligible->setLabel('Eligible ')->setAttrib('readonly', 'readonly');
-
-        $reserveAccountVendor = new Zend_Form_Element_Hidden('reserve_account_receiver');
-
-        $reserveAccountVendorTitle = new Zend_Form_Element_Text('reserve_account_receiver_title');
-        $reserveAccountVendorTitle->setLabel('Reserve Account * ')->addFilter('StripTags')->addFilter(
-            'StringTrim'
-        )->setAttrib('readonly', 'readonly');
-
         $disbursementDate = new Zend_Form_Element_Text('disbursement_date');
         $disbursementDate->setLabel('Disbursement Date ')->addFilter('StripTags')->addFilter('StringTrim')->setAttrib(
             'readonly',
             'readonly'
         );
 
-        $balance = new Application_Form_Element_Money('balance', ['long' => true]);
-        $balance->setLabel('Remaining Balance')->setAttrib('readonly', 'readonly');
+        // amounts
+        $initialAmount = new Application_Form_Element_Money('adjusted_balance', ['long' => true]);
+        $initialAmount->setLabel('Original Amount');
 
-        $currentAmount = new Application_Form_Element_Money('adjusted_balance', ['long' => true]);
-        $currentAmount->setLabel('Current Amount')->setAttrib('placeholder', "―");
+        $paidAmount = new Application_Form_Element_Money('amount', ['long' => true]);
+        $paidAmount->setLabel('Paid Amount ');
+
+        $balance = new Application_Form_Element_Money('balance', ['long' => true]);
+        $balance->setLabel('Balance Remaining')->setAttrib('readonly', 'readonly');
 
         $approvedDatetime = new Zend_Form_Element_Text('approved_datetime');
         $approvedDatetime->setLabel('Approved Date ')->addFilter('StripTags')->addFilter('StringTrim')->setAttrib(
@@ -188,24 +179,21 @@ class Application_Form_Deductions_Deduction extends Application_Form_Base
                 $description,
                 $powerunitCode,
                 $reference,
-                $deductionAmount,
+//                $deductionAmount,
                 $transactionFee,
                 $deductionCode,
                 $invoiceDate,
                 $invoiceDueDate,
                 $department,
                 $terms,
-                $amount,
+                $initialAmount,
                 $recurring,
                 $billingCycle,
                 $firstStartDay,
                 $secondStartDay,
-                $eligible,
-                $reserveAccountVendor,
-                $reserveAccountVendorTitle,
                 $disbursementDate,
                 $balance,
-                $currentAmount,
+                $paidAmount,
                 $approvedDatetime,
                 $approvedBy,
                 $approvedByName,
@@ -235,7 +223,7 @@ class Application_Form_Deductions_Deduction extends Application_Form_Base
                 'description',
                 'powerunit_code',
                 'reference',
-                'deduction_amount',
+//                'deduction_amount',
                 'transaction_fee',
                 // 'priority',
                 'invoice_id',
@@ -244,16 +232,14 @@ class Application_Form_Deductions_Deduction extends Application_Form_Base
                 'gl_code',
                 'disbursement_code',
                 'terms',
+                'adjusted_balance',
                 'amount',
                 'recurring',
                 'billing_cycle_id',
                 'first_start_day',
                 'second_start_day',
-                'eligible',
-                'reserve_account_receiver_title',
                 'disbursement_date',
                 'balance',
-                'adjusted_balance',
                 'approved_datetime',
                 'approved_by_name',
                 'created_by_name',
@@ -342,15 +328,6 @@ class Application_Form_Deductions_Deduction extends Application_Form_Base
         } else {
             $this->source_id->setValue('Manual');
         }
-
-        if (!$this->reserve_account_receiver_title->getValue()) {
-            $this->reserve_account_receiver_title->setValue(
-                (new Application_Model_Entity_Accounts_Reserve_Vendor())->load(
-                    $this->reserve_account_receiver->getValue(),
-                    'reserve_account_id'
-                )->getAccountTitle()
-            );
-        }
     }
 
     public function configureForm($post)
@@ -394,7 +371,7 @@ class Application_Form_Deductions_Deduction extends Application_Form_Base
     public function configure()
     {
         parent::configure();
-        foreach (['first_start_day', 'second_start_day', 'week_day', 'second_week_day', 'billing_cycle_id', 'reserve_account_receiver_title', 'week_offset',] as $element) {
+        foreach (['first_start_day', 'second_start_day', 'week_day', 'second_week_day', 'billing_cycle_id', 'week_offset',] as $element) {
             $this->getElement($element)->getDecorator('Label')->removeOption('requiredSuffix');
         }
 

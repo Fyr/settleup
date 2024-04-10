@@ -13,21 +13,20 @@
 
     <?php if ($this->isEditPage) { ?>
         <h3><?php echo ($this->form->readonly) ? 'View' : 'Edit'; ?> Contractor</h3><br/>
-        <?php if (!$this->isVendor && !$this->isContractor) { ?>
+        <?php if (!$this->isOnboarding && !$this->isSpecialist) { ?>
             <div class="left bank-reserve-acc-actions">
-                <?php echo $this->setButtons(['reserve-accounts-contractor'], $this->form->entity_id->getValue()); ?>
                 <?php if (!$this->contractor->hasDeductions() && !$this->contractor->hasTransactions() && !$this->contractor->hasPayments() && Application_Model_Entity_Accounts_User::getCurrentUser()->hasPermission(Application_Model_Entity_Entity_Permissions::CONTRACTOR_MANAGE)) { ?>
                     <a class="btn btn-danger confirm pull-right" confirm-type="Deletion"
                        data-confirm-description="Deleting this record is irreversible."
                        href="<?php echo $this->url(['action' => 'delete', 'controller' => 'contractors_index', 'id' => $this->contractor->getId()], null, true); ?>"><i
                                 class="icon-trash icon-white"></i> Delete Contractor</a>
                 <?php } ?>
-                <?php if ($user->isCarrier() || $user->isAdmin()) { ?>
+                <?php if ($user->isManager() || $user->isAdminOrSuperAdmin()) { ?>
                     <a class="btn btn-primary"
                        href="<?php echo $this->url(['action' => 'list', 'controller' => 'payments_setup', 'entity' => $this->contractor->getEntityId()], null, true); ?>"><i
                                 class="icon-pencil icon-white"></i> Compensation Templates</a>
                 <?php } ?>
-                <?php if ($user->isCarrier() || $user->isAdmin() || $user->isVendor()) { ?>
+                <?php if ($user->isManager() || $user->isAdminOrSuperAdmin() || $user->isOnboarding()) { ?>
                     <a class="btn btn-primary"
                        href="<?php echo $this->url(['action' => 'list', 'controller' => 'deductions_setup', 'entity' => $this->contractor->getEntityId()], null, true); ?>"><i
                                 class="icon-pencil icon-white"></i> Deduction Templates</a>
@@ -35,11 +34,8 @@
             </div>
         <?php } ?>
     <?php } else { ?>
-        <?php if (!$this->isVendor || !$this->isContractor) { ?>
+        <?php if (!$this->isOnboarding || !$this->isSpecialist) { ?>
             <h3>Create Contractor</h3><br/>
-            <div class="left bank-reserve-acc-actions">
-                <a class="btn btn-primary disabled" href="#"><i class="icon-pencil icon-white"></i> Reserve Accounts</a>
-            </div>
         <?php } ?>
     <?php } ?>
     <div class="row">
@@ -185,7 +181,7 @@
                                     <?php echo $subform->value; ?>
                                 <?php } ?>
                             </div>
-                            <?php if (!$this->isVendor || !$this->isContractor) { ?>
+                            <?php if (!$this->isOnboarding || !$this->isSpecialist) { ?>
                                 <div class="span">
                                     <a href="#" class="btn btn-success add <?php echo $disabled; ?>">
                                         <i class="icon-plus icon-white"></i>
@@ -212,11 +208,14 @@
                         <input type="text" value="" disabled name="powerunit">
                     </div>
                 <?php } else {
-                    foreach ($this->powerunits as $powerunit) { ?>
-                        <div class="controls">
-                            <input type="text" value="<?php echo $powerunit->getCode() ?>" readonly="readonly" name="powerunit">
-                        </div>
-                    <?php } ?>
+                    $maxHeight = count($this->powerunits) < 5 ? 20 * count($this->powerunits) : null; ?>
+                    <div class="controls">
+                        <ul class="powerunit" style="max-height: <?php echo $maxHeight ?>px">
+                        <?php foreach ($this->powerunits as $powerunit) { ?>
+                            <li><?php echo $powerunit->getId() . ' - ' . $powerunit->getCode() ?></li>
+                        <?php } ?>
+                        </ul>
+                    </div>
                 <?php } ?>
             </div>
         </div>
@@ -258,7 +257,7 @@
                         <?php } ?>
                         <?php echo $subform->vendor_acct; ?>
                     </div>
-                    <?php if (!$this->isVendor || !$this->isContractor) { ?>
+                    <?php if (!$this->isOnboarding || !$this->isSpecialist) { ?>
                         <div class="span">
                             <a href="#" class="btn btn-success add <?php echo $disabled; ?>"><i
                                         class="icon-plus icon-white"></i></a>

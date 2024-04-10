@@ -9,19 +9,37 @@ use Application_Model_Grid_Callback_DateFormat as DateFormatCallback;
 use Application_Model_Grid_Callback_DeductionQuickEditAmount as QEAmountCallback;
 use Application_Model_Grid_Callback_Frequency as FrequencyCallback;
 use Application_Model_Grid_Callback_NegativeMoney as DeductionAmountCallback;
+use Application_Model_Grid_Callback_QuickEditAdjustedBalance as BalanceQEAmountCallback;
 use Application_Model_Grid_Callback_RecurringCheckbox as CheckboxCallback;
 use Application_Model_Grid_Callback_TransactionFee as TransactionFeeCallback;
 use Application_Model_Grid_Header_Deductions as GridButtons;
 
+/**
+    TODO: Refactor callbacks for grid as we have a huge number of classes for the same quick edit puproses:
+    - Application_Model_Grid_Callback_DeductionAdjustedBalance
+    - Application_Model_Grid_Callback_DeductionQuickEditAdjustedBalance
+    - Application_Model_Grid_Callback_DeductionQuickEditAmount
+    - Application_Model_Grid_Callback_DeductionQuickEditQuantity (remove?)
+    - Application_Model_Grid_Callback_DeductionQuickEditRate (remove?)
+    - Application_Model_Grid_Callback_QuickEditAdjustedBalance (the same as DeductionAdjustedBalance but only for Deductions)
+    - Application_Model_Grid_Callback_QuickEditDeductionAmount
+    - Application_Model_Grid_Callback_QuickEditQuantity (remove?)
+    - Application_Model_Grid_Callback_QuickEditRate (remove?)
+*/
 class Application_Model_Grid_Deduction_Deduction extends Application_Model_Grid
 {
+    protected $rewriteColumns = [
+        'powerunit.code' => 'powerunit.powerunit_code',
+        'contractor.code' => 'contractor.contractor_code',
+    ];
+
     public function __construct()
     {
         $user = User::getCurrentUser();
         $status = $user->getCurrentCycle()->getStatusId();
 
         $hideCheckbox = ($status == CycleStatus::APPROVED_STATUS_ID
-            || ($status == CycleStatus::PROCESSED_STATUS_ID && $user->isVendor()));
+            || ($status == CycleStatus::PROCESSED_STATUS_ID && $user->isOnboarding()));
 
         $deductionEntity = new Deduction();
         $header = [
@@ -37,7 +55,7 @@ class Application_Model_Grid_Deduction_Deduction extends Application_Model_Grid
                 'amount' => QEAmountCallback::class,
                 'deduction_amount' => DeductionAmountCallback::class,
                 'balance' => BalanceCallback::class,
-                'adjusted_balance' => BalanceCallback::class,
+                'adjusted_balance' => BalanceQEAmountCallback::class,
                 'transaction_fee' => TransactionFeeCallback::class,
                 'action' => ActionsCallback::class,
             ],
@@ -77,29 +95,4 @@ class Application_Model_Grid_Deduction_Deduction extends Application_Model_Grid
             []
         );
     }
-
-    // public function setPriority($beforeList, $resultList, $page)
-    // {
-    //     $entity = new Deduction();
-    //     foreach ($beforeList as $filter => $list) {
-    //         $contractorId = null;
-    //         $cycleId = null;
-    //         foreach ($list as $priority => $id) {
-    //             $resultId = $resultList[$filter][$priority];
-    //             if ($id !== $resultId) {
-    //                 $entity->updatePriority($resultId, $priority);
-    //                 if (empty($cycleId)) {
-    //                     $entity->load($resultId);
-    //                     $cycleId = $entity->getSettlementCycleId();
-    //                     $contractorId = $entity->getContractorId();
-    //                 }
-    //             }
-    //         }
-    //         if (isset($cycleId)) {
-    //             $entity->reorderPriority($cycleId, $contractorId);
-    //         }
-    //     }
-
-    //     return $this;
-    // }
 }

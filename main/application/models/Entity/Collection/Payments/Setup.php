@@ -70,7 +70,7 @@ class Application_Model_Entity_Collection_Payments_Setup extends Application_Mod
     public function addCarrierFilter($carrierId = null)
     {
         if (!isset($carrierId)) {
-            $carrierId = User::getCurrentUser()->getEntity()->getCurrentCarrier()->getEntityId();
+            $carrierId = User::getCurrentUser()->getEntity()->getEntityId();
         }
         $this->addFilter('carrier_id', $carrierId);
 

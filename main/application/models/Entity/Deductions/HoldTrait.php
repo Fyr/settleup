@@ -16,22 +16,23 @@ trait Application_Model_Entity_Deductions_HoldTrait
             ->getCollection()
             ->addNonDeletedFilter()
             ->addFilter('settlement_cycle_id', $cycle->getParentCycleId())
+            ->addFilter('balance', 0, '>')
             ->getItems();
 
         foreach ($deductions as $deduction) {
-            $balance = ($deduction->getAdjustedBalance() ?: $deduction->getBalance()) - $deduction->getDeductionAmount();
-            if (0 < $balance) {
-                $holdDeduction = clone $deduction;
-                $holdDeduction
-                    ->setId(null)
-                    ->setSettlementCycleId($cycle->getId())
-                    ->setDeductionParentId($deduction->getId())
-                    ->setBalance($balance)
-                    ->setAdjustedBalance($balance)
-                    ->setDeductionAmount(null)
-                    ->setIsHold(true)
-                    ->save();
-            }
+            $holdDeduction = clone $deduction;
+            $description =
+                'Outstanding deduction of ' . $deduction->getBalance() . 'from Cycle #' . $cycle->getParentCycleId();
+            $holdDeduction
+                ->setId(null)
+                ->setSettlementCycleId($cycle->getId())
+                ->setDeductionParentId($deduction->getId())
+                ->setAdjustedBalance($deduction->getBalance())
+                ->setBalance($deduction->getBalance())
+                ->setAmount(0)
+                ->setIsHold(true)
+                ->setDescription($description)
+                ->save();
         }
 
         return $this;

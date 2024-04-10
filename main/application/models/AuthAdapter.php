@@ -39,7 +39,7 @@ class Application_Model_AuthAdapter extends Zend_Auth_Adapter_DbTable
             $this->_zendDb->quoteIdentifier('e.deleted', true) . '= 0 OR ' . $this->_zendDb->quoteIdentifier(
                 'role_id',
                 true
-            ) . ' IN (' . Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID . ', ' . Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID . ')'
+            ) . ' IN (' . Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID . ', ' . Application_Model_Entity_System_UserRoles::ADMIN_ROLE_ID . ')'
         );
 
         return $dbSelect;

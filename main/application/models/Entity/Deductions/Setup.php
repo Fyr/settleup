@@ -166,7 +166,7 @@ class Application_Model_Entity_Deductions_Setup extends Application_Model_Base_E
         $entityEntity = new Application_Model_Entity_Entity();
         $entityEntity->load($this->getProviderId(), 'id');
 
-        if ($entityEntity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_CARRIER) {
+        if ($entityEntity->getEntityTypeId() == Application_Model_Entity_Entity_Type::TYPE_DIVISION) {
             $serchingEntity = $carrierEntity;
         } else {
             $serchingEntity = $vendorEntity;
@@ -218,7 +218,7 @@ class Application_Model_Entity_Deductions_Setup extends Application_Model_Base_E
         $carrierEntity = new Application_Model_Entity_Entity_Carrier();
         $carrierCollection = $carrierEntity->getCollection();
 
-        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID) {
+        if ($userEntity->getRoleId() == Application_Model_Entity_System_UserRoles::MANAGER_ROLE_ID) {
             $entityId = Application_Model_Entity_Entity::getCurrentEntity()->getId();
             $carrierCollection->addFilter('entity_id', $entityId);
         } else {
@@ -309,8 +309,6 @@ class Application_Model_Entity_Deductions_Setup extends Application_Model_Base_E
             'week_offset' => $this->getData('week_offset'),
             'first_start_day' => $this->getData('first_start_day'),
             'second_start_day' => $this->getData('second_start_day'),
-            'eligible' => $this->getData('eligible'),
-            'reserve_account_receiver' => $this->getData('reserve_account_receiver'),
             'biweekly_start_day' => $this->getData('biweekly_start_day'),
         ], [
             'master_setup_id = ?' => $this->getId(),

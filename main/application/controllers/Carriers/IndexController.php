@@ -31,9 +31,6 @@ class Carriers_IndexController extends Zend_Controller_Action
     public function listAction()
     {
         $this->handleErrorMessage();
-        if (User::getCurrentUser()->isCarrier()) {
-            $this->_helper->redirector('index', 'index');
-        }
         $this->view->gridModel = new Application_Model_Grid_Entity_Carrier();
     }
 
@@ -63,9 +60,8 @@ class Carriers_IndexController extends Zend_Controller_Action
 
     public function editAction()
     {
-        if (!User::getCurrentUser()->hasPermission(
-            Permissions::CARRIER_VIEW
-        )) {
+        $currentUser = User::getCurrentUser();
+        if (!$currentUser->hasPermission(Permissions::CARRIER_VIEW)) {
             $this->_helper->redirector('index', 'settlement_index');
         }
         $this->view->title = $this->_title;
@@ -78,9 +74,7 @@ class Carriers_IndexController extends Zend_Controller_Action
         }
 
         if ($this->getRequest()->isPost()) {
-            if (!User::getCurrentUser()->hasPermission(
-                Permissions::CARRIER_MANAGE
-            )) {
+            if (!$currentUser->hasPermission(Permissions::CARRIER_MANAGE)) {
                 $this->_helper->redirector('index', 'settlement_index');
             }
             $post = $this->getRequest()->getPost();
@@ -98,7 +92,7 @@ class Carriers_IndexController extends Zend_Controller_Action
 
                 $values = $this->_form->getValues();
 
-                if (isset($values['create_contractor_type']) && !User::getCurrentUser()->isSuperAdmin()) {
+                if (isset($values['create_contractor_type']) && !$currentUser->isSuperAdmin()) {
                     unset($values['create_contractor_type']);
                 }
                 $this->_entity->addData($values)->save();
@@ -178,8 +172,8 @@ class Carriers_IndexController extends Zend_Controller_Action
         $carrierId = $this->getRequest()->getParam('carrier');
         $entityCarrier = Carrier::staticLoad($carrierId, 'entity_id');
         $form->setCarrier($entityCarrier);
-        if ($user->isCarrier() || $user->isAdmin()) {
-            if ($user->isAdmin()) {
+        if ($user->isManager() || $user->isAdminOrSuperAdmin()) {
+            if ($user->isAdminOrSuperAdmin()) {
                 if ($carrierId) {
                     $escrowAccount = EscrowAccount::staticLoad($carrierId, 'carrier_id');
                 } else {
@@ -221,7 +215,7 @@ class Carriers_IndexController extends Zend_Controller_Action
                                 ['id' => $carrier->getId()]
                             );
                         } else {
-                            if ($user->isAdmin()) {
+                            if ($user->isAdminOrSuperAdmin()) {
                                 $this->_helper->redirector(
                                     'index',
                                     'escrow'

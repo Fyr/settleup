@@ -1,12 +1,13 @@
 <?php
 
+use Application_Model_Entity_Accounts_Reserve_Powerunit as PowerunitReserveAccount;
 use Application_Model_Entity_System_ReserveTransactionTypes as ReserveTransactionTypes;
 use Application_Model_Entity_System_SettlementCycleStatus as CycleStatus;
 
 class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
 {
     protected $_raContractor;
-    protected $_raVendor;
+    // protected $_raVendor;
     protected $_contractor;
     protected $_powerunit;
 
@@ -19,7 +20,7 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
              ->setLabel('ID')
              ->setAttrib('readonly', 'readonly');
 
-        $reserveAccountId = new Zend_Form_Element_Hidden('reserve_account_vendor');
+        // $reserveAccountId = new Zend_Form_Element_Hidden('reserve_account_vendor');
         $reserveAccountContractorId = new Zend_Form_Element_Hidden('reserve_account_contractor');
         $typeId = new Zend_Form_Element_Hidden('type');
         $approvedBy = new Zend_Form_Element_Hidden('approved_by');
@@ -27,7 +28,9 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
         $contractorId = new Zend_Form_Element_Hidden('contractor_id');
 
         $contractorCode = (new Zend_Form_Element_Text('contractor_code'))
-            ->setLabel('Contractor Code');
+            ->setLabel('Contractor Code')
+            ->setAttrib('readonly', 'readonly')
+        ;
 
         $typeTitle = (new Zend_Form_Element_Text('type_title'))
             ->setLabel('Type')
@@ -44,7 +47,9 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
         $powerunitCode = (new Zend_Form_Element_Text('powerunit_code'))
             ->setLabel('Power Unit')
             ->addFilter('StripTags')
-            ->addFilter('StringTrim');
+            ->addFilter('StringTrim')
+            ->setAttrib('readonly', 'readonly')
+        ;
 
         $reference = (new Zend_Form_Element_Text('reference'))
             ->setLabel('Reference')
@@ -52,11 +57,17 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
             ->addFilter('StringTrim');
 
         $amount = (new Application_Form_Element_Money('amount'))
-            ->setLabel('Amount')
+            ->setLabel('Paid Amount')
             ->setRequired(true);
 
         $remainingBalance = (new Application_Form_Element_Money('balance'))
-            ->setLabel('Remaining Balance');
+            ->setLabel('Remaining Balance')
+            ->setAttrib('readonly', 'readonly')
+        ;
+
+        $paidAmount = (new Application_Form_Element_Money('adjusted_balance'))
+            ->setLabel('Initial Amount')
+        ;
 
         $balance = (new Application_Form_Element_Text('current_balance'))
             ->setLabel('Current Balance')
@@ -94,7 +105,7 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
             ->setLabel('Contractor')
             ->setAttrib('readonly', 'readonly');
 
-        $reserveCode = (new Zend_Form_Element_Text('reserve_code'))
+        $reserveCode = (new Zend_Form_Element_Text('code'))
             ->setLabel('Reserve Code')
             ->setAttrib('readonly', 'readonly');
 
@@ -114,7 +125,7 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
             ]);
 
         $contractorAccount = (new Zend_Form_Element_Text('reserve_account_contractor_title'))
-            ->setLabel('Contractor Reserve Account')
+            ->setLabel('Power Unit Reserve Account')
             ->setRequired(true)
             ->addFilter('StripTags')
             ->addFilter('StringTrim')
@@ -137,6 +148,7 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
             $accountName,
             $amount,
             $balance,
+            $paidAmount,
             $approvedDatetime,
             $approvedByTitle,
             $createdDatetime,
@@ -145,7 +157,7 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
             $statusTitle,
             $settlementStatus,
             $adjustmentType,
-            $reserveAccountId,
+            // $reserveAccountId,
             $typeId,
             $approvedBy,
             $createdBy,
@@ -162,13 +174,13 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
             'id',
             'contractor_code',
             'company_name',
-            'reserve_account_vendor_title',
+            // 'reserve_account_vendor_title',
             'description',
-            'vendor_code',
+            // 'vendor_code',
             'type_title',
             'deduction_id',
             'amount',
-            'reserve_code',
+            'code',
             'current_balance',
             'adjusted_balance',
             'approved_datetime',
@@ -258,17 +270,17 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
             $this->source_id->setValue('Manual');
         }
 
-        if ($this->type->getValue() == ReserveTransactionTypes::CONTRIBUTION) {
-            $this->amount->setLabel('Amount *, -$')->setRequired(false);
-        }
+        //        if ($this->type->getValue() == ReserveTransactionTypes::CONTRIBUTION) {
+        //            $this->amount->setLabel('Amount *, -$')->setRequired(false);
+        //        }
     }
 
     public function setupForNewAction()
     {
-        if (!$this->reserve_account_vendor->getValue()) {
-            $this->reserve_account_vendor->setValue($this->getRAVendor()->getReserveAccountId());
-            $this->reserve_account_vendor_title->setAttrib('readonly', 'readonly');
-        }
+        // if (!$this->reserve_account_vendor->getValue()) {
+        //     $this->reserve_account_vendor->setValue($this->getRAVendor()->getReserveAccountId());
+        //     $this->reserve_account_vendor_title->setAttrib('readonly', 'readonly');
+        // }
 
         if (!$this->contractor_id->getValue()) {
             $this->contractor_id->setValue($this->getRAContractor()->getEntityId());
@@ -326,16 +338,16 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
             $this->powerunit_code->setValue($this->getPowerUnit()->getCode());
         }
 
-        if (!$this->reserve_account_vendor_title->getValue()) {
-            $this->reserve_account_vendor_title->setValue($this->getRAVendor()->getAccountTitle());
-        }
+        // if (!$this->reserve_account_vendor_title->getValue()) {
+        //     $this->reserve_account_vendor_title->setValue($this->getRAVendor()->getAccountTitle());
+        // }
 
         if (!$this->reserve_account_contractor_title->getValue()) {
             $this->reserve_account_contractor_title->setValue($this->getRAContractor()->getAccountName());
         }
 
-        if (!$this->reserve_code->getValue()) {
-            $this->reserve_code->setValue($this->getRAVendor()->getVendorReserveCode());
+        if (!$this->code->getValue()) {
+            $this->code->setValue($this->getRAContractor()->getCode());
         }
 
         $value = '';
@@ -361,7 +373,7 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
     {
         $currUser = Application_Model_Entity_Accounts_User::getCurrentUser();
         if (!$currUser->hasPermission(Application_Model_Entity_Entity_Permissions::SETTLEMENT_DATA_MANAGE)
-            || $currUser->isVendor()
+            || $currUser->isOnboarding()
         ) {
             $this->setFormReadOnly();
         }
@@ -388,34 +400,34 @@ class Application_Form_Account_Reserve_Transaction extends Application_Form_Base
     public function getRAContractor()
     {
         if (!$this->_raContractor) {
-            $this->_raContractor = (new Application_Model_Entity_Accounts_Reserve_Contractor())->load(
+            $this->_raContractor = (new PowerunitReserveAccount())->load(
                 $this->reserve_account_contractor->getValue(),
-                'reserve_account_id'
+                'id'
             );
         }
 
         return $this->_raContractor;
     }
 
-    public function getRAVendor()
-    {
-        if (!$this->_raVendor) {
-            $id = $this->reserve_account_vendor->getValue();
-            $vendor = new Application_Model_Entity_Accounts_Reserve_Vendor();
-            if (!$id) {
-                $this->_raVendor = $vendor->load(
-                    $this->getRAContractor()->getReserveAccountVendorId()
-                );
-            } else {
-                $this->_raVendor = $vendor->load(
-                    $this->reserve_account_vendor->getValue(),
-                    'reserve_account_id'
-                );
-            }
-        }
+    // public function getRAVendor()
+    // {
+    //     if (!$this->_raVendor) {
+    //         $id = $this->reserve_account_vendor->getValue();
+    //         $vendor = new Application_Model_Entity_Accounts_Reserve_Vendor();
+    //         if (!$id) {
+    //             $this->_raVendor = $vendor->load(
+    //                 $this->getRAContractor()->getReserveAccountVendorId()
+    //             );
+    //         } else {
+    //             $this->_raVendor = $vendor->load(
+    //                 $this->reserve_account_vendor->getValue(),
+    //                 'reserve_account_id'
+    //             );
+    //         }
+    //     }
 
-        return $this->_raVendor;
-    }
+    //     return $this->_raVendor;
+    // }
 
     public function setupDeductionId($contractorId, $cycleId)
     {

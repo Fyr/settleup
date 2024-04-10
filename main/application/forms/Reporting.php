@@ -357,7 +357,7 @@ class Application_Form_Reporting extends Application_Form_Base
         switch ($type) {
             case (Application_Model_Report_Reporting::DEDUCTION_REMITTANCE_FILE):
             case (Application_Model_Report_Reporting::UNFUNDED_DEDUCTIONS):
-                if ($this->getUser()->isCarrier() || $this->getUser()->isAdmin()) {
+                if ($this->getUser()->isManager() || $this->getUser()->isAdminOrSuperAdmin()) {
                     $fields = [
                         'carrier_vendor',
                     ];
@@ -372,7 +372,7 @@ class Application_Form_Reporting extends Application_Form_Base
                 ];
                 break;
             case (Application_Model_Report_Reporting::VENDOR_STATUS):
-                if ($this->getUser()->isVendor()) {
+                if ($this->getUser()->isOnboarding()) {
                     $fields = [
                         'contractor_status',
                         'vendor_status',
@@ -399,7 +399,7 @@ class Application_Form_Reporting extends Application_Form_Base
             case (Application_Model_Report_Reporting::CONTRACTOR_1099):
             case (Application_Model_Report_Reporting::PAYMENT_HISTORY):
             case (Application_Model_Report_Reporting::CONTRACTOR_SETTLEMENT_STATEMENT):
-                if ($this->getUser()->isContractor()) {
+                if ($this->getUser()->isSpecialist()) {
                     $fields = [];
                 } else {
                     $fields = [
@@ -411,11 +411,11 @@ class Application_Form_Reporting extends Application_Form_Base
                 $fields = [];
                 break;
             case (Application_Model_Report_Reporting::DEDUCTION_HISTORY):
-                if ($this->getUser()->isContractor()) {
+                if ($this->getUser()->isSpecialist()) {
                     $fields = [
                         'carrier_vendor',
                     ];
-                } elseif ($this->getUser()->isVendor()) {
+                } elseif ($this->getUser()->isOnboarding()) {
                     $fields = [
                         'contractor',
                     ];
@@ -473,7 +473,7 @@ class Application_Form_Reporting extends Application_Form_Base
     {
         $types = Application_Model_Report_Reporting::getReportTypeOptions();
         switch (true) {
-            case $this->getUser()->isCarrier():
+            case $this->getUser()->isManager():
                 if (!$this->getUser()->hasPermission(Application_Model_Entity_Entity_Permissions::REPORTING_GENERAL)) {
                     unset($types[Application_Model_Report_Reporting::CONTRACTOR_SETTLEMENT_STATEMENT]);
                     unset($types[Application_Model_Report_Reporting::PAYMENT_HISTORY]);
@@ -502,7 +502,7 @@ class Application_Form_Reporting extends Application_Form_Base
                 }
                 unset($types[Application_Model_Report_Reporting::RESERVE_ACCOUNT_CONTRACTOR_HISTORY]);
                 break;
-            case $this->getUser()->isVendor():
+            case $this->getUser()->isOnboarding():
                 if (!$this->getUser()->hasPermission(
                     Application_Model_Entity_Entity_Permissions::REPORTING_DEDUCTION_REMITTANCE_FILE
                 )) {
@@ -524,7 +524,7 @@ class Application_Form_Reporting extends Application_Form_Base
                 unset($types[Application_Model_Report_Reporting::CONTRACTOR_1099]);
                 unset($types[Application_Model_Report_Reporting::RESERVE_ACCOUNT_CONTRACTOR_HISTORY]);
                 break;
-            case $this->getUser()->isContractor():
+            case $this->getUser()->isSpecialist():
                 unset($types[Application_Model_Report_Reporting::DISBURSEMENTS]);
                 unset($types[Application_Model_Report_Reporting::ACH_FILE]);
                 unset($types[Application_Model_Report_Reporting::CHECK_FILE]);

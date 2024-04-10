@@ -47,11 +47,11 @@ class Application_Model_Entity_Collection_Accounts_Reserve_Carrier extends Appli
     {
         $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
 
-        if (!$userEntity->isAdmin()) {
-            if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID) {
+        if (!$userEntity->isAdminOrSuperAdmin()) {
+            if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::MANAGER_ROLE_ID) {
                 $entityId = Application_Model_Entity_Entity::getCurrentEntity()->getId();
             } else {
-                $entityId = $userEntity->getEntity()->getCurrentCarrier()->getEntityId();
+                $entityId = $userEntity->getEntity()->getEntityId();
             }
 
             $userVisibilityEntity = new Application_Model_Entity_Accounts_UsersVisibility();
@@ -66,7 +66,7 @@ class Application_Model_Entity_Collection_Accounts_Reserve_Carrier extends Appli
             $reserveAccountEntity = new Application_Model_Entity_Accounts_Reserve();
             $reserveAccountCollection = $reserveAccountEntity->getCollection();
 
-            if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID) {
+            if ($userEntity->getUserRoleID() == Application_Model_Entity_System_UserRoles::SPECIALIST_ROLE_ID) {
                 $reserveAccountCollection->addFilter('entity_id', $entityId);
             } else {
                 $reserveAccountCollection->addFilter(

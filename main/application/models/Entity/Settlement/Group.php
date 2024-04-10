@@ -6,7 +6,7 @@
  */
 class Application_Model_Entity_Settlement_Group extends Application_Model_Base_Entity
 {
-    public function getByDivisionId(int $divisionId): array
+    public function getByDivisionId(?int $divisionId): array
     {
         return (new self())
             ->getCollection()
@@ -15,7 +15,7 @@ class Application_Model_Entity_Settlement_Group extends Application_Model_Base_E
             ->getItems();
     }
 
-    public function getByDivisionIdAndSettlementGroupId(int $divisionId, int $settlementGroupId): Application_Model_Entity_Settlement_Group
+    public function getByDivisionIdAndSettlementGroupId(int $divisionId, int $settlementGroupId): Application_Model_Base_Object
     {
         return (new self())
             ->getCollection()

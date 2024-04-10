@@ -39,7 +39,7 @@ class Application_Model_Base_Collection implements
      * Add collection filter
      *
      * @param string $field
-     * @param string $value
+     * @param string|array $value
      * @param string $op =, !=, >, <, etc
      * @param bool $escape - determines escape value or not
      * @param string $type - type of where - 'and' or 'or'

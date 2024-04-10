@@ -72,6 +72,7 @@ class Application_Form_Powerunits_Powerunit extends Application_Form_Base
             ->setLabel('Status ')
             ->addMultiOptions(
                 [
+
                     Application_Model_Entity_System_PowerunitStatus::STATUS_ACTIVE => 'Active',
                     Application_Model_Entity_System_PowerunitStatus::STATUS_INACTIVE => 'Inactive',
                     Application_Model_Entity_System_PowerunitStatus::STATUS_UNAVAILABLE => 'Unavailable',

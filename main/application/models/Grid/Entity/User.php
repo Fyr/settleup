@@ -7,21 +7,21 @@ class Application_Model_Grid_Entity_User extends Application_Model_Grid
     public function __construct()
     {
         $userEntity = new Application_Model_Entity_Accounts_User();
-
         $header = [
-            'header' => [
-                'id' => "ID",
-                'name' => 'User Name',
-                'email' => 'User Email',
-                'role_title' => 'User Type',
-                'entity_name' => 'Company',
-            ],
+            'header' => $userEntity->getResource()->getInfoFields(),
             'id' => static::class,
             'callbacks' => [
-                'action' => 'Application_Model_Grid_Callback_ActionUsers',
+                'action' => Application_Model_Grid_Callback_ActionUsers::class,
+                'divisions' => Application_Model_Grid_Callback_UserDivisions::class,
             ],
             'sort' => ['id' => 'ASC'],
+            'disabledSort' => [
+                'divisions' => true,
+            ],
             'filter' => true,
+            'disabledFilter' => [
+                'divisions' => true,
+            ],
             'service' => [
                 'header' => ['action' => 'Action'],
                 'bindOn' => 'id',
@@ -29,8 +29,9 @@ class Application_Model_Grid_Entity_User extends Application_Model_Grid
         ];
 
         $currentUser = $userEntity->getCurrentUser();
-
-        if ($currentUser->isAdmin()) {
+        $massaction = [];
+        $button = [];
+        if ($currentUser->isSuperAdmin()) {
             $massaction = [
                 "delete" => [
                     "caption" => "Delete Selected",
@@ -49,34 +50,18 @@ class Application_Model_Grid_Entity_User extends Application_Model_Grid
                     "url" => '/users_index/new',
                 ],
             ];
-        } else {
-            if ($currentUser->isCarrier() && ($currentUser->hasPermission(
-                Application_Model_Entity_Entity_Permissions::CONTRACTOR_USER_CREATE
-            ) || $currentUser->hasPermission(
-                Application_Model_Entity_Entity_Permissions::VENDOR_USER_CREATE
-            ))) {
-                $button = [
-                    'add' => [
-                        "caption" => "Add User",
-                        "button_class" => "btn-success",
-                        "icon_class" => "icon-plus",
-                        "url" => '/users_index/new',
-                    ],
-                ];
-            } else {
-                $button = [];
-            }
-            $massaction = [];
         }
 
-        $customFilters = ['addNonDeletedFilter'];
+        $customFilters = [
+            'addNonDeletedFilter',
+            'addDivisionsInfo',
+        ];
 
-        if ($currentUser->isModerator()) {
-            $customFilters[] = 'addModeratorFilter';
+        if ($currentUser->isAdmin()) {
+            $customFilters[] = 'addAdminFilter';
         }
-
-        if ($userEntity->getCurrentUser()->isCarrier()) {
-            $customFilters[] = 'addCarrierFilter';
+        if ($currentUser->isManager()) {
+            $customFilters[] = 'addManagerFilter';
         }
 
         parent::__construct(

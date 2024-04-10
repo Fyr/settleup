@@ -36,7 +36,7 @@ class Application_Model_Grid_Deduction_Setup extends Application_Model_Grid
             ],
         ];
 
-        if ($user->isVendor()) {
+        if ($user->isOnboarding()) {
             $header['dragrows'] = false;
         }
 

@@ -7,7 +7,7 @@
         <?php if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::RESERVE_ACCOUNT_CARRIER_VIEW)): ?>
         <?php echo $this->setButtons(array('reserve-accounts-carrier'),$this->form->entity_id->getValue());?>
         <?php endif ?>
-        <?php if ($user->isAdmin()) : ?>
+        <?php if ($user->isAdminOrSuperAdmin()) : ?>
             <a class="btn btn-primary" href="<?php echo $this->url(array('action' => 'escrow', 'controller' => 'carriers_index', 'carrier' => $this->form->entity_id->getValue(), 'redirect' => 'true'), null, true)?>"><i class="icon-pencil icon-white"></i> Escrow Account</a>
         <?php endif ?>
         <?php if ($user->isSuperAdmin()) : ?>
@@ -18,7 +18,7 @@
     <h3>Create <?php echo $this->title?></h3><br />
     <div class="left bank-reserve-acc-actions">
         <a class="btn btn-primary disabled" href="#"><i class="icon-pencil icon-white"></i> Reserve Accounts</a>
-        <?php if (Application_Model_Entity_Accounts_User::getCurrentUser()->isAdmin()) : ?>
+        <?php if (Application_Model_Entity_Accounts_User::getCurrentUser()->isAdminOrSuperAdmin()) : ?>
         <a class="btn btn-primary disabled" href="#"><i class="icon-pencil icon-white"></i> Escrow Account</a>
         <?php endif ?>
     </div>

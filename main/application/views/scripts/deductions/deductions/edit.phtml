@@ -36,9 +36,8 @@
         <div class="span6">
             <fieldset>
                 <?php echo $this->form->amount ?>
-                <?php echo $this->form->balance ?>
                 <?php echo $this->form->adjusted_balance ?>
-                <?php echo $this->form->deduction_amount ?>
+                <?php echo $this->form->balance ?>
                 <?php echo $this->form->recurring ?>
                 <div id="change-cycle-rule-fields" class="<?php if (!$this->form->recurring->getValue() && !$this->form->first_start_day->getErrors() && !$this->form->second_start_day->getErrors() && !$this->form->week_day->getErrors())
                     echo 'nondisplay' ?>">
@@ -65,9 +64,6 @@
                     </div>
                     <div class="clearfix"></div>
                 </div>
-                <?php echo $this->form->eligible ?>
-                <?php echo $this->form->reserve_account_receiver_title ?>
-                <?php echo $this->form->reserve_account_receiver ?>
                 <?php echo $this->form->approved_datetime ?>
                 <?php echo $this->form->approved_by_name ?>
                 <?php echo $this->form->created_datetime ?>
@@ -111,24 +107,6 @@
             setTimeout(function () {
                 $('#contractor_id_title').val('null');
             }, 1000);
-        }
-
-        /*-------Hides or shows reserve account field in accordance with a marked eligible option-------------------------*/
-
-        if ($('#eligible').attr('checked') == null) {
-            $('#reserve_account_receiver_title').parent().parent().css('display', 'none');
-        }
-
-        $('#eligible:not([readonly])').bind('click', function () {
-            return changeEligible();
-        });
-
-        function changeEligible() {
-            if ($('#eligible').attr('checked') == 'checked') {
-                $('#reserve_account_receiver_title').parent().parent().show('blind');
-            } else {
-                $('#reserve_account_receiver_title').parent().parent().hide('blind');
-            }
         }
     });
 </script>

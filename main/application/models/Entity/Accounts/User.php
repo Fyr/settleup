@@ -1,15 +1,20 @@
 <?php
 
-use Application_Model_Entity_Entity_Carrier as Carrier;
+use Application_Model_Entity_Accounts_UserEntity as UserEntity;
+use Application_Model_Entity_Entity_Carrier as Division;
 use Application_Model_Entity_Entity_Contractor as Contractor;
 use Application_Model_Entity_Entity_Permissions as Permissions;
 use Application_Model_Entity_Entity_UserAuthProviders as UserAuthProviders;
 use Application_Model_Entity_Entity_Vendor as Vendor;
 use Application_Model_Entity_Settlement_Group as SettlementGroup;
+use Application_Model_Entity_System_SystemValues as SystemValues;
+use Application_Model_Entity_System_UserRoles as UserRoles;
 use Application_Model_Rest as Rest;
 
 /**
  * @method $this staticLoad($id, $field = null)
+ * @method Application_Model_Entity_Collection_Accounts_User getCollection()
+ * @method Application_Model_Resource_Accounts_User getResource()
  */
 class Application_Model_Entity_Accounts_User extends Application_Model_Base_Entity
 {
@@ -26,11 +31,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
     final public const USER_DEFAULT_STATUS = 1;
     final public const SYSTEM_USER = -1;
 
-    /**
-     * @static
-     * @return Application_Model_Entity_Accounts_User
-     */
-    public static function getCurrentUser()
+    public static function getCurrentUser(): self
     {
         if ($user = Zend_Auth::getInstance()->getIdentity()) {
             return $user;
@@ -125,24 +126,21 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         return $this;
     }
 
-    public function resetCarrier()
+    public function resetCarrier(): self
     {
         $this->_carrier = null;
-        $this->setCredentials($this->getCredentials($this->getCarrierEntityId()));
-        unset($this->gridData);
 
         return $this;
     }
 
-    public function resetSettlementGroup()
+    public function resetSettlementGroup(): self
     {
         $this->_settlementGroup = null;
-        unset($this->gridData);
 
         return $this;
     }
 
-    protected function _beforeSave()
+    protected function _beforeSave(): self
     {
         parent::_beforeSave();
 
@@ -160,35 +158,12 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
             $this->setStatus(self::USER_DEFAULT_STATUS);
         }
 
-        if ($this->getEntityId() != null) {
-            if (!$this->isAdmin()) {
-                $entityId = $this->getEntityId();
-                $entityEntity = new Application_Model_Entity_Entity();
-                switch ($entityEntity->load($entityId)->getEntityTypeId()) {
-                    case Application_Model_Entity_Entity_Type::TYPE_CARRIER:
-                        $this->setRoleId(
-                            Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID
-                        );
-                        break;
-                    case Application_Model_Entity_Entity_Type::TYPE_CONTRACTOR:
-                        $this->setRoleId(
-                            Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID
-                        );
-                        break;
-                    case Application_Model_Entity_Entity_Type::TYPE_VENDOR:
-                        $this->setRoleId(
-                            Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID
-                        );
-                        break;
-                }
-            }
-        }
-
-        if ($this->getDeleted() == Application_Model_Entity_System_SystemValues::DELETED_STATUS) {
-            $this->setEmail(null)->setPassword('');
+        if ($this->getDeleted() == SystemValues::DELETED_STATUS) {
+            $this->markColumnAsDeleted($this->colEmail())->setPassword('');
+            /** @var UserAuthProviders $authProvider */
             $authProvider = (new UserAuthProviders())->getByUserId($this->getId());
             if (!$authProvider->isEmpty()) {
-                $authProvider->setProviderId($authProvider->getProviderId()  . time());
+                $authProvider->markColumnAsDeleted($authProvider->colProviderId());
                 $authProvider->save();
             }
         }
@@ -220,7 +195,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
 
     protected function _afterSave()
     {
-        if ($this->getId() == Application_Model_Entity_Accounts_User::getCurrentUser()->getId()) {
+        if ($this->getId() == self::getCurrentUser()->getId()) {
             Zend_Auth::getInstance()->getIdentity()->addData($this->getData());
         }
 
@@ -253,7 +228,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         }
         $credentials = [];
         $identity = Zend_Auth::getInstance()->getIdentity();
-        if (!$identity instanceof Application_Model_Entity_Accounts_User) {
+        if (!$identity instanceof self) {
             $redirector = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
             $redirector->goToUrl('/auth/login');
 
@@ -314,23 +289,21 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
     }
 
     /**
-     * @static
-     * @param $id int
-     * @return Application_Model_Entity_Accounts_User|null
+     * @throws Zend_Auth_Storage_Exception
      */
-    public static function login($id)
+    public static function login(int $id): ?self
     {
         setcookie('settlement_cycle_id', '', ['expires' => time() - 3600, 'path' => '/']);
         $user = new self();
         $user->load($id);
 
         if ($user->getId()) {
-            if (!$user->isAdmin()) {
+            if (!$user->isAdminOrSuperAdmin()) {
                 if ($entity = $user->getRelatedEntity()) {
                     if ($entity->getDeleted() == 1) {
                         return null;
                     }
-                    if ($user->isContractor() || $user->isVendor()) {
+                    if ($user->isSpecialist() || $user->isOnboarding()) {
                         if ($user->getSelectedCarrier()->getEntity()->getDeleted() == 1) {
                             return null;
                         }
@@ -350,12 +323,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         return null;
     }
 
-    /**
-     * @static
-     * @param $data
-     * @return Application_Model_Entity_Accounts_User
-     */
-    public static function registration($data)
+    public static function registration(array $data): self
     {
         $user = new self();
         $user->setData($data);
@@ -374,35 +342,9 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         return $this->getRoleId();
     }
 
-    /**
-     * @return Application_Model_Base_Entity
-     * |Application_Model_Entity_Entity_Contractor
-     * |Application_Model_Entity_Entity_Vendor
-     */
-    public function getEntity()
+    public function getEntity(): ?Division
     {
-        switch ($this->getUserRoleID()) {
-            case Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID:
-            case Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID:
-            case Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID:
-                return $this->getSelectedCarrier();
-            case Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID:
-                $entity = $this->getRelatedEntity();
-                if ($entity->getId()) {
-                    return $entity->getEntityByType();
-                }
-
-                return new Contractor();
-            case Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID:
-                $entity = $this->getRelatedEntity();
-                if ($entity->getId()) {
-                    return $entity->getEntityByType();
-                }
-
-                return new Vendor();
-            default:
-                return new Contractor(); //todo fix it for super admin
-        }
+        return $this->getSelectedCarrier();
     }
 
     public function getRelatedEntity()
@@ -410,10 +352,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         return (new Application_Model_Entity_Entity())->load($this->getEntityId());
     }
 
-    /**
-     * @return Application_Model_Entity_Accounts_User
-     */
-    public function getDefaultValues()
+    public function getDefaultValues(): self
     {
         $entityEntity = new Application_Model_Entity_Entity();
         $entityEntity->load($this->getEntityId());
@@ -421,7 +360,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         $entity = $this->getEntity()->load($entityId, 'entity_id');
         $entityIdTitle = $entity->getData($entity->getTitleColumn());
 
-        if ($this->getRoleId() == Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID) {
+        if ($this->getRoleId() == UserRoles::SUPER_ADMIN_ROLE_ID) {
             $this->setSuperAdminRole(1);//todo fix harcode value
         }
 
@@ -431,64 +370,31 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         return $this;
     }
 
-    /**
-     * @return Application_Model_Entity_Entity_Carrier|null
-     */
-    public function getSelectedCarrier()
+    public function getSelectedCarrier(): ?Division
     {
         if (isset($this->_carrier)) {
             return $this->_carrier;
         }
 
-        $carrier = new Carrier();
-        if ($this->getId()) {
-            $user = $this;
-        } else {
-            $user = self::getCurrentUser();
-        }
-        if ($user->isVendor()) {
-            $carrier->load($user->getEntity()->getCarrierId(), 'entity_id');
-        } elseif ($user->isCarrier()) {
-            $entity = $user->getRelatedEntity();
-            if ($entity->getId()) {
-                $carrier = $entity->getEntityByType();
-            } else {
-                $carrier = (new Carrier());
-            }
-        } elseif ($user->isContractor()) {
-            $carrierId = (new Contractor())->load(
-                $user->getEntityId(),
-                'entity_id'
-            )->getCarrierId();
-            if ($carrierId) {
-                $carrier->load($carrierId, 'entity_id');
-            }
-        } else {
-            $carrierId = $user->getLastSelectedCarrier();
-            if ($carrierId) {
-                $carrier->load($carrierId);
-            }
+        $carrier = new Division();
+        $user = $this->getId() ? $this : self::getCurrentUser();
+        $carrierId = $user->getLastSelectedCarrier();
+        if ($carrierId) {
+            $carrier->load($carrierId);
         }
         $this->_carrier = $carrier;
 
         return $carrier;
     }
 
-    /**
-     * @return SettlementGroup|null
-     */
-    public function getSelectedSettlementGroup()
+    public function getSelectedSettlementGroup(): ?SettlementGroup
     {
         if (isset($this->_settlementGroup)) {
             return $this->_settlementGroup;
         }
 
         $settlementGroup = new SettlementGroup();
-        if ($this->getId()) {
-            $user = $this;
-        } else {
-            $user = self::getCurrentUser();
-        }
+        $user = $this->getId() ? $this : self::getCurrentUser();
         $settlementGroupId = $user->getLastSelectedSettlementGroup();
         if ($settlementGroupId) {
             $settlementGroup->load($settlementGroupId);
@@ -530,7 +436,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         return null;
     }
 
-    public function getAllContacts()
+    public function getAllContacts(): array
     {
         return array_merge(
             $this->getContacts(Application_Model_Entity_Entity_Contact_Type::TYPE_ADDRESS),
@@ -539,81 +445,59 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         );
     }
 
-    public function isAdmin($checkSuperAdmin = false)
+    public function isAdminOrSuperAdmin(): bool
     {
-        if ($checkSuperAdmin) {
-            return $this->isSuperAdmin();
-        }
-
-        return $this->isSuperAdmin() || $this->isModerator();
+        return $this->isSuperAdmin() || $this->isAdmin();
     }
 
-    public function isModerator()
+    public function isSuperAdmin(): bool
     {
-        return $this->getUserRoleID() == Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID;
+        return $this->getUserRoleID() == UserRoles::SUPER_ADMIN_ROLE_ID;
     }
 
-    public function isSuperAdmin()
+    public function isAdmin(): bool
     {
-        return $this->getUserRoleID() == Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID;
+        return $this->getUserRoleID() == UserRoles::ADMIN_ROLE_ID;
     }
 
-    public function isVendor()
+    public function isManager(): bool
     {
-        return $this->getUserRoleID() == Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID;
+        return $this->getUserRoleID() == UserRoles::MANAGER_ROLE_ID;
     }
 
-    public function isCarrier()
+    public function isSpecialist(): bool
     {
-        return $this->getUserRoleID() == Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID;
+        return $this->getUserRoleID() == UserRoles::SPECIALIST_ROLE_ID;
     }
 
-    public function isContractor()
+    public function isOnboarding(): bool
     {
-        return $this->getUserRoleID() == Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID;
+        return $this->getUserRoleID() == UserRoles::ONBOARDING_ROLE_ID;
     }
 
     public function isGuest(): bool
     {
-        return $this->getUserRoleID() == Application_Model_Entity_System_UserRoles::GUEST_ROLE_ID;
+        return $this->getUserRoleID() == UserRoles::GUEST_ROLE_ID;
     }
 
-    /**
-     * return entityId if user admin or carrier
-     *
-     * @return bool|int
-     */
-    public function getCarrierEntityId()
+    public function getCarrierEntityId(): ?int
     {
-        if ($this->isCarrier()) {
+        $lastSelectedEntityId = $this->getSelectedCarrier()->getEntityId();
+        if ($this->isAdminOrSuperAdmin()) {
+            return $lastSelectedEntityId;
+        }
+
+        if (!$lastSelectedEntityId) {
+            $entityIds = $this->getAssociatedCarrierIds();
+            if (!in_array($this->getEntityId(), $entityIds)) {
+                $this->setEntityId(array_pop($entityIds));
+                $this->save();
+            }
+
             return $this->getEntityId();
         }
 
-        if ($this->isAdmin()) {
-            return $this->getSelectedCarrier()->getEntityId();
-        }
-
-        if ($this->isContractor()) {
-            $entityIds = $this->getAssociatedEntityCollection()->getField('entity_id');
-            if (!in_array($this->getEntityId(), $entityIds)) {
-                $this->setEntityId(array_pop($entityIds));
-                $this->save();
-            }
-
-            return Contractor::staticLoad($this->getEntityId(), 'entity_id')->getCarrierId();
-        }
-
-        if ($this->isVendor()) {
-            $entityIds = $this->getAssociatedEntityCollection()->getField('entity_id');
-            if (!in_array($this->getEntityId(), $entityIds)) {
-                $this->setEntityId(array_pop($entityIds));
-                $this->save();
-            }
-
-            return Vendor::staticLoad($this->getEntityId(), 'entity_id')->getCarrierId();
-        }
-
-        return false;
+        return $lastSelectedEntityId;
     }
 
     /**
@@ -623,7 +507,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
      */
     public function getVendorEntityId()
     {
-        if ($this->isVendor()) {
+        if ($this->isOnboarding()) {
             return $this->getEntityId();
         }
 
@@ -637,32 +521,15 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         return $restService->checkPassword($this->getId(), md5((string) $this->getOldPassword()), $this->getCarrierEntityId());
     }
 
-    /**
-     * @return bool
-     */
-    public function checkPermissions()
+    public function checkPermissions(): bool
     {
-        $user = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($user->isAdmin()) {
+        $user = self::getCurrentUser();
+        if ($user->isAdminOrSuperAdmin()) {
             return true;
         }
 
-        if ($user->isCarrier() && $user->hasPermission(Permissions::PERMISSIONS_MANAGE)) {
-            if (is_countable($user->getCollection()->addNonDeletedFilter()->addCarrierFilter()->addFilter(
-                'id',
-                $this->getId()
-            )->getField('id')) ? count(
-                $user->getCollection()->addNonDeletedFilter()->addCarrierFilter()->addFilter(
-                    'id',
-                    $this->getId()
-                )->getField('id')
-            ) : 0) {
-                if ($user->hasPermission(Permissions::VENDOR_USER_CREATE) || $user->hasPermission(
-                    Permissions::CONTRACTOR_USER_CREATE
-                )) {
-                    return true;
-                }
-            }
+        if ($user->isManager() && $user->hasPermission(Permissions::PERMISSIONS_MANAGE)) {
+            return true;
         }
         if ($this->getEntityId() == $user->getEntityId()) {
             return true;
@@ -685,7 +552,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
     {
         if (!isset($this->permissions)) {
             $this->setPermissions((new Permissions())->load($this->getId(), 'user_id'));
-            if (!$this->permissions->getId() && ($this->isCarrier() || $this->isVendor())) {
+            if (!$this->permissions->getId() && ($this->isManager() || $this->isOnboarding())) {
                 $this->permissions->setData(['user_id' => $this->getId()]);
                 $this->permissions->save();
                 $this->permissions->load($this->permissions->getId());
@@ -706,13 +573,13 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
      */
     public function hasPermission($permissionName)
     {
-        $currentUser = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if (!$currentUser->isCarrier()) {
-            if ($currentUser->isVendor()) {
+        $currentUser = self::getCurrentUser();
+        if (!$currentUser->isManager()) {
+            if ($currentUser->isOnboarding()) {
                 if (in_array($permissionName, Permissions::getVendorPermissions())) {
                     return (bool)(int)$this->getPermissions()->getData($permissionName);
                 }
-            } elseif ($currentUser->isModerator() && in_array($permissionName, ['carrier_view', 'carrier_edit'])) {
+            } elseif ($currentUser->isAdmin() && in_array($permissionName, ['carrier_view', 'carrier_edit'])) {
                 return false;
             }
 
@@ -795,23 +662,11 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         return $result;
     }
 
-    /**
-     * @return null|int
-     */
-    public function getAssociatedCarrierId()
+    public function getAssociatedCarrierId(): ?int
     {
         $carrierId = null;
-
-        if ($this->isCarrier()) {
+        if ($this->isManager() || $this->isSpecialist() || $this->isOnboarding()) {
             $carrierId = $this->getEntityId();
-        }
-
-        if ($this->isVendor()) {
-            $carrierId = Vendor::staticLoad($this->getEntityId(), 'entity_id')->getCarrierId();
-        }
-
-        if ($this->isContractor()) {
-            $carrierId = Contractor::staticLoad($this->getEntityId(), 'entity_id')->getCarrierId();
         }
 
         return $carrierId;
@@ -823,7 +678,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
             'id' => $this->getId(),
             'role_id' => $this->getRoleId(),
             'carrier_id' => $this->getAssociatedCarrierId(),
-            'carriers' => array_unique($this->getAssociatedCarriersId()),
+            'carriers' => array_unique($this->getAssociatedCarrierIds()),
         ];
 
         if ($this->getNewPassword()) {
@@ -842,7 +697,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
             'role_id' => $this->getRoleId(),
             'carrier_id' => $this->getAssociatedCarrierId(),
             'password' => $this->getPassword(),
-            'carriers' => array_unique($this->getAssociatedCarriersId()),
+            'carriers' => array_unique($this->getAssociatedCarrierIds()),
         ];
         $restService = new Rest();
         $restService->createUser($data);
@@ -857,7 +712,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
             'role_id' => $this->getRoleId(),
             'carrier_id' => $this->getAssociatedCarrierId(),
             'password' => $this->getPassword(),
-            'carriers' => array_unique($this->getAssociatedCarriersId()),
+            'carriers' => array_unique($this->getAssociatedCarrierIds()),
         ];
         $restService = new Rest();
         $restService->createUserSso($data);
@@ -880,11 +735,11 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
 
     public function getCarriersCollection()
     {
-        if ($this->isContractor() || $this->isVendor()) {
-            $userEntity = new Application_Model_Entity_Accounts_UserEntity();
+        if ($this->isSpecialist() || $this->isOnboarding()) {
+            $userEntity = new UserEntity();
             $userEntityCollection = $userEntity->getCollection()->addFilter('user_id', $this->getId());
             if ($userEntityCollection->count()) {
-                if ($this->isContractor()) {
+                if ($this->isSpecialist()) {
                     $entity = new Contractor();
                 } else {
                     $entity = new Vendor();
@@ -896,7 +751,7 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
                 );
 
                 if ($collection->count()) {
-                    $carrier = new Carrier();
+                    $carrier = new Division();
                     $carrierCollection = $carrier->getCollection()->addFilter(
                         'entity_id',
                         $collection->getField('carrier_id'),
@@ -908,34 +763,21 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
             }
         }
 
-        return (new Carrier())->getCollection()->getEmptyCollection();
+        return (new Division())->getCollection()->getEmptyCollection();
     }
 
-    public function getEntityAssociatedWithCarrier($carrierEntityId)
-    {
-        $collection = $this->getAssociatedEntityCollection();
-        $collection->addFilter('carrier_id', $carrierEntityId);
-        if ($collection->count()) {
-            $item = $collection->getFirstItem();
-
-            return Application_Model_Entity_Entity::staticLoad($item->getEntityId());
-        }
-
-        return false;
-    }
-
-    public function getEntities()
+    public function getEntities(): array
     {
         $entities = [];
         if ($this->getId()) {
-            $entities = (new Application_Model_Entity_Accounts_UserEntity())->getCollection()->addFilter(
-                'user_id',
-                $this->getId()
-            )->addCarrierFilter()->getItems();
+            $entities = (new UserEntity())
+                ->getCollection()
+                ->addFilter('user_id', $this->getId())
+                ->getItems();
         }
         if (!(is_countable($entities) ? count($entities) : 0)) {
             $entities = [
-                (new Application_Model_Entity_Accounts_UserEntity())->setData([
+                (new UserEntity())->setData([
                     'user_id' => $this->getId(),
                     'entity_id_title' => '',
                     'entity_id' => '',
@@ -946,46 +788,43 @@ class Application_Model_Entity_Accounts_User extends Application_Model_Base_Enti
         return $entities;
     }
 
-    /**
-     * return array of carrier entity id
-     *
-     * @return array
-     */
-    public function getAssociatedCarriersId()
+    public function getAssociatedCarrierIds(): array
     {
-        return $this->getAssociatedEntityCollection()->getField('carrier_id');
-    }
-
-    /**
-     * return collection with joined table
-     *
-     * @return Application_Model_Entity_Collection_Accounts_UserEntity
-     */
-    public function getAssociatedEntityCollection()
-    {
-        /** @var Application_Model_Entity_Collection_Accounts_UserEntity $collection */
-        $collection = (new Application_Model_Entity_Accounts_UserEntity())->getCollection();
-        if ($this->isVendor()) {
-            $collection->joinVendorTable();
-        } elseif ($this->isContractor()) {
-            $collection->joinContractorTable();
-        } else {
-            $collection->getEmptyCollection();
-        }
-
-        $collection->addFilter('user_id', $this->getId());
-
-        return $collection;
+        return (new UserEntity())
+            ->getCollection()
+            ->addFilter('user_id', $this->getId())
+            ->getField('entity_id');
     }
 
     public function getByEmail(string $email): Application_Model_Base_Object
     {
-        return (new Application_Model_Entity_Accounts_User())
+        return (new self())
             ->getCollection()
-            ->addFilter(
-                'email',
-                $email
-            )
+            ->addFilter('email', $email)
             ->getFirstItem();
+    }
+
+    public function checkLastSelectedDivision(): void
+    {
+        $needResetLastSelectedDivision = false;
+        $selectedDivision = $this->getSelectedCarrier();
+        if (!$this->isAdminOrSuperAdmin()) {
+            $entityIds = (new UserEntity())
+                ->getCollection()
+                ->addFilterByUserId($this->getId())
+                ->getField('entity_id');
+            if (!in_array($selectedDivision->getEntityId(), $entityIds)) {
+                $needResetLastSelectedDivision = true;
+            }
+        }
+        $entity = $selectedDivision->getEntity();
+        if (SystemValues::DELETED_STATUS === (int) $entity->getDeleted()) {
+            $needResetLastSelectedDivision = true;
+        }
+        if ($needResetLastSelectedDivision) {
+            $this->setLastSelectedSettlementGroup()
+                ->setLastSelectedCarrier()
+                ->save();
+        }
     }
 }

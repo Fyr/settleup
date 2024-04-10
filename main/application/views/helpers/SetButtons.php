@@ -133,7 +133,7 @@ class Application_Views_Helpers_SetButtons extends Zend_View_Helper_Abstract
                     $buttonsHTML .= '<a class="btn btn-primary" href="' . $this->view->url(
                         array_merge([
                                 'action' => 'list',
-                                'controller' => 'reserve_accountcontractor',
+                                'controller' => 'reserve_accountpowerunit',
                                 'entity' => $id,
                             ], $additionParams),
                         null,

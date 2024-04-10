@@ -104,7 +104,7 @@ class Application_Model_Entity_Collection_Payments_Payment extends Application_M
     public function addCarrierFilter()
     {
         $userEntity = Application_Model_Entity_Accounts_User::getCurrentUser();
-        $currentCycles = $userEntity->getEntity()->getCurrentCarrier()->getCycles()->getField('id');
+        $currentCycles = $userEntity->getEntity()->getCycles()->getField('id');
         if ($currentCycles) {
             $this->addFilter('settlement_cycle_id', $currentCycles, 'IN');
         } else {

@@ -14,14 +14,14 @@ class Application_Model_Report_ReserveAccountHistory extends Application_Model_R
 
     public function getGridData()
     {
-        $accountIds = (new Application_Model_Entity_Accounts_Reserve_Contractor())->getCollection()->addFilter(
-            'contractor_entity_id',
+        $accountIds = (new Application_Model_Entity_Accounts_Reserve_Powerunit())->getCollection()->addFilter(
+            'entity_id',
             $this->getContractorId(),
             'IN'
         )->addFilter('vendor_reserve_account_id', $this->getReserveAccountId(), 'IN')->setOrder(
             'company_name',
             'ASC'
-        )->getField('reserve_account_id');
+        )->getField('id');
         if (!$accountIds) {
             $accountIds = [];
         }

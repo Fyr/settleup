@@ -13,16 +13,11 @@ class Application_Form_Account_User extends Application_Form_Base
         $id = new Application_Form_Element_Hidden('id');
 
         $roleId = new Zend_Form_Element_Select('role_id');
-        $roleId->setLabel('User Type ')->setMultiOptions(
-            (new Application_Model_Entity_System_UserRoles())->getResource()->getOptions()
-        )->setValue(Application_Model_Entity_System_UserRoles::CARRIER_ROLE_ID);
+        $roleId->setLabel('Role')
+            ->setMultiOptions((new Application_Model_Entity_System_UserRoles())->getResource()->getOptions())
+            ->setValue(Application_Model_Entity_System_UserRoles::MANAGER_ROLE_ID);
 
         $entityId = new Application_Form_Element_Hidden('entity_id');
-
-        $entityIdTitle = new Zend_Form_Element_Text('entity_id_title');
-        $entityIdTitle->setLabel('Company')->setRequired(true)->addFilter('StripTags')->addFilter(
-            'StringTrim'
-        )->setAttrib('href', '#entity_id_modal')->setAttrib('data-toggle', 'modal');
 
         $email = new Zend_Form_Element_Text('email');
         $email->setLabel('Login (Email) ')->setRequired(true)->addValidator('EmailAddress')->setAttrib(
@@ -71,7 +66,6 @@ class Application_Form_Account_User extends Application_Form_Base
                 $id,
                 $roleId,
                 $entityId,
-                $entityIdTitle,
                 $email,
                 $name,
                 $password,
@@ -84,7 +78,6 @@ class Application_Form_Account_User extends Application_Form_Base
 
         $this->setDefaultDecorators(
             [
-                'entity_id_title',
                 'email',
                 'name',
                 'password',
@@ -102,16 +95,15 @@ class Application_Form_Account_User extends Application_Form_Base
     {
         $this->password->setValue('********')->setAttrib('readonly', 'readonly');
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if (!$user->isAdmin()) {
+        if (!$user->isSuperAdmin()) {
             $this->email->setAttrib('readonly', 'readonly');
             $this->role_id->setAttrib('readonly', 'readonly');
-            $this->entity_id_title->setAttrib('readonly', 'readonly');
         }
 
-        if ($user->isModerator()) {
+        if ($user->isAdmin()) {
             $options = $this->role_id->getMultiOptions();
             if ($this->id->getValue() != $user->getId()) {
-                unset($options[Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID]);
+                unset($options[Application_Model_Entity_System_UserRoles::ADMIN_ROLE_ID]);
             }
             unset($options[Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID]);
             $this->role_id->setMultiOptions($options);
@@ -125,22 +117,22 @@ class Application_Form_Account_User extends Application_Form_Base
         $this->role_id->setRequired(true);
 
         $user = Application_Model_Entity_Accounts_User::getCurrentUser();
-        if ($user->isCarrier()) {
+        if ($user->isManager()) {
             $options = [];
             if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::VENDOR_USER_CREATE)) {
-                $options[Application_Model_Entity_System_UserRoles::VENDOR_ROLE_ID] = 'Vendor';
+                $options[Application_Model_Entity_System_UserRoles::ONBOARDING_ROLE_ID] = 'Vendor';
             }
             if ($user->hasPermission(Application_Model_Entity_Entity_Permissions::CONTRACTOR_USER_CREATE)) {
-                $options[Application_Model_Entity_System_UserRoles::CONTRACTOR_ROLE_ID] = 'Contractor';
+                $options[Application_Model_Entity_System_UserRoles::SPECIALIST_ROLE_ID] = 'Contractor';
             }
             $this->role_id->setMultiOptions($options);
             if (!isset($options[$this->role_id->getValue()])) {
                 $this->role_id->setValue(array_keys($options)[0]);
             }
         }
-        if ($user->isModerator()) {
+        if ($user->isAdmin()) {
             $options = $this->role_id->getMultiOptions();
-            unset($options[Application_Model_Entity_System_UserRoles::MODERATOR_ROLE_ID]);
+            unset($options[Application_Model_Entity_System_UserRoles::ADMIN_ROLE_ID]);
             unset($options[Application_Model_Entity_System_UserRoles::SUPER_ADMIN_ROLE_ID]);
             $this->role_id->setMultiOptions($options);
         }

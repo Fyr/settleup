@@ -7,7 +7,7 @@ class EscrowController extends Zend_Controller_Action
     public function indexAction()
     {
         $user = User::getCurrentUser();
-        if (!$user->isAdmin()) {
+        if (!$user->isAdminOrSuperAdmin()) {
             $this->_redirect('/');
         }
         $this->view->gridModel = new Application_Model_Grid_Escrow_EscrowAccount();

@@ -3,6 +3,7 @@
 use Application_Model_Entity_Accounts_User as User;
 use Application_Model_Entity_Entity_Permissions as Permissions;
 use Application_Model_Entity_System_SetupLevels as SetupLevel;
+use Application_Model_Entity_System_SystemValues as SystemValues;
 
 class Deductions_SetupController extends Zend_Controller_Action
 {
@@ -116,9 +117,9 @@ class Deductions_SetupController extends Zend_Controller_Action
         $id = (int)$this->getRequest()->getParam('id');
         $this->_entity->load($id);
         if ($this->_entity->checkPermissions()) {
+            $this->_entity->setDeleted(SystemValues::DELETED_STATUS);
+            $this->_entity->save();
             if ($this->_entity->getLevelId() == SetupLevel::MASTER_LEVEL_ID) {
-                $this->_entity->setDeleted(1);
-                $this->_entity->save();
                 $this->_entity->deleteIndividualTemplates();
                 $this->_entity->reorderIndividualTemplates();
             }
@@ -135,26 +136,15 @@ class Deductions_SetupController extends Zend_Controller_Action
         foreach ($ids as $id) {
             $this->_entity->load((int)$id);
             if ($this->_entity->checkPermissions()) {
+                $this->_entity->setDeleted(SystemValues::DELETED_STATUS);
+                $this->_entity->save();
                 if ($this->_entity->getLevelId() == SetupLevel::MASTER_LEVEL_ID) {
-                    $this->_entity->setDeleted(1);
-                    $this->_entity->save();
                     $this->_entity->deleteIndividualTemplates();
                 }
             }
         }
         $this->_entity->reorderIndividualTemplates();
         $this->_helper->redirector('index');
-    }
-
-    public function updateracollectionAction()
-    {
-        if ($this->getRequest()->isXmlHttpRequest()) {
-            $vendorId = $this->_getParam('vendorEntityId');
-            $this->view->popupSetup = $this->_getRAPopup($vendorId);
-            $this->_helper->layout->disableLayout();
-        } else {
-            $this->_helper->redirector('index');
-        }
     }
 
     public function updatetermsAction()
@@ -172,14 +162,14 @@ class Deductions_SetupController extends Zend_Controller_Action
     private function _getPopupSettings($entityId)
     {
         $this->view->popupSetup = array_merge(
-            $this->_getRAPopup($entityId),
+            //            $this->_getRAPopup($entityId),
             $this->_getProviderPopup()
         );
     }
 
     private function _getProviderPopup()
     {
-        if (!User::getCurrentUser()->isVendor()) {
+        if (!User::getCurrentUser()->isOnboarding()) {
             return [
                 'provider' => [
                     'gridTitle' => 'Select provider',
@@ -204,30 +194,6 @@ class Deductions_SetupController extends Zend_Controller_Action
         } else {
             return [];
         }
-    }
-
-    private function _getRAPopup($entityId)
-    {
-        $collection = (new Application_Model_Entity_Accounts_Reserve_Vendor())->getCollection();
-
-        return [
-            'reserve_account_vendor' => [
-                'gridTitle' => 'Select reserve account',
-                'destFieldName' => 'reserve_account_receiver',
-                'idField' => 'reserve_account_id',
-                // 'callbacks' => [
-                //     'priority' => 'Application_Model_Grid_Callback_Priority',
-                // ],
-                'collections' => [
-                    ($entityId) ? $collection->addFilterByEntity($entityId)->addVisibilityFilterForUser(
-                        // )->setOrder(
-                        //     'priority',
-                        //     Application_Model_Base_Collection::SORT_ORDER_ASC
-                    )->addNonDeletedFilter() : $collection->getEmptyCollection(),
-                ],
-                'showClearButton' => false,
-            ],
-        ];
     }
 
     public function configureForm($post)
