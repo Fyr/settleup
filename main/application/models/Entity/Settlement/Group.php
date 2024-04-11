@@ -24,4 +24,21 @@ class Application_Model_Entity_Settlement_Group extends Application_Model_Base_E
             ->addFilter('id', $settlementGroupId)
             ->getFirstItem();
     }
+
+    public function getOptions()
+    {
+        // returns [(int)id => code]
+        $settlementGroups = $this->getCollection()
+            ->addNonDeletedFilter()
+            ->addVisibilityFilterForUser()
+            ->getItems()
+        ;
+
+        $settlementGroupOptions = [];
+        foreach ($settlementGroups as $settlementGroup) {
+            $settlementGroupOptions[$settlementGroup->getId()] = $settlementGroup->getCode();
+        }
+
+        return $settlementGroupOptions;
+    }
 }

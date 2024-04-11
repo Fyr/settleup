@@ -68,4 +68,17 @@ class Application_Form_Settlement_Group extends Application_Form_Base
 
         return $data;
     }
+
+    public function configure()
+    {
+        if ($this->getElement('id')->getValue()) {
+            $this->setupForEditAction();
+        }
+    }
+
+    public function setupForEditAction()
+    {
+        $this->code->setAttrib('readonly', 'readonly');
+        $this->division_id->setAttrib('readonly', 'readonly');
+    }
 }

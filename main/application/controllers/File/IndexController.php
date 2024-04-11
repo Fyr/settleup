@@ -289,6 +289,11 @@ class File_IndexController extends Zend_Controller_Action
             if ($this->_getParam('approve_failed', false)) {
                 $this->view->showApproveErrorMessage = true;
             }
+            $collections = $entity->getCollection()
+                ->addFilter($entity->getResource()->getTableName() . '.source_id', $id);
+            if ($collections->count() == 0) {
+                $this->view->isValid = false;
+            }
         } elseif ($entityType == 'Contractor') {
             $this->view->collections = $this->_entity->getContractorGridCollection(true);
             $this->view->columns = [

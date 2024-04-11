@@ -10,9 +10,6 @@
         <?php if ($user->isAdminOrSuperAdmin()) : ?>
             <a class="btn btn-primary" href="<?php echo $this->url(array('action' => 'escrow', 'controller' => 'carriers_index', 'carrier' => $this->form->entity_id->getValue(), 'redirect' => 'true'), null, true)?>"><i class="icon-pencil icon-white"></i> Escrow Account</a>
         <?php endif ?>
-        <?php if ($user->isSuperAdmin()) : ?>
-            <a class="btn btn-danger confirm" data-confirm-description-title="Purging of" confirm-type="Purge" target-url="<?php echo $this->url(array('action' => 'purge', 'controller' => 'carriers_index', 'id' => $this->form->id->getValue()), null, true)?>"><i class="icon-trash icon-white"></i> Purge Data</a>
-        <?php endif ?>
     </div>
 <?php else: ?>
     <h3>Create <?php echo $this->title?></h3><br />

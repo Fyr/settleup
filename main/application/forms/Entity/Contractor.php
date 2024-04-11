@@ -169,8 +169,7 @@ class Application_Form_Entity_Contractor extends Application_Form_Base
 
         $settlementGroup = new Zend_Form_Element_Select('settlement_group_id');
         $settlementGroupOptions = (new Application_Model_Entity_Settlement_Group())
-            ->getResource()
-            ->getOptions('code', 'deleted = 0');
+            ->getOptions();
         $settlementGroupOptions = ['' => 'None'] + $settlementGroupOptions;
         $settlementGroup
             ->setLabel('Settlement Group ')
